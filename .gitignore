@@ -1,0 +1,36 @@
+# Code compiled by Maven
+*target*
+/bin
+
+# Eclipse project files
+*.classpath*
+*.settings*
+*.project*
+*/data/*
+pom.xml.versionsBackup
+
+# IntelliJ IDEA project files
+.idea/
+*.iml
+
+# ClearCase Remote Client metadata files
+*.copyarea.db
+
+# Mac OS X Finder metadata files
+*.DS_Store
+
+# emacs temporary files
+.saves*
+\#*
+.\#*
+
+# vim temporary files
+*.swp
+*.bak
+
+# Python project files
+*.pydevproject
+*$py.class
+
+*.metadata
+
