@@ -10,18 +10,20 @@ public interface XDictDB_Interface
 	
 	enum LengthControl { ALL, EQUALS, ATLEAST, ATMOST };		// used to build queries
 	enum PatternControl { ALL, EQUALS, STARTSWITH, CONTAINS };	// used to build queries
+	enum RatingControl { ALL, ATLEAST, ATMOST };				// used to build queries
 	enum UsedControl { ALL, USED_ANY, USED_NYT };			// used to build queries
 	enum ResearchControl { ALL, NEEDS_RESEARCH, NO_RESEARCH };	// use to build queries
 
-	int putWord( Word w, boolean isManual );	// add or update word; return rating; boolean affects timestamps
-	int putWord( String s, boolean isManual );	// add word with default values, if not there; else no-op
+	int putWord( Word w );						// add or update word; return rating
+	int putWord( String s );					// add word with default values, if not there; else no-op
 	Word getWord( String s );					// find word and return it
 	void deleteWord( String s);					// delete word
 	int size();									// return number of entries in DB
-	ArrayList<Word> getWords( LengthControl lc, int l, 
-							PatternControl pc, String s, 
-							UsedControl uc,
-							ResearchControl rc);	// generic query
+	ArrayList<Word> getWords( LengthControl lenCtrl, int len, 
+							PatternControl patCtrl, String s, 
+							RatingControl ratCtrl, int rat,
+							UsedControl useCtrl,
+							ResearchControl resCtrl);	// generic query
 	ArrayList<Word> getAllWords();				// return all words
 	boolean connect();							// returns false if cannot connect
 	void disconnect();

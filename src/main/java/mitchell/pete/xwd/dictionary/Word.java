@@ -6,18 +6,13 @@ import java.util.Calendar;
 public class Word 
 {
 	private final String entry;
-	private String display;
-	private short rating;
-	private short sparkle;
-	private short facility;
-	private short currency;
-	private short taste;
-	private boolean used_any;
-	private boolean used_nyt;
-	private boolean needs_research;
-	private String comments;
-	private Timestamp ts_manual;
-	private Timestamp ts_auto;
+	private byte rating;
+	private boolean usedAny;
+	private boolean usedNYT;
+	private boolean needsResearch;
+	private boolean manuallyRated;
+	private Timestamp lastModified;
+	private WordInfo info;
 	
 	private static Calendar calendar = Calendar.getInstance();
 	public final static Timestamp NO_DATE = new Timestamp(0);
@@ -25,9 +20,9 @@ public class Word
 	public static final boolean MANUAL = true;
 	public static final boolean AUTO = false;
 
-	private final static short MIN_RATING = 0;
-	private final static short MAX_RATING = 100;
-	public final static short DEFAULT_RATING = 50;
+	private final static byte MIN_RATING = 0;
+	private final static byte MAX_RATING = 100;
+	public final static byte DEFAULT_RATING = 50;
 	
 	public static class Builder
 	{
@@ -35,332 +30,232 @@ public class Word
 		private final String word;
 		
 		// Optional parameters - initialized to default values
-		private int rating = DEFAULT_RATING;
-		private int sparkle = DEFAULT_RATING;
-		private int facility = DEFAULT_RATING;
-		private int currency = DEFAULT_RATING;
-		private int taste = DEFAULT_RATING;
-		private boolean used_any = false;
-		private boolean used_nyt = false;
-		private boolean needs_research = false;
-		private String comments = "";
-		private Timestamp ts_manual = new Timestamp(0);		// init to smallest date possible
-		private Timestamp ts_auto = new Timestamp(0);		// init to smallest date possible		
+		private byte rating = DEFAULT_RATING;
+		private boolean usedAny = false;
+		private boolean usedNYT = false;
+		private boolean needsResearch = false;
+		private boolean manuallyRated = false;
+		private Timestamp lastModified = NO_DATE;
+		private WordInfo info = null;
+		
+		// Builder Constructor
 		public Builder(String w)
 		{
 			this.word = w;
 		}
-		public Builder rating(int val)			{ rating = val; return this; }
-		public Builder sparkle(int val)			{ sparkle = val; return this; }
-		public Builder facility(int val)		{ facility = val; return this; }
-		public Builder currency(int val)		{ currency = val; return this; }
-		public Builder taste(int val)			{ taste = val; return this; }
-		public Builder used_any(boolean val)	{ used_any = val; return this; }
-		public Builder used_nyt(boolean val)	{ used_nyt = val; return this; }
-		public Builder needs_research(boolean val)	{ needs_research = val; return this; }
-		public Builder comments(String val)		{ comments = val; return this; }
-		public Builder ts_manual(Timestamp val)	{ ts_manual = val; return this; }
-		public Builder ts_manual(TimestampType val)
-		{
-			if ( val == TimestampType.NEVER )
-				ts_manual = new Timestamp(0);
-			
-			if ( val == TimestampType.NOW )
-			{
-				calendar = Calendar.getInstance();
-				ts_manual = new Timestamp(calendar.getTime().getTime());	// current timestamp
+		
+		// Builder Optional Parameter Setters
+		public Builder rating(byte val)	{
+			if (val < MIN_RATING) {
+				System.out.printf("Error: Trying to set rating [%d] less than 0. Setting to 0.\n", rating);
+				val = MIN_RATING;
 			}
 			
-			return this;
-		}
-		public Builder ts_auto(Timestamp val)	{ ts_auto = val; return this; }
-		public Builder ts_auto(TimestampType val)
-		{
-			if ( val == TimestampType.NEVER )
-				ts_auto = new Timestamp(0);
-			
-			if ( val == TimestampType.NOW )
-			{
-				calendar = Calendar.getInstance();
-				ts_auto = new Timestamp(calendar.getTime().getTime());	// current timestamp
+			if (val > MAX_RATING) {
+				System.out.printf("Error: Trying to set rating [%d] greater than 100. Setting to 100.\n", rating);
+				val = MAX_RATING;
 			}
-			
-			return this;
+				
+			rating = val; 
+			return this; 
 		}
+		public Builder usedAny(boolean val)			{ usedAny = val; return this; }
+		public Builder usedNYT(boolean val)			{ usedNYT = val; return this; }
+		public Builder needsResearch(boolean val)	{ needsResearch = val; return this; }
+		public Builder manuallyRated(boolean val)	{ manuallyRated = val; return this; }
+		public Builder lastModified(Timestamp val)	{ lastModified = val; return this; }
+		public Builder wordInfo(WordInfo val)		{ info = val; return this; }
 		
 		public Word build()
 		{
+			if (lastModified == NO_DATE) {
+				calendar = Calendar.getInstance();
+				lastModified = new Timestamp(calendar.getTime().getTime());	// current timestamp
+			}
 			return new Word(this);
 		}
 	}
 	
+	private Word(Builder builder)
+	{
+		entry = format(builder.word);
+		rating = builder.rating;
+		usedAny = builder.usedAny;
+		usedNYT = builder.usedNYT;
+		needsResearch = builder.needsResearch;
+		manuallyRated = builder.manuallyRated;
+		lastModified = builder.lastModified;
+		info = builder.info;
+		
+		if ( usedNYT )
+			usedAny = true;
+	}
+
 	/*
 	 * Copy constructor
 	 */
 	public Word(Word w)
 	{
 		entry = w.entry;
-		display = w.display;
 		rating = w.rating;
-		sparkle = w.sparkle;
-		facility = w.facility;
-		currency = w.currency;
-		taste = w.taste;
-		used_any = w.used_any;
-		used_nyt = w.used_nyt;
-		needs_research = w.needs_research;
-		comments = w.comments;
-		ts_manual = w.ts_manual;
-		ts_auto = w.ts_auto;
-	}
-	
-	private Word(Builder builder)
-	{
-		entry = format(builder.word);
-		display = builder.word;
-		rating = (short)builder.rating;
-		sparkle = (short)builder.sparkle;
-		facility = (short)builder.facility;
-		currency = (short)builder.currency;
-		taste = (short)builder.taste;
-		used_any = builder.used_any;
-		used_nyt = builder.used_nyt;
-		needs_research = builder.needs_research;
-		comments = builder.comments;
-		ts_manual = builder.ts_manual;
-		ts_auto = builder.ts_auto;
-		
-		if ( used_nyt )
-			used_any = true;
-	}
-
-	public String getDisplay() {
-		return display;
-	}
-
-	public void setDisplay(String display) 
-	{
-		if ( format(display).equals(entry))
-			this.display = display;
-		else	// this display doesn't match the entry!!
-			System.out.printf("Error: Trying to set display [%s] that does not match entry [%s]\n", display, entry);
-	}
-
-	public String getComments() {
-		return comments;
-	}
-
-	public void setComments(String comments) 
-	{
-		this.comments = comments;
-	}
-
-	public short getRating() {
-		return rating;
-	}
-
-	public void setRating(int rating) 
-	{
-		if ( rating < MIN_RATING || rating > MAX_RATING )
-			System.out.printf("Error: Trying to set rating [%d] outside value range of 0 - 100\n", rating);
-		else
-			this.rating = (short)rating;
-	}
-
-	public short getSparkle() {
-		return sparkle;
-	}
-
-	public void setSparkle(int sparkle) {
-		if ( sparkle < MIN_RATING || sparkle > MAX_RATING )
-			System.out.printf("Error: Trying to set sparkle [%d] outside value range of 0 - 100\n", rating);
-		else
-			this.sparkle = (short)sparkle;
-	}
-
-	public short getFacility() {
-		return facility;
-	}
-
-	public void setFacility(int facility) {
-		if ( facility < MIN_RATING || facility > MAX_RATING )
-			System.out.printf("Error: Trying to set facility [%d] outside value range of 0 - 100\n", rating);
-		else
-			this.facility = (short)facility;
-	}
-
-	public short getCurrency() {
-		return currency;
-	}
-
-	public void setCurrency(int currency) {
-		if ( currency < MIN_RATING || currency > MAX_RATING )
-			System.out.printf("Error: Trying to set currency [%d] outside value range of 0 - 100\n", rating);
-		else
-			this.currency = (short)currency;
-	}
-
-	public short getTaste() {
-		return taste;
-	}
-
-	public void setTaste(int taste) {
-		if ( taste < MIN_RATING || taste > MAX_RATING )
-			System.out.printf("Error: Trying to set taste [%d] outside value range of 0 - 100\n", rating);
-		else
-			this.taste = (short)taste;
-	}
-
-	public boolean isUsed_NYT() {
-		return used_nyt;
-	}
-
-	public void setUsed_NYT(boolean usedNyt) {
-		used_nyt = usedNyt;
-		if ( used_nyt )
-			used_any = true;
-	}
-
-	public boolean isUsed_Any() {
-		return used_any;
-	}
-
-	public void setUsed_Any(boolean usedAny) {
-		used_any = usedAny;
-		
-		if ( !used_any )
-			used_nyt = false;
-	}
-
-	public boolean needsResearch() {
-		return needs_research;
-	}
-
-	public void setNeedsResearch(boolean val) {
-		needs_research = val;
-	}
-
-	public Timestamp getTS_Manual() {
-		return ts_manual;
-	}
-	
-	public boolean isTS_Manual() {
-		return ( getTS_Manual().equals(NO_DATE) ? false : true );
-	}
-
-	public void setTS_Manual(Timestamp tsManual) {
-		ts_manual = tsManual;
-	}
-
-	public void setTS_Manual(TimestampType val)
-	{
-		if ( val == TimestampType.NEVER )
-			ts_manual = new Timestamp(0);
-		
-		if ( val == TimestampType.NOW )
-		{
-			calendar = Calendar.getInstance();
-			ts_manual = new Timestamp(calendar.getTime().getTime());	// current timestamp
-		}
-	}
-	
-	public Timestamp getTS_Auto() {
-		return ts_auto;
-	}
-
-	public void setTS_Auto(Timestamp tsAuto) {
-		ts_auto = tsAuto;
-	}
-
-	public void setTS_Auto(TimestampType val)
-	{
-		if ( val == TimestampType.NEVER )
-			ts_auto = new Timestamp(0);
-		
-		if ( val == TimestampType.NOW )
-		{
-			calendar = Calendar.getInstance();
-			ts_auto = new Timestamp(calendar.getTime().getTime());	// current timestamp
-		}
+		usedAny = w.usedAny;
+		usedNYT = w.usedNYT;
+		needsResearch = w.needsResearch;
+		manuallyRated = w.manuallyRated;
+		lastModified = w.lastModified;
+		info = w.info;
 	}
 	
 	public String getEntry() {
 		return entry;
 	}
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((comments == null) ? 0 : comments.hashCode());
-		result = prime * result + currency;
-		result = prime * result + ((display == null) ? 0 : display.hashCode());
-		result = prime * result + ((entry == null) ? 0 : entry.hashCode());
-		result = prime * result + facility;
-		result = prime * result + (needs_research ? 1231 : 1237);
-		result = prime * result + rating;
-		result = prime * result + sparkle;
-		result = prime * result + taste;
-		result = prime * result + ((ts_auto == null) ? 0 : ts_auto.hashCode());
-		result = prime * result
-				+ ((ts_manual == null) ? 0 : ts_manual.hashCode());
-		result = prime * result + (used_any ? 1231 : 1237);
-		result = prime * result + (used_nyt ? 1231 : 1237);
-		return result;
+	public byte getRating() {
+		return rating;
+	}
+	
+	public boolean setRating(int rating) 
+	{
+		if (this.rating == rating)	// No change
+			return false;
+		
+		if ( rating < MIN_RATING || rating > MAX_RATING ) {
+			System.out.printf("Error: Trying to set rating [%d] outside value range of 0 - 100\n", rating);
+			return false;
+		}
+		else
+			this.rating = (byte)rating;
+		
+		return true;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
+	public boolean isUsedNYT() {
+		return usedNYT;
+	}
+
+	public boolean setUsedNYT(boolean val) {
+		if (usedNYT == val)	// No change
 			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		Word other = (Word) obj;
-		if (comments == null) {
-			if (other.comments != null)
-				return false;
-		} else if (!comments.equals(other.comments))
-			return false;
-		if (currency != other.currency)
-			return false;
-		if (display == null) {
-			if (other.display != null)
-				return false;
-		} else if (!display.equals(other.display))
-			return false;
-		if (entry == null) {
-			if (other.entry != null)
-				return false;
-		} else if (!entry.equals(other.entry))
-			return false;
-		if (facility != other.facility)
-			return false;
-		if (needs_research != other.needs_research)
-			return false;
-		if (rating != other.rating)
-			return false;
-		if (sparkle != other.sparkle)
-			return false;
-		if (taste != other.taste)
-			return false;
-		if (ts_auto == null) {
-			if (other.ts_auto != null)
-				return false;
-		} else if (!ts_auto.equals(other.ts_auto))
-			return false;
-		if (ts_manual == null) {
-			if (other.ts_manual != null)
-				return false;
-		} else if (!ts_manual.equals(other.ts_manual))
-			return false;
-		if (used_any != other.used_any)
-			return false;
-		if (used_nyt != other.used_nyt)
-			return false;
+		
+		usedNYT = val;
+		if ( usedNYT )
+			usedAny = true;
+		
 		return true;
+	}
+
+	public boolean isUsedAny() {
+		return usedAny;
+	}
+
+	public boolean setUsedAny(boolean val) {
+		if (usedAny == val)	// No change
+			return false;
+		
+		usedAny = val;
+		
+		if ( !usedAny )
+			usedNYT = false;
+		
+		return true;
+	}
+
+	public boolean needsResearch() {
+		return needsResearch;
+	}
+
+	public boolean setNeedsResearch(boolean val) {
+		if (needsResearch == val)	// No change
+			return false;
+		
+		needsResearch = val;
+		
+		return true;
+	}
+	
+	public boolean isManuallyRated() {
+		return manuallyRated;
+	}
+
+	public boolean setManuallyRated(boolean val) {
+		if (manuallyRated == val)	// No change
+			return false;
+		
+		manuallyRated = val;
+		
+		return true;
+	}
+	
+	public Timestamp getLastModified() {
+		return lastModified;
+	}
+	
+	public void updateLastModified() {
+		calendar = Calendar.getInstance();
+		lastModified = new Timestamp(calendar.getTime().getTime());	// current timestamp
+	}
+	
+	public void clearLastModified() {
+		lastModified = NO_DATE;
+	}
+	
+	public void setLastModified(Timestamp ts) {
+		lastModified = ts;
+	}
+	
+	public String getComments() {
+		String c = (info == null ? null : info.getComments());
+
+		return (c == null ? "" : c);	// Return empty string, not null
+	}
+
+	public void setComments(String comments) 
+	{
+		if (info == null) {
+			info = new WordInfo();
+		}
+		info.setComments(comments);
+	}
+
+	public void addToComments(String comments) 
+	{
+		if (info == null) {
+			setComments(comments);
+		} else {
+			info.addToComments(comments);
+		}
+	}
+
+	public WordInfo.Sparkle getSparkle() {
+		if (info != null) {
+			return info.getSparkle();
+		} else {
+			return WordInfo.Sparkle.UNDEFINED;
+		}
+	}
+
+	public WordInfo.Facility getFacility() {
+		if (info != null) {
+			return info.getFacility();
+		} else {
+			return WordInfo.Facility.UNDEFINED;
+		}
+	}
+
+	public WordInfo.Currency getCurrency() {
+		if (info != null) {
+			return info.getCurrency();
+		} else {
+			return WordInfo.Currency.UNDEFINED;
+		}
+	}
+
+	public WordInfo.Taste getTaste() {
+		if (info != null) {
+			return info.getTaste();
+		} else {
+			return WordInfo.Taste.UNDEFINED;
+		}
 	}
 
 	/**
@@ -373,23 +268,21 @@ public class Word
 		return s;
 	}
 	
-	public void dump()
+	public void dump(boolean dumpInfo)
 	{
 		String s = new String ( entry + ","
-				+ display + ","
 				+ rating + ","
-				+ sparkle + ","
-				+ facility + ","
-				+ currency + ","
-				+ taste + ","
-				+ ( used_any ? "any" : "" ) + ","
-				+ ( used_nyt ? "nyt" : "" ) + ","
-				+ ( needs_research ? "research" : "" ) + ","
-				+ comments + ","
-				+ ts_manual.toString() + ","
-				+ ts_auto.toString() );
+				+ ( usedAny ? "any," : "" )
+				+ ( usedNYT ? "nyt," : "" )
+				+ ( needsResearch ? "research," : "" )
+				+ ( manuallyRated ? "manual," : "" )
+				+ lastModified.toString() + "," );
 		
 		System.out.println(s);
+
+		if (dumpInfo && info != null) {
+			info.dump();
+		}
 	}
 	
 	/*
@@ -434,6 +327,53 @@ public class Word
 		}
 		else
 			return false;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((entry == null) ? 0 : entry.hashCode());
+		result = prime * result
+				+ ((lastModified == null) ? 0 : lastModified.hashCode());
+		result = prime * result + (manuallyRated ? 1231 : 1237);
+		result = prime * result + (needsResearch ? 1231 : 1237);
+		result = prime * result + rating;
+		result = prime * result + (usedAny ? 1231 : 1237);
+		result = prime * result + (usedNYT ? 1231 : 1237);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Word other = (Word) obj;
+		if (entry == null) {
+			if (other.entry != null)
+				return false;
+		} else if (!entry.equals(other.entry))
+			return false;
+		if (lastModified == null) {
+			if (other.lastModified != null)
+				return false;
+		} else if (!lastModified.equals(other.lastModified))
+			return false;
+		if (manuallyRated != other.manuallyRated)
+			return false;
+		if (needsResearch != other.needsResearch)
+			return false;
+		if (rating != other.rating)
+			return false;
+		if (usedAny != other.usedAny)
+			return false;
+		if (usedNYT != other.usedNYT)
+			return false;
+		return true;
 	}
 
 }

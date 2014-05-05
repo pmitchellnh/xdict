@@ -1,22 +1,51 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GraphicsEnvironment;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.util.ArrayList;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.Action;
+import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JRadioButton;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
+import javax.swing.JSlider;
+import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import mitchell.pete.xwd.dictionary.Word;
-import mitchell.pete.xwd.dictionary.db.XDictDB_Derby;
-import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.DBControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.LengthControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.PatternControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.ResearchControl;
+import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.RatingControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.UsedControl;
+import mitchell.pete.xwd.dictionary.db.XDictDB_MySQL;
 
 public class XDictGui extends JFrame implements WindowListener 
 {
@@ -24,7 +53,7 @@ public class XDictGui extends JFrame implements WindowListener
 	private static final long serialVersionUID = 2093964455516510191L;
 
 	// This is the DB...
-	private static XDictDB_Derby dict = new XDictDB_Derby( "c:/Users/Pete/DB/testDict", DBControl.OPEN_ONLY );
+	private static XDictDB_MySQL dict = new XDictDB_MySQL( "xdict" );
 
     // "Use modes" are basically just different use case tasks
     public enum USE_MODE { QUERY, ADD, RATE, LOAD, EXPORT };
@@ -1148,37 +1177,44 @@ public class XDictGui extends JFrame implements WindowListener
     	ArrayList<Word> list = null;
     	
     	int length = wordLengthSlider.getValue();
+    	int rat = wordRatingSlider.getValue();
     	String key = wordEntry.getText();
-    	LengthControl lc = LengthControl.ALL;
-    	PatternControl pc = PatternControl.ALL;
-    	UsedControl uc = UsedControl.ALL;
-    	ResearchControl rc = ResearchControl.ALL;
+    	LengthControl lenCtrl = LengthControl.ALL;
+    	PatternControl patCtrl = PatternControl.ALL;
+    	RatingControl ratCtrl = RatingControl.ALL;
+    	UsedControl useCtrl = UsedControl.ALL;
+    	ResearchControl resCtrl = ResearchControl.ALL;
     	
-    	if ( queryLengthEquals.isSelected() )
-    		lc = LengthControl.EQUALS;
-    	else if ( queryLengthAtMost.isSelected() )
-    		lc = LengthControl.ATMOST;
-    	else if ( queryLengthAtLeast.isSelected() )
-    		lc = LengthControl.ATLEAST;
+    	if ( queryRatingAtMost.isSelected() )
+    		ratCtrl = RatingControl.ATMOST;
+    	else if ( queryRatingAtLeast.isSelected() )
+    		ratCtrl = RatingControl.ATLEAST;
 
     	if ( key.length() == 0 )	// no pattern selected
-    		pc = PatternControl.ALL;
+    		patCtrl = PatternControl.ALL;
     	else if ( queryEntryEquals.isSelected() )
-    		pc = PatternControl.EQUALS;
+    		patCtrl = PatternControl.EQUALS;
     	else if ( queryEntryStarts.isSelected() )
-    		pc = PatternControl.STARTSWITH;
+    		patCtrl = PatternControl.STARTSWITH;
     	else if ( queryEntryContains.isSelected() )
-    		pc = PatternControl.CONTAINS;
+    		patCtrl = PatternControl.CONTAINS;
+
+    	if ( queryLengthEquals.isSelected() )
+    		lenCtrl = LengthControl.EQUALS;
+    	else if ( queryLengthAtMost.isSelected() )
+    		lenCtrl = LengthControl.ATMOST;
+    	else if ( queryLengthAtLeast.isSelected() )
+    		lenCtrl = LengthControl.ATLEAST;
 
     	if ( usedNYT.isSelected() )
-    		uc = UsedControl.USED_NYT;
+    		useCtrl = UsedControl.USED_NYT;
     	else if ( usedAny.isSelected() )
-        		uc = UsedControl.USED_ANY;
+        		useCtrl = UsedControl.USED_ANY;
     	
     	if ( research.isSelected() )
-    		rc = ResearchControl.NEEDS_RESEARCH;
+    		resCtrl = ResearchControl.NEEDS_RESEARCH;
     	
-    	list = dict.getWords(lc, length, pc, key, uc, rc);
+    	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl);
 		
 		if ( list == null || list.isEmpty() )
 		{
@@ -1188,7 +1224,7 @@ public class XDictGui extends JFrame implements WindowListener
 		else
 		{
 			for ( Word w : list )
-				queryResultArea.append(w.getEntry() + "\n");
+				queryResultArea.append(w.getEntry() + " : " + w.getRating() + "\n");
 		}
 		
 		return list.size();

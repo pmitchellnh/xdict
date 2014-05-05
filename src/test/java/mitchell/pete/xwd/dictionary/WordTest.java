@@ -20,13 +20,10 @@ public class WordTest extends TestCase
 		
 		// Test Constructors
 		Word w1 = new Word.Builder(text1).build();
-		assertEquals( text1, w1.getDisplay() );
 		assertEquals( text1.toUpperCase(), w1.getEntry());
 		Word w2 = new Word.Builder(text2).build();
-		assertEquals( text2, w2.getDisplay() );
 		assertEquals( text2.toUpperCase(), w2.getEntry());
 		// Make sure w1 didn't change
-		assertEquals( text1, w1.getDisplay() );
 		assertEquals( text1.toUpperCase(), w1.getEntry());
 	}
 	
@@ -66,19 +63,11 @@ public class WordTest extends TestCase
 	
 	public void testEquals()
 	{
-		Word w1 = new Word.Builder(text1).rating(80).used_any(true).used_nyt(false).build();
-		Word w2 = new Word.Builder(text1).rating(80).used_any(true).used_nyt(false).build();
+		Word w1 = new Word.Builder(text1).rating((byte)80).usedAny(true).usedNYT(false).build();
+		Word w2 = new Word.Builder(text1).rating((byte)80).usedAny(true).usedNYT(false).build();
 		assertTrue( w1.equals(w2));
 		assertTrue( w2.equals(w1));
-		w1.setTaste((short)25);
-		assertFalse( w1.equals(w2));
-		assertFalse( w2.equals(w1));
-		
-		w1 = new Word.Builder(text1).rating(80).used_any(true).used_nyt(false).build();
-		w2 = new Word.Builder(text1).rating(80).used_any(true).used_nyt(false).build();
-		assertTrue( w1.equals(w2));
-		assertTrue( w2.equals(w1));
-		w1.setUsed_NYT(true);
+		w1.setUsedNYT(true);
 		assertFalse( w1.equals(w2));
 		assertFalse( w2.equals(w1));
 	}
