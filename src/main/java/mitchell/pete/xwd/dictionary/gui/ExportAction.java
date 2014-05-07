@@ -30,10 +30,10 @@ public class ExportAction extends AbstractAction implements Runnable
     		gui.getStatusLine().showInfo("Processing export...");
     		Date start = new Date();
     		
-    		gui.doExport();
+    		String status = gui.doExport();
     		
     		Date stop = new Date();
-    		gui.getStatusLine().showInfo( "Export completed (" + ((stop.getTime() - start.getTime()) / (double) 1000) + " secs)." );
+    		gui.getStatusLine().showInfo( status + " (" + ((stop.getTime() - start.getTime()) / (double) 1000) + " secs)." );
     	} catch (Exception e) {
     		JOptionPane.showMessageDialog(gui, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
     	}

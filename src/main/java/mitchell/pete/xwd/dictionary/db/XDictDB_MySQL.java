@@ -35,35 +35,39 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	 * Insert a word with default values.  If already exists, then no-op.
 	 */
 	@Override
-	public int putWord( String s ) 
+	public WORD_STATUS putWord( String s ) 
 	{
 		Word w = getWord(s);
 		
 		if ( w != null )	// word already exists, no reason to add a default version
-			return w.getRating();
+			return WORD_STATUS.DUPLICATE;
 		
 		w = new Word.Builder(s).build();
 		putWord( w );
-		return w.getRating();
+		return WORD_STATUS.NEW;
 	}
 
 	/**
 	 * Insert or replace a Word in the DB.  If replacing, use reconcile logic for values.
 	 */
 	@Override
-	public int putWord( Word w ) 
+	public WORD_STATUS putWord( Word w ) 
 	{
 		String key = w.getEntry();
 		Word oldWord = getWord(key);
-		int val = 0;
+		WORD_STATUS status = WORD_STATUS.NEW;
 		
 		if (oldWord == null) {		// new word, nothing to reconcile
-			val = insertWord(w);
+			insertWord(w);
+			status = WORD_STATUS.NEW;
 		} else if (reconciler.Reconcile( oldWord, w ))	{	// something changed
-			val = updateWord(oldWord);
+			updateWord(oldWord);
+			status = WORD_STATUS.EXISTS;
+		} else {
+			status = WORD_STATUS.DUPLICATE;
 		}
 		
-		return val;
+		return status;
 	}
 	
 	private int insertWord(Word w) {
@@ -82,8 +86,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		try {
 			stmt.executeUpdate(query);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 		
 		return w.getRating();
@@ -104,8 +108,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		try {
 			stmt.executeUpdate(query);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 		
 		return w.getRating();
@@ -130,8 +134,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 				rs.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 		
 		return null;
@@ -146,8 +150,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		try {
 			stmt.executeUpdate(query);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 		
 	}
@@ -166,15 +170,15 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 				return size;
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 		
 		return 0;
 	}
 
 	@Override
-	public ArrayList<Word> getWords(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl) 
+	public ArrayList<Word> getWords(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, int start, int limit) 
 	{
 		ArrayList<Word> list = new ArrayList<Word>();
 		boolean firstWhere = true;	// use to track when to put AND in query
@@ -184,26 +188,22 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		sb.append( "select * from " );
 		sb.append( TABLE_WORDS );
 		sb.append( " where " );
-		if ( patCtrl == PatternControl.EQUALS )
-		{
+		
+		if ( patCtrl == PatternControl.EQUALS ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("ENTRY = '");
 			sb.append(key);
 			sb.append("'" );
 			firstWhere = false;
-		}
-		if ( patCtrl == PatternControl.STARTSWITH )
-		{
+		} else if ( patCtrl == PatternControl.STARTSWITH ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("ENTRY LIKE '");
 			sb.append(key);
 			sb.append("%'" );
 			firstWhere = false;
-		}
-		if ( patCtrl == PatternControl.CONTAINS )
-		{
+		} else if ( patCtrl == PatternControl.CONTAINS ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("ENTRY LIKE '%");
@@ -211,76 +211,81 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			sb.append("%'" );
 			firstWhere = false;
 		}
-		if ( lenCtrl == LengthControl.EQUALS )
-		{
+		
+		if ( lenCtrl == LengthControl.EQUALS ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("LENGTH = ");
 			sb.append(len);
 			firstWhere = false;
-		}
-		if ( lenCtrl == LengthControl.ATLEAST )
-		{
+		} else if ( lenCtrl == LengthControl.ATLEAST ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("LENGTH >= ");
 			sb.append(len);
 			firstWhere = false;
-		}
-		if ( lenCtrl == LengthControl.ATMOST )
-		{
+		} else if ( lenCtrl == LengthControl.ATMOST ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("LENGTH <= ");
 			sb.append(len);
 			firstWhere = false;
 		}
-		if ( ratCtrl == RatingControl.ATLEAST )
-		{
+		
+		if ( ratCtrl == RatingControl.ATLEAST ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("RATING >= ");
 			sb.append(rat);
 			firstWhere = false;
-		}
-		if ( ratCtrl == RatingControl.ATMOST )
-		{
+		} else if ( ratCtrl == RatingControl.ATMOST ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("RATING <= ");
 			sb.append(rat);
 			firstWhere = false;
 		}
-		if ( useCtrl == UsedControl.USED_NYT )
-		{
+		
+		if ( useCtrl == UsedControl.USED_NYT ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("USED_NYT > 0");
 			firstWhere = false;
-		}
-		else if ( useCtrl == UsedControl.USED_ANY ) // NYT => ANY, so don't need this if NYT set
-		{
+		} else if ( useCtrl == UsedControl.USED_ANY ) { // NYT => ANY, so don't need this if NYT set
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("USED_ANY > 0");
 			firstWhere = false;
 		}
-		if ( resCtrl == ResearchControl.NEEDS_RESEARCH )
-		{
+		
+		if ( resCtrl == ResearchControl.NEEDS_RESEARCH ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("NEEDS_RESEARCH > 0");
 			firstWhere = false;
-		}
-		else if ( resCtrl == ResearchControl.NO_RESEARCH )
-		{
+		} else if ( resCtrl == ResearchControl.NO_RESEARCH ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
-			sb.append("NEEDS_RESEARCH == 0");
+			sb.append("NEEDS_RESEARCH = 0");
 			firstWhere = false;
 		}
 		
+		if (methCtrl == MethodControl.AUTOMATIC) {
+			if (firstWhere == false)
+				sb.append(" AND ");
+			sb.append("MANUALLY_RATED = 0");
+			firstWhere = false;
+		} else if (methCtrl == MethodControl.MANUAL) {
+			if (firstWhere == false)
+				sb.append(" AND ");
+			sb.append("MANUALLY_RATED > 0");
+			firstWhere = false;
+		}
+		
+		sb.append(" LIMIT " + start + "," + limit);
+		
 		String query = sb.toString();
+		System.out.println("Query: " + query);
 		
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -293,11 +298,132 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 				rs.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 		
 		return list;
+	}
+
+	@Override
+	public int getCount(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl) 
+	{
+		boolean firstWhere = true;	// use to track when to put AND in query
+		StringBuilder sb = new StringBuilder("");
+		String key = Word.format(s);
+		
+		sb.append( "select count(*) from " );
+		sb.append( TABLE_WORDS );
+		sb.append( " where " );
+		if ( patCtrl == PatternControl.EQUALS ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("ENTRY = '");
+			sb.append(key);
+			sb.append("'" );
+			firstWhere = false;
+		} else if ( patCtrl == PatternControl.STARTSWITH ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("ENTRY LIKE '");
+			sb.append(key);
+			sb.append("%'" );
+			firstWhere = false;
+		} else if ( patCtrl == PatternControl.CONTAINS ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("ENTRY LIKE '%");
+			sb.append(key);
+			sb.append("%'" );
+			firstWhere = false;
+		}
+		
+		if ( lenCtrl == LengthControl.EQUALS ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("LENGTH = ");
+			sb.append(len);
+			firstWhere = false;
+		} else if ( lenCtrl == LengthControl.ATLEAST ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("LENGTH >= ");
+			sb.append(len);
+			firstWhere = false;
+		} else if ( lenCtrl == LengthControl.ATMOST ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("LENGTH <= ");
+			sb.append(len);
+			firstWhere = false;
+		}
+		
+		if ( ratCtrl == RatingControl.ATLEAST ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("RATING >= ");
+			sb.append(rat);
+			firstWhere = false;
+		} else if ( ratCtrl == RatingControl.ATMOST ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("RATING <= ");
+			sb.append(rat);
+			firstWhere = false;
+		}
+		
+		if ( useCtrl == UsedControl.USED_NYT ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("USED_NYT > 0");
+			firstWhere = false;
+		} else if ( useCtrl == UsedControl.USED_ANY ) { // NYT => ANY, so don't need this if NYT set
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("USED_ANY > 0");
+			firstWhere = false;
+		}
+		
+		if ( resCtrl == ResearchControl.NEEDS_RESEARCH ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("NEEDS_RESEARCH > 0");
+			firstWhere = false;
+		} else if ( resCtrl == ResearchControl.NO_RESEARCH ) {
+			if (firstWhere == false )
+				sb.append(" AND ");
+			sb.append("NEEDS_RESEARCH = 0");
+			firstWhere = false;
+		}
+		
+		if (methCtrl == MethodControl.AUTOMATIC) {
+			if (firstWhere == false)
+				sb.append(" AND ");
+			sb.append("MANUALLY_RATED = 0");
+		} else if (methCtrl == MethodControl.MANUAL) {
+			if (firstWhere == false)
+				sb.append(" AND ");
+			sb.append("MANUALLY_RATED > 0");
+		}
+		
+		String query = sb.toString();
+		
+		try {
+			ResultSet rs = stmt.executeQuery(query);
+			{
+				if ( rs.next() )
+				{
+					int size = rs.getInt(1);
+					rs.close();
+					return size;
+				}
+			}
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
+		}
+		
+		return 0;
 	}
 
 	@Override
@@ -318,8 +444,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 				rs.close();
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 		
 		return list;
@@ -359,7 +485,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		try {
 			stmt.executeUpdate(query);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
 		}
 	}
 	

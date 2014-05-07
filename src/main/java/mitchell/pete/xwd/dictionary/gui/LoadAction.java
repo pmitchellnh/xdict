@@ -30,10 +30,10 @@ public class LoadAction extends AbstractAction implements Runnable
     		gui.getStatusLine().showInfo("Processing load...");
     		Date start = new Date();
     		
-    		gui.doLoad();
+    		String status = gui.doLoad();
     		
     		Date stop = new Date();
-    		gui.getStatusLine().showInfo( "Load completed (" + ((stop.getTime() - start.getTime()) / (double) 1000) + " secs)." );
+    		gui.getStatusLine().showInfo( status + " (" + ((stop.getTime() - start.getTime()) / (double) 1000) + " secs)." );
     	} catch (Exception e) {
     		JOptionPane.showMessageDialog(gui, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
     	}

@@ -268,15 +268,23 @@ public class Word
 		return s;
 	}
 	
+	/**
+	 *	This os the format that will used for query display 
+	 */
+	public String toStringQuery()
+	{
+		String s = new String ( entry + "(" + entry.length() + "), "
+				+ rating + ", "
+				+ ( usedAny ? "any, " : "" )
+				+ ( usedNYT ? "nyt, " : "" )
+				+ ( needsResearch ? "research, " : "" )
+				+ ( manuallyRated ? "manual, " : "" ));
+		return s;
+	}
+	
 	public void dump(boolean dumpInfo)
 	{
-		String s = new String ( entry + ","
-				+ rating + ","
-				+ ( usedAny ? "any," : "" )
-				+ ( usedNYT ? "nyt," : "" )
-				+ ( needsResearch ? "research," : "" )
-				+ ( manuallyRated ? "manual," : "" )
-				+ lastModified.toString() + "," );
+		String s = toStringQuery();
 		
 		System.out.println(s);
 

@@ -89,7 +89,7 @@ public class Reconciler1 implements ReconcilerInterface
 
 	private boolean ReconcileManuallyRated(Word w1, Word w2) {
 		// If either is set, persist it. Once manually-rated, always manually-rated.
-		if ( w1.needsResearch() || w2.needsResearch() )
+		if ( w1.isManuallyRated() || w2.isManuallyRated() )
 			return true;
 		else
 			return false;

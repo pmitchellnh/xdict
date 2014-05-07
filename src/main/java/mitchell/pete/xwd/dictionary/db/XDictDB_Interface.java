@@ -13,9 +13,12 @@ public interface XDictDB_Interface
 	enum RatingControl { ALL, ATLEAST, ATMOST };				// used to build queries
 	enum UsedControl { ALL, USED_ANY, USED_NYT };			// used to build queries
 	enum ResearchControl { ALL, NEEDS_RESEARCH, NO_RESEARCH };	// use to build queries
+	enum MethodControl { ALL, MANUAL, AUTOMATIC };			// used to build queries
+	enum WORD_STATUS { NEW, EXISTS, DUPLICATE };			// used to distinguish adds from changes and no-ops
 
-	int putWord( Word w );						// add or update word; return rating
-	int putWord( String s );					// add word with default values, if not there; else no-op
+
+	WORD_STATUS putWord( Word w );						// add or update word; return rating
+	WORD_STATUS putWord( String s );					// add word with default values, if not there; else no-op
 	Word getWord( String s );					// find word and return it
 	void deleteWord( String s);					// delete word
 	int size();									// return number of entries in DB
@@ -23,7 +26,16 @@ public interface XDictDB_Interface
 							PatternControl patCtrl, String s, 
 							RatingControl ratCtrl, int rat,
 							UsedControl useCtrl,
-							ResearchControl resCtrl);	// generic query
+							ResearchControl resCtrl,
+							MethodControl methCtrl,
+							int start,
+							int limit);	// generic query
+	int getCount( LengthControl lenCtrl, int len, 
+			PatternControl patCtrl, String s, 
+			RatingControl ratCtrl, int rat,
+			UsedControl useCtrl,
+			ResearchControl resCtrl,
+			MethodControl methCtrl);	// generic query
 	ArrayList<Word> getAllWords();				// return all words
 	boolean connect();							// returns false if cannot connect
 	void disconnect();
