@@ -41,6 +41,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import mitchell.pete.xwd.dictionary.Word;
+import mitchell.pete.xwd.dictionary.LoadAndExportUtilities;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.LengthControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.MethodControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.PatternControl;
@@ -125,6 +126,7 @@ public class XDictGui extends JFrame implements WindowListener
     	{
     		JSlider source = (JSlider)e.getSource();
     	    wordLengthLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
+    	    nextButton.setEnabled(false);
     	}
     };
     ChangeListener ratingListener = new ChangeListener()
@@ -133,6 +135,7 @@ public class XDictGui extends JFrame implements WindowListener
     	{
     		JSlider source = (JSlider)e.getSource();
     	    wordRatingLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
+    	    nextButton.setEnabled(false);
     	}
     };
     ChangeListener tabListener = new ChangeListener()
@@ -173,8 +176,11 @@ public class XDictGui extends JFrame implements WindowListener
     	{
     		JCheckBox source = (JCheckBox)e.getSource();
     		// If not selected, then NYT cannot be selected
-    		if (!source.isSelected())
+    		if (!source.isSelected()) {
     			usedNYT.setSelected(false);
+    		}
+    	    nextButton.setEnabled(false);
+
     	}
     };
     ChangeListener usedNYTListener = new ChangeListener()
@@ -183,11 +189,20 @@ public class XDictGui extends JFrame implements WindowListener
     	{
     		JCheckBox source = (JCheckBox)e.getSource();
     		// If selected, then "Any" must also be selected
-    		if (source.isSelected())
+    		if (source.isSelected()) {
     			usedAny.setSelected(true);
+    		}
+    	    nextButton.setEnabled(false);
     	}
     };
 
+    ChangeListener queryChangedListener = new ChangeListener()
+    {
+    	public void stateChanged(ChangeEvent e)
+    	{
+    	    nextButton.setEnabled(false);
+    	}
+    };
 
     public XDictGui() 
     {
@@ -845,7 +860,7 @@ public class XDictGui extends JFrame implements WindowListener
         result.setBorder(BorderFactory.createTitledBorder("Control"));
         result.add(new JLabel("File to Export:"), BorderLayout.WEST);
         result.add(exportFile, BorderLayout.CENTER);
-        exportFile.setText("");
+        exportFile.setText("export/");
         
         return result;
     }
@@ -1031,6 +1046,7 @@ public class XDictGui extends JFrame implements WindowListener
     	int rat = wordRatingSlider.getValue();
     	UsedControl useCtrl = UsedControl.ALL;
     	ResearchControl resCtrl = ResearchControl.NO_RESEARCH;
+    	WORD_STATUS status;
     	
     	if ( usedNYT.isSelected() )
     		useCtrl = UsedControl.USED_NYT;
@@ -1042,9 +1058,17 @@ public class XDictGui extends JFrame implements WindowListener
     	
     	Word w = new Word.Builder(key).rating((byte)rat).usedAny(useCtrl == UsedControl.USED_ANY).usedNYT(useCtrl == UsedControl.USED_NYT).needsResearch(resCtrl == ResearchControl.NEEDS_RESEARCH).manuallyRated(true).build();
 
-    	WORD_STATUS status = dict.putWord(w);
-    	Word w1 = dict.getWord(w.getEntry());
-		addResultArea.append(w1.getEntry() + " : " + w1.getRating() + "\n");
+    	if (w.getEntry().length() < 3) {
+    		status = WORD_STATUS.ERROR;
+    		addResultArea.setText("Error: " + w.getEntry() + " is less than 3 characters.");
+    	} else if (w.getEntry().length() > 25) {
+    		status = WORD_STATUS.ERROR;
+    		addResultArea.setText("Error: " + w.getEntry() + " is more than 25 characters.");
+    	} else {
+	    	status = dict.putWord(w);
+	    	Word w1 = dict.getWord(w.getEntry());
+			addResultArea.append(w1.getEntry() + " : " + w1.getRating() + "\n");
+    	}
 		
 		return status;
     }
@@ -1143,6 +1167,7 @@ public class XDictGui extends JFrame implements WindowListener
     	int newCount = 0;
     	int existCount = 0;
     	int dupCount = 0;
+    	int skipCount = 0;
     	
 		try {
 			br = new BufferedReader(new FileReader(filename));
@@ -1153,28 +1178,51 @@ public class XDictGui extends JFrame implements WindowListener
 		}
     	String line;
     	int count = 0;
+    	WORD_STATUS status;
+//		String statText = "";
+		byte rating = 0;
+
     	try {
 			while ((line = br.readLine()) != null) {
 				if (line.length() < 3) {
 					continue;
 				}
-				// TODO: ==> PARSE LINE HERE!!
+				Word wTmp = LoadAndExportUtilities.parseWordAndRating(line, ";:");
+				// If it has a rating, use it; else grab the rating setting from the UI.
+				rating = ((wTmp.getRating() > 0) ? wTmp.getRating() : (byte)wordRatingSlider.getValue());
+				rating = LoadAndExportUtilities.normalizeRating(wTmp.getEntry(), rating);
 
-				Word w = new Word.Builder(line).rating((byte)wordRatingSlider.getValue()).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).build();
-				WORD_STATUS status = dict.putWord(w);
-				String statText = "";
-				if (status == WORD_STATUS.NEW) {
-					statText = " (New)";
-					newCount++;
-				} else if (status == WORD_STATUS.EXISTS) {
-					statText = " (Modified)";
-					existCount++;
-				} else {
-					statText = " (Duplicate)";
-					dupCount++;
-				}
-			   loadResultArea.append("Adding word: " + w.getEntry() + statText + "\n");
-			   count++;
+				Word w = new Word.Builder(wTmp.getEntry()).rating(rating).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).build();
+
+		    	if (w.getEntry().length() < 3) {
+		    		status = WORD_STATUS.ERROR;
+		    		loadResultArea.append(w.getEntry() + " is less than 3 characters.\n");
+//					statText = " (Skipped)";
+					skipCount++;
+		    	} else if (w.getEntry().length() > 25) {
+		    		status = WORD_STATUS.ERROR;
+		    		loadResultArea.append(w.getEntry() + " is more than 25 characters.\n");
+//					statText = " (Skipped)";
+					skipCount++;
+		    	} else {
+					status = dict.putWord(w);
+					if (status == WORD_STATUS.NEW) {
+//						statText = " (New)";
+						newCount++;
+					} else if (status == WORD_STATUS.EXISTS) {
+//						statText = " (Modified)";
+						existCount++;
+					} else {
+//						statText = " (Duplicate)";
+						dupCount++;
+					}
+//				   loadResultArea.setText("Adding word: " + w.getEntry() + statText + "\n");
+				   count++;
+				   if (count % 1000 == 0) {
+					   getStatusLine().showInfo("Processing load..." + count + " records processed.");
+
+				   }
+		    	}
 			}
 		} catch (IOException e) {
 			loadResultArea.append("Error reading file.\n");
@@ -1186,8 +1234,8 @@ public class XDictGui extends JFrame implements WindowListener
 			loadResultArea.append("Error closing file.\n");
 			loadResultArea.append(e.toString());
 		}    	
-    	String status = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount;
-    	return status;
+    	String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + "(" + skipCount + " skipped.)";
+    	return retStatus;
     }
     
     public String doExport()
@@ -1300,6 +1348,18 @@ public class XDictGui extends JFrame implements WindowListener
         wordRatingSlider.addChangeListener(ratingListener);
         usedNYT.addChangeListener(usedNYTListener);
         usedAny.addChangeListener(usedAnyListener);
+        research.addChangeListener(queryChangedListener);
+        queryEntryEquals.addChangeListener(queryChangedListener);
+        queryEntryStarts.addChangeListener(queryChangedListener);
+        queryEntryContains.addChangeListener(queryChangedListener);
+        queryLengthEquals.addChangeListener(queryChangedListener);
+        queryLengthAtMost.addChangeListener(queryChangedListener);
+        queryLengthAtLeast.addChangeListener(queryChangedListener);
+        queryRatingAtMost.addChangeListener(queryChangedListener);
+        queryRatingAtLeast.addChangeListener(queryChangedListener);
+        queryMethodAll.addChangeListener(queryChangedListener);
+        queryMethodManual.addChangeListener(queryChangedListener);
+        queryMethodAuto.addChangeListener(queryChangedListener);
         resultPaneTabs.addChangeListener(tabListener);
     }
 
