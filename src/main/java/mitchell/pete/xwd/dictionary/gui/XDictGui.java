@@ -68,7 +68,7 @@ public class XDictGui extends JFrame implements WindowListener
     private static final int RATING_QUERY_LIMIT = 20;
     private static int queryStart = 0;
     private static int LENGTH_DEFAULT = 3;
-    private static int RATING_DEFAULT = 10;
+    private static int RATING_DEFAULT = 1;
     
     // Use this list to drive the manual rating process.
 	private ArrayList<Word> listToRate = null;
@@ -176,6 +176,7 @@ public class XDictGui extends JFrame implements WindowListener
     			loadButton.setEnabled(false);
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
+    			resetQuery(false);
     		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
     			queryButton.setEnabled(false);
     			nextButton.setEnabled(false);
@@ -204,6 +205,7 @@ public class XDictGui extends JFrame implements WindowListener
 				loadButton.setEnabled(false);
 				exportButton.setEnabled(false);
 				rateQueryButton.setEnabled(true);
+    			resetQuery(true);
 			}
     	}
     };
@@ -690,10 +692,10 @@ public class XDictGui extends JFrame implements WindowListener
         result.add(goodButton);
         result.add(excellentButton);
         result.add(manualButton);
-        result.add(researchButton);
-        result.add(skipButton);
         JComponent entryRating = buildGenericCombo2("Manual Rating", manualRatingLabel, manualRatingSlider);
         result.add(entryRating);
+        result.add(researchButton);
+        result.add(skipButton);
         setRatingButtons(false);
         return result;
     }
@@ -941,7 +943,7 @@ public class XDictGui extends JFrame implements WindowListener
         return result;
     }
     
-    public void resetQuery() {
+    public void resetQuery(boolean rating) {
         wordEntry.setText("");
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(RATING_DEFAULT);
@@ -949,11 +951,15 @@ public class XDictGui extends JFrame implements WindowListener
         usedAny.setSelected(false);
         usedNYT.setSelected(false);
         research.setSelected(false);
-        queryMethodAll.setSelected(true);
+        if (rating) {
+        	queryMethodAuto.setSelected(true);
+            queryLengthEquals.setSelected(true);
+        } else {
+        	queryMethodAll.setSelected(true);
+            queryLengthAtLeast.setSelected(true);
+        }
         queryEntryEquals.setSelected(true);
-        queryLengthAtLeast.setSelected(true);
         queryRatingAtLeast.setSelected(true);
-        queryMethodAll.setSelected(true);
 
     }
     
@@ -1169,6 +1175,8 @@ public class XDictGui extends JFrame implements WindowListener
 			}
 			
 			wordToRate.setText(listToRate.get(0).getEntry());
+	    	manualRatingSlider.setValue(listToRate.get(0).getRating());
+
 			setRatingButtons(true);
 		}
 		
@@ -1177,7 +1185,6 @@ public class XDictGui extends JFrame implements WindowListener
     
     public String doRate(RATINGS r)
     {
-    	int rat = manualRatingSlider.getValue();
     	final int TERRIBLE = 1;
     	final int TERRIBLE_5 = 5;
     	final int TERRIBLE_4 = 10;
@@ -1198,19 +1205,20 @@ public class XDictGui extends JFrame implements WindowListener
     	final int EXCELLENT_8 = 90;
     	final int EXCELLENT = 95;
     	
-
     	String status = "";
     	Word w = listToRate.get(0);
+    	int rat = manualRatingSlider.getValue();
 
     	if (r == RATINGS.RESEARCH) {
     		status = w.getEntry() + ": Needs research";
     		w.setNeedsResearch(true);
-//    		dict.putWord(w);
+    		dict.putWord(w);
     	} else if (r == RATINGS.MANUAL) {
     		status = w.getEntry() + ": " + rat + " (Manual)";
     		w.setRating(rat);
     		w.setManuallyRated(true);
-//    		dict.putWord(w);
+    		w.setNeedsResearch(false);	// rated manually; research complete
+    		dict.putWord(w);
     	} else if (r == RATINGS.EXCELLENT) {
     		switch (w.length()) {
     		case 3:
@@ -1238,7 +1246,8 @@ public class XDictGui extends JFrame implements WindowListener
     		status = w.getEntry() + ": " + rat + " (Excellent)";
     		w.setRating(rat);
     		w.setManuallyRated(true);
-//    		dict.putWord(w);
+    		w.setNeedsResearch(false);	// rated manually; research complete
+    		dict.putWord(w);
     	} else if (r == RATINGS.GOOD) {
     		switch (w.length()) {
     		case 3:
@@ -1254,13 +1263,15 @@ public class XDictGui extends JFrame implements WindowListener
     		status = w.getEntry() + ": " + rat + " (Good)";
     		w.setRating(rat);
     		w.setManuallyRated(true);
-//    		dict.putWord(w);
+    		w.setNeedsResearch(false);	// rated manually; research complete
+    		dict.putWord(w);
     	} else if (r == RATINGS.OK) {
     		rat = OK;
     		status = w.getEntry() + ": " + rat + " (Ok)";
     		w.setRating(rat);
     		w.setManuallyRated(true);
-//    		dict.putWord(w);
+    		w.setNeedsResearch(false);	// rated manually; research complete
+    		dict.putWord(w);
     	} else if (r == RATINGS.POOR) {
     		switch (w.length()) {
     		case 3:
@@ -1279,7 +1290,8 @@ public class XDictGui extends JFrame implements WindowListener
     		status = w.getEntry() + ": " + rat + " (Poor)";
     		w.setRating(rat);
     		w.setManuallyRated(true);
-//    		dict.putWord(w);
+    		w.setNeedsResearch(false);	// rated manually; research complete
+    		dict.putWord(w);
     	} else if (r == RATINGS.TERRIBLE) {
     		switch (w.length()) {
     		case 3:
@@ -1298,7 +1310,8 @@ public class XDictGui extends JFrame implements WindowListener
     		status = w.getEntry() + ": " + rat + " (Terrible)";
     		w.setRating(rat);
     		w.setManuallyRated(true);
-//    		dict.putWord(w);
+    		w.setNeedsResearch(false);	// rated manually; research complete
+    		dict.putWord(w);
     	} else if (r == RATINGS.SKIP) {
     		status = w.getEntry() + ": Skipped";
     	}
@@ -1319,6 +1332,7 @@ public class XDictGui extends JFrame implements WindowListener
 			setRatingButtons(false);
 		} else {
 			wordToRate.setText(listToRate.get(0).getEntry());
+	    	manualRatingSlider.setValue(listToRate.get(0).getRating());
 			setRatingButtons(true);
 		}
 

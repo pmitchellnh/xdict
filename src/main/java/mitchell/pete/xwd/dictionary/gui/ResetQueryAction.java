@@ -21,7 +21,7 @@ public class ResetQueryAction extends AbstractAction
     {
 		if ( gui != null )
 		{
-			gui.resetQuery();
+			gui.resetQuery(false);
 		}
     }
 }
