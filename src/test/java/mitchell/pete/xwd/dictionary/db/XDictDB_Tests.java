@@ -114,7 +114,7 @@ public class XDictDB_Tests extends TestCase
 		ArrayList<Word> list = dict.getAllWords();
 		assertEquals( 8, list.size() );
 		
-		ArrayList<Word> list1 = dict.getWords(LengthControl.EQUALS, 6, PatternControl.ALL, "", RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL, QUERY_START, QUERY_LIMIT);
+		ArrayList<Word> list1 = dict.getWords(LengthControl.EQUALS, 6, PatternControl.ALL, "", RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL, QUERY_START, QUERY_LIMIT, false);
 		assertEquals( 4, list1.size() );
 		Word w1a = dict.getWord("Sleepy");
 		Word w1b = dict.getWord("sleepy");	// shouldn't matter how we query for it
@@ -125,14 +125,14 @@ public class XDictDB_Tests extends TestCase
 		assertFalse( list1.contains(w2) );
 		assertFalse( list1.contains(w3) );
 
-		ArrayList<Word> list2 = dict.getWords(LengthControl.ATLEAST, 6, PatternControl.ALL, "", RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL, QUERY_START, QUERY_LIMIT);
+		ArrayList<Word> list2 = dict.getWords(LengthControl.ATLEAST, 6, PatternControl.ALL, "", RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL, QUERY_START, QUERY_LIMIT, false);
 		assertEquals( 5, list2.size() );
 		assertTrue( list2.contains(w1a) );
 		assertTrue( list2.contains(w1b) );
 		assertTrue( list2.contains(w2) );
 		assertFalse( list2.contains(w3) );
 
-		ArrayList<Word> list3 = dict.getWords(LengthControl.ATMOST, 6, PatternControl.ALL, "", RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL, QUERY_START, QUERY_LIMIT);
+		ArrayList<Word> list3 = dict.getWords(LengthControl.ATMOST, 6, PatternControl.ALL, "", RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL, QUERY_START, QUERY_LIMIT, false);
 		assertEquals( 7, list3.size() );
 		assertTrue( list3.contains(w1a) );
 		assertTrue( list3.contains(w1b) );

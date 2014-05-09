@@ -50,6 +50,7 @@ import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.ResearchControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.UsedControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
 import mitchell.pete.xwd.dictionary.db.XDictDB_MySQL;
+import mitchell.pete.xwd.dictionary.gui.RateAction.RATINGS;
 
 public class XDictGui extends JFrame implements WindowListener 
 {
@@ -64,9 +65,14 @@ public class XDictGui extends JFrame implements WindowListener
     private USE_MODE useMode = USE_MODE.QUERY;
     private static final String PAD = "  ";
     private static final int QUERY_LIMIT = 1000;
+    private static final int RATING_QUERY_LIMIT = 20;
     private static int queryStart = 0;
     private static int LENGTH_DEFAULT = 3;
     private static int RATING_DEFAULT = 10;
+    
+    // Use this list to drive the manual rating process.
+	private ArrayList<Word> listToRate = null;
+
     
     private static final String NO_RESULTS_FOUND = "No entries found that match this criteria.\n";
 
@@ -101,18 +107,30 @@ public class XDictGui extends JFrame implements WindowListener
     private JRadioButton queryMethodAuto = new JRadioButton("Auto-loaded");
 
     private JTextField wordEntry            = new JTextField(30);
+    private JLabel wordToRate           	= new JLabel();
     private JSlider wordLengthSlider        = new JSlider(3,25,LENGTH_DEFAULT);
     private JLabel wordLengthLabel          = new JLabel(String.valueOf(wordLengthSlider.getValue()));
     private JSlider wordRatingSlider        = new JSlider(0,100,RATING_DEFAULT);
     private JLabel wordRatingLabel          = new JLabel(String.valueOf(wordRatingSlider.getValue()));
+    private JSlider manualRatingSlider		= new JSlider(0,100,RATING_DEFAULT);
+    private JLabel manualRatingLabel        = new JLabel(String.valueOf(manualRatingSlider.getValue()));
     private JCheckBox usedAny               = new JCheckBox("Used Any: ");
     private JCheckBox usedNYT               = new JCheckBox("Used NYT: ");
-    private JCheckBox research               = new JCheckBox("Needs Research: ");
-    private JButton queryButton				= new JButton(new QueryAction(this, false));
-    private JButton nextButton				= new JButton(new QueryAction(this, true));
+    private JCheckBox research              = new JCheckBox("Needs Research: ");
+    private JButton queryButton				= new JButton(new QueryAction(this, false, false));
+    private JButton nextButton				= new JButton(new QueryAction(this, true, false));
+    private JButton rateQueryButton			= new JButton(new QueryAction(this, false, true));
     private JButton addButton				= new JButton(new AddAction(this));
     private JButton loadButton				= new JButton(new LoadAction(this));
     private JButton exportButton		    = new JButton(new ExportAction(this));
+    private JButton terribleButton		    = new JButton(new RateAction(this, RATINGS.TERRIBLE));
+    private JButton poorButton		        = new JButton(new RateAction(this, RATINGS.POOR));
+    private JButton okButton   		        = new JButton(new RateAction(this, RATINGS.OK));
+    private JButton goodButton		        = new JButton(new RateAction(this, RATINGS.GOOD));
+    private JButton excellentButton		    = new JButton(new RateAction(this, RATINGS.EXCELLENT));
+    private JButton researchButton		    = new JButton(new RateAction(this, RATINGS.RESEARCH));
+    private JButton skipButton		    	= new JButton(new RateAction(this, RATINGS.SKIP));
+    private JButton manualButton		    = new JButton(new RateAction(this, RATINGS.MANUAL));
     private JTabbedPane resultPaneTabs 		= new JTabbedPane();
     
     private JTextField loadFile            = new JTextField(50);
@@ -138,6 +156,14 @@ public class XDictGui extends JFrame implements WindowListener
     	    nextButton.setEnabled(false);
     	}
     };
+    ChangeListener manualRatingListener = new ChangeListener()
+    {
+    	public void stateChanged(ChangeEvent e)
+    	{
+    		JSlider source = (JSlider)e.getSource();
+    	    manualRatingLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
+    	}
+    };
     ChangeListener tabListener = new ChangeListener()
     {
     	public void stateChanged(ChangeEvent e)
@@ -149,24 +175,35 @@ public class XDictGui extends JFrame implements WindowListener
     			addButton.setEnabled(false);
     			loadButton.setEnabled(false);
     			exportButton.setEnabled(false);
+    			rateQueryButton.setEnabled(false);
     		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
     			queryButton.setEnabled(false);
     			nextButton.setEnabled(false);
     			addButton.setEnabled(true);
     			loadButton.setEnabled(false);
     			exportButton.setEnabled(false);
+    			rateQueryButton.setEnabled(false);
 			} else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
 				queryButton.setEnabled(false);
 				nextButton.setEnabled(false);
 				addButton.setEnabled(false);
 				loadButton.setEnabled(true);
     			exportButton.setEnabled(false);
+    			rateQueryButton.setEnabled(false);
 			} else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
 				queryButton.setEnabled(false);
 				nextButton.setEnabled(false);
 				addButton.setEnabled(false);
 				loadButton.setEnabled(false);
     			exportButton.setEnabled(true);
+    			rateQueryButton.setEnabled(false);
+			} else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
+				queryButton.setEnabled(false);
+				nextButton.setEnabled(false);
+				addButton.setEnabled(false);
+				loadButton.setEnabled(false);
+				exportButton.setEnabled(false);
+				rateQueryButton.setEnabled(true);
 			}
     	}
     };
@@ -414,7 +451,7 @@ public class XDictGui extends JFrame implements WindowListener
         c.gridy = 0;
         c.weightx = 0;
         c.weighty = 0.25;
-        c.gridwidth = 5;
+        c.gridwidth = 6;
         JComponent b1 = buildRadioButton3(queryEntryEquals, queryEntryStarts, queryEntryContains, 1 );
         JComponent entryMatch = buildGenericCombo2("Entry", b1, wordEntry);
         controlPanel.add(entryMatch);
@@ -424,7 +461,7 @@ public class XDictGui extends JFrame implements WindowListener
         // Rating 
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.NONE;
-        c.gridx = 5;
+        c.gridx = 6;
         c.gridy = 2;
         c.weightx = 0.5;
         c.weighty = 0;
@@ -451,7 +488,7 @@ public class XDictGui extends JFrame implements WindowListener
         // Length
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.NONE;
-        c.gridx = 5;
+        c.gridx = 6;
         c.gridy = 0;
         c.weightx = 0.5;
         c.weighty = 0;
@@ -496,7 +533,7 @@ public class XDictGui extends JFrame implements WindowListener
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 0;
         c.gridy = 3;
-        c.weightx = 0.2;
+        c.weightx = 0.15;
         c.weighty = 0.25;
         c.gridwidth = 1;
 //        JButton bq = new JButton(new QueryAction(this, false));
@@ -506,9 +543,9 @@ public class XDictGui extends JFrame implements WindowListener
         // Next Button
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
+        c.gridx = 2;
         c.gridy = 3;
-        c.weightx = 0.2;
+        c.weightx = 0.15;
         c.weighty = 0.25;
         c.gridwidth = 1;
         controlPanel.add(nextButton);
@@ -518,9 +555,9 @@ public class XDictGui extends JFrame implements WindowListener
         // Add Button
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 2;
+        c.gridx = 3;
         c.gridy = 3;
-        c.weightx = 0.2;
+        c.weightx = 0.15;
         c.weighty = 0.25;
         c.gridwidth = 1;
         controlPanel.add(addButton);
@@ -530,9 +567,9 @@ public class XDictGui extends JFrame implements WindowListener
         // Load Button
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 3;
+        c.gridx = 4;
         c.gridy = 3;
-        c.weightx = 0.2;
+        c.weightx = 0.15;
         c.weighty = 0.25;
         c.gridwidth = 1;
         controlPanel.add(loadButton);
@@ -542,179 +579,29 @@ public class XDictGui extends JFrame implements WindowListener
         // Export Button
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 4;
+        c.gridx = 5;
         c.gridy = 3;
-        c.weightx = 0.2;
+        c.weightx = 0.15;
         c.weighty = 0.25;
         c.gridwidth = 1;
         controlPanel.add(exportButton);
         gbl.setConstraints(exportButton, c);
         exportButton.setEnabled(false);	// init to disabled
         
+        // Rating Query Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 1;
+        c.gridy = 3;
+        c.weightx = 0.15;
+        c.weighty = 0.25;
+        c.gridwidth = 1;
+        controlPanel.add(rateQueryButton);
+        gbl.setConstraints(rateQueryButton, c);
+        rateQueryButton.setEnabled(false);	// init to disabled
+
         return controlPanel;
     }
-    
-//    private JComponent buildAdvancedQueryControlPanel()
-//    {
-//        controlPanel.setBorder(BorderFactory.createTitledBorder(""));
-//        GridBagLayout      gbl = new GridBagLayout();
-//        GridBagConstraints c   = new GridBagConstraints();
-//        c.insets = new Insets(0, 2, 0, 2);
-//        controlPanel.setLayout(gbl);
-//
-//        // Entry
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 0;
-//        c.gridy = 0;
-//        c.weightx = 1;
-//        c.weighty = 0;
-//        c.gridwidth = 10;
-//        JComponent b1 = buildRadioButton3(queryEntryEquals, queryEntryStarts, queryEntryContains, 1 );
-//        JComponent entryMatch = buildGenericCombo2("Entry", b1, wordEntry);
-//        controlPanel.add(entryMatch);
-//        gbl.setConstraints(entryMatch, c);
-//        c.gridwidth = 1;	// reset
-//
-//        // Rating 
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 0;
-//        c.gridy = 1;
-//        c.weightx = 0.5;
-//        c.weighty = 0;
-//        c.gridwidth = 5;
-//        JComponent b2 = buildRadioButton2(queryRatingAtLeast, queryRatingAtMost, 1 );
-//        JComponent entryRating = buildComboSlider("Rating", b2, wordRatingLabel, wordRatingSlider);
-//        controlPanel.add(entryRating);
-//        gbl.setConstraints(entryRating, c);
-//        c.gridwidth = 1;
-//
-//        // Length
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 5;
-//        c.gridy = 1;
-//        c.weightx = 0.5;
-//        c.weighty = 0;
-//        c.gridwidth = 5;
-//        Component entryLength = buildComboSlider("Length", buildLengthRadioButton(), wordLengthLabel, wordLengthSlider);
-//        controlPanel.add(entryLength);
-//        gbl.setConstraints(entryLength, c);
-//        c.gridwidth = 1;
-//
-//        // Sparkle 
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 0;
-//        c.gridy = 2;
-//        c.weightx = 0.5;
-//        c.weighty = 0;
-//        c.gridwidth = 5;
-//        JComponent b3 = buildRadioButton2(querySparkleAtLeast, querySparkleAtMost, 1 );
-//        JComponent entrySparkle = buildComboSlider("Sparkle", b3, wordSparkleLabel, wordSparkleSlider);
-//        controlPanel.add(entrySparkle);
-//        gbl.setConstraints(entrySparkle, c);
-//        c.gridwidth = 1;
-//
-//        // Facility 
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 5;
-//        c.gridy = 2;
-//        c.weightx = 0.5;
-//        c.weighty = 0;
-//        c.gridwidth = 5;
-//        JComponent b4 = buildRadioButton2(queryFacilityAtLeast, queryFacilityAtMost, 1 );
-//        JComponent entryFacility = buildComboSlider("Facility", b4, wordFacilityLabel, wordFacilitySlider);
-//        controlPanel.add(entryFacility);
-//        gbl.setConstraints(entryFacility, c);
-//        c.gridwidth = 1;
-//
-//        // Currency 
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 0;
-//        c.gridy = 3;
-//        c.weightx = 0.5;
-//        c.weighty = 0;
-//        c.gridwidth = 5;
-//        JComponent b5 = buildRadioButton2(queryCurrencyAtLeast, queryCurrencyAtMost, 1 );
-//        JComponent entryCurrency = buildComboSlider("Currency", b5, wordCurrencyLabel, wordCurrencySlider);
-//        controlPanel.add(entryCurrency);
-//        gbl.setConstraints(entryCurrency, c);
-//        c.gridwidth = 1;
-//
-//        // Taste 
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 5;
-//        c.gridy = 3;
-//        c.weightx = 0.5;
-//        c.weighty = 0;
-//        c.gridwidth = 5;
-//        JComponent b6 = buildRadioButton2(queryTasteAtLeast, queryTasteAtMost, 1 );
-//        JComponent entryTaste = buildComboSlider("Taste", b6, wordTasteLabel, wordTasteSlider);
-//        controlPanel.add(entryTaste);
-//        gbl.setConstraints(entryTaste, c);
-//        c.gridwidth = 1;
-//
-//        // UsedAny Checkbox
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 0;
-//        c.gridy = 4;
-//        c.weightx = 0;
-//        c.weighty = 0;
-//        controlPanel.add(usedAny);
-//        gbl.setConstraints(usedAny, c);
-//        
-//        // UsedNYT Checkbox
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 1;
-//        c.gridy = 4;
-//        c.weightx = 0;
-//        c.weighty = 0;
-//        controlPanel.add(usedNYT);
-//        gbl.setConstraints(usedNYT, c);
-//        
-//        // Research Checkbox
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.NONE;
-//        c.gridx = 2;
-//        c.gridy = 4;
-//        c.weightx = 0;
-//        c.weighty = 0;
-//        controlPanel.add(research);
-//        gbl.setConstraints(research, c);
-//        
-//        // Query Button
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.HORIZONTAL;
-//        c.gridx = 0;
-//        c.gridy = 5;
-//        c.weightx = 0;
-//        c.weighty = 0;
-//        c.gridwidth = 1;
-//        JButton bq = new JButton(new QueryAction(this, false));
-//        controlPanel.add(bq);
-//        gbl.setConstraints(bq, c);
-//        
-//        // Query Button
-//        c.anchor = GridBagConstraints.WEST;
-//        c.fill = GridBagConstraints.HORIZONTAL;
-//        c.gridx = 1;
-//        c.gridy = 5;
-//        c.weightx = 0;
-//        c.weighty = 0;
-//        c.gridwidth = 1;
-//        JButton bn = new JButton(new QueryAction(this, true));
-//        controlPanel.add(bn);
-//        gbl.setConstraints(bn, c);
-//        
-//        return controlPanel;
-//    }
     
     private JComponent buildQueryDisplayPanel() 
     {
@@ -786,15 +673,40 @@ public class XDictGui extends JFrame implements WindowListener
     private JComponent buildRateControlPanel() 
     {
     	JPanel result = new JPanel();
+    	result.setLayout(new BorderLayout());
         result.setBorder(BorderFactory.createTitledBorder("Control"));
-        //queryPanel.removeAll();
-        //queryPanel.setLayout(new GridLayout(1, 2));
-        //queryPanel.add(buildSimpleScopePanel());
-        //queryPanel.add(buildSimpleFilterPanel());
-        //queryPanel.revalidate();
-        JLabel test = new JLabel("Rate Control Label");
-        result.add(test);
+    	result.add(wordToRate, BorderLayout.NORTH);
+    	wordToRate.setHorizontalAlignment(SwingConstants.CENTER);
+    	result.add(buildRateControlButtons(), BorderLayout.CENTER);
         return result;
+    }
+    
+    private JComponent buildRateControlButtons()
+    {
+    	JPanel result = new JPanel();
+        result.add(terribleButton);
+        result.add(poorButton);
+        result.add(okButton);
+        result.add(goodButton);
+        result.add(excellentButton);
+        result.add(manualButton);
+        result.add(researchButton);
+        result.add(skipButton);
+        JComponent entryRating = buildGenericCombo2("Manual Rating", manualRatingLabel, manualRatingSlider);
+        result.add(entryRating);
+        setRatingButtons(false);
+        return result;
+    }
+    
+    private void setRatingButtons(boolean state) {
+    	terribleButton.setEnabled(state);
+    	poorButton.setEnabled(state);
+    	okButton.setEnabled(state);
+    	goodButton.setEnabled(state);
+    	excellentButton.setEnabled(state);
+    	manualButton.setEnabled(state);
+    	researchButton.setEnabled(state);
+    	skipButton.setEnabled(state);
     }
 
     private JComponent buildRateDisplayPanel() 
@@ -1033,12 +945,22 @@ public class XDictGui extends JFrame implements WindowListener
         wordEntry.setText("");
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(RATING_DEFAULT);
+        manualRatingSlider.setValue(RATING_DEFAULT);
         usedAny.setSelected(false);
         usedNYT.setSelected(false);
         research.setSelected(false);
         queryMethodAll.setSelected(true);
+        queryEntryEquals.setSelected(true);
+        queryLengthAtLeast.setSelected(true);
+        queryRatingAtLeast.setSelected(true);
+        queryMethodAll.setSelected(true);
+
     }
     
+    /*
+     ************  ACTIONS ************
+     */
+
     public WORD_STATUS doAdd()
     {
     	addResultArea.setText("");
@@ -1058,10 +980,10 @@ public class XDictGui extends JFrame implements WindowListener
     	
     	Word w = new Word.Builder(key).rating((byte)rat).usedAny(useCtrl == UsedControl.USED_ANY).usedNYT(useCtrl == UsedControl.USED_NYT).needsResearch(resCtrl == ResearchControl.NEEDS_RESEARCH).manuallyRated(true).build();
 
-    	if (w.getEntry().length() < 3) {
+    	if (w.length() < 3) {
     		status = WORD_STATUS.ERROR;
     		addResultArea.setText("Error: " + w.getEntry() + " is less than 3 characters.");
-    	} else if (w.getEntry().length() > 25) {
+    	} else if (w.length() > 25) {
     		status = WORD_STATUS.ERROR;
     		addResultArea.setText("Error: " + w.getEntry() + " is more than 25 characters.");
     	} else {
@@ -1125,14 +1047,14 @@ public class XDictGui extends JFrame implements WindowListener
     		methCtrl = MethodControl.AUTOMATIC;
     	}
     	
-    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl);
+    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
     	if (next) {
     		queryStart += QUERY_LIMIT;
     		queryStart = (queryStart > resultSetSize ? resultSetSize : queryStart);
     	} else {
     		queryStart = 0;
     	}
-    	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, queryStart, QUERY_LIMIT);
+    	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, queryStart, QUERY_LIMIT, false);
 		
 		if ( list == null || list.isEmpty() )
 		{
@@ -1143,20 +1065,264 @@ public class XDictGui extends JFrame implements WindowListener
 		else
 		{
 			if (resultSetSize > (queryStart + QUERY_LIMIT)) {	// More data left to display
+				((QueryAction)(nextButton.getAction())).setRating(false);	// set the right "next" action
 				nextButton.setEnabled(true);
 			} else {
 				nextButton.setEnabled(false);
 			}
-			for ( Word w : list )
+			for ( Word w : list ) {
 				queryResultArea.append(w.toStringQuery() + "\n");
+			}
 		}
 		
 		return "" + (queryStart + 1) + "-" + (queryStart + QUERY_LIMIT > resultSetSize ? resultSetSize : (queryStart + QUERY_LIMIT)) + " of " + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
     }
     
-    public void doRate()
+    public String doRatingQuery(boolean next)
     {
-    	rateResultArea.setText("Rating...[Add logic here]");
+    	rateResultArea.setText("");
+
+    	int resultSetSize = 0;
+    	
+    	String key = wordEntry.getText();
+    	int length = wordLengthSlider.getValue();
+    	int rat = wordRatingSlider.getValue();
+    	LengthControl lenCtrl = LengthControl.ALL;
+    	PatternControl patCtrl = PatternControl.ALL;
+    	RatingControl ratCtrl = RatingControl.ALL;
+    	UsedControl useCtrl = UsedControl.ALL;
+    	ResearchControl resCtrl = ResearchControl.ALL;
+    	MethodControl methCtrl = MethodControl.ALL;
+    	
+    	if ( queryRatingAtMost.isSelected() )
+    		ratCtrl = RatingControl.ATMOST;
+    	else if ( queryRatingAtLeast.isSelected() )
+    		ratCtrl = RatingControl.ATLEAST;
+
+    	if ( key.length() == 0 )	// no pattern selected
+    		patCtrl = PatternControl.ALL;
+    	else if ( queryEntryEquals.isSelected() )
+    		patCtrl = PatternControl.EQUALS;
+    	else if ( queryEntryStarts.isSelected() )
+    		patCtrl = PatternControl.STARTSWITH;
+    	else if ( queryEntryContains.isSelected() )
+    		patCtrl = PatternControl.CONTAINS;
+
+    	if ( queryLengthEquals.isSelected() )
+    		lenCtrl = LengthControl.EQUALS;
+    	else if ( queryLengthAtMost.isSelected() )
+    		lenCtrl = LengthControl.ATMOST;
+    	else if ( queryLengthAtLeast.isSelected() )
+    		lenCtrl = LengthControl.ATLEAST;
+
+    	if ( usedNYT.isSelected() )
+    		useCtrl = UsedControl.USED_NYT;
+    	else if ( usedAny.isSelected() )
+        	useCtrl = UsedControl.USED_ANY;
+    	else 
+    		useCtrl = UsedControl.NOT_USED;
+    	
+    	if ( research.isSelected() )
+    		resCtrl = ResearchControl.NEEDS_RESEARCH;
+    	
+    	if (queryMethodManual.isSelected()) {
+    		methCtrl = MethodControl.MANUAL;
+    	} else if (queryMethodAuto.isSelected()) {
+    		methCtrl = MethodControl.AUTOMATIC;
+    	}
+    	
+    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, true);
+    	if (next) {
+    		queryStart += RATING_QUERY_LIMIT;
+    		queryStart = (queryStart > resultSetSize ? resultSetSize : queryStart);
+    	} else {
+    		queryStart = 0;
+    	}
+    	
+    	if (listToRate != null) {
+    		listToRate.clear();		// clear the list
+    	}
+    	
+    	listToRate = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, queryStart, RATING_QUERY_LIMIT, true);
+		
+		if ( listToRate == null || listToRate.isEmpty() )
+		{
+			rateResultArea.setText(NO_RESULTS_FOUND);
+			nextButton.setEnabled(false);
+			setRatingButtons(false);
+			return "0";
+		}
+		else
+		{
+			if (resultSetSize > (queryStart + RATING_QUERY_LIMIT)) {	// More data left to display
+				((QueryAction)(nextButton.getAction())).setRating(true);	// set the right "next" action
+				nextButton.setEnabled(true);
+			} else {
+				nextButton.setEnabled(false);
+			}
+			for ( Word w : listToRate ) {
+				if (w.equals(listToRate.get(0))) {
+					rateResultArea.append(w.toString());
+				} else {
+					rateResultArea.append("\n" + w.toString());
+				}
+			}
+			
+			wordToRate.setText(listToRate.get(0).getEntry());
+			setRatingButtons(true);
+		}
+		
+		return "" + (queryStart + 1) + "-" + (queryStart + RATING_QUERY_LIMIT > resultSetSize ? resultSetSize : (queryStart + RATING_QUERY_LIMIT)) + " of " + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
+    }
+    
+    public String doRate(RATINGS r)
+    {
+    	int rat = manualRatingSlider.getValue();
+    	final int TERRIBLE = 1;
+    	final int TERRIBLE_5 = 5;
+    	final int TERRIBLE_4 = 10;
+    	final int TERRIBLE_3 = 15;
+    	final int POOR = 25;
+    	final int POOR_5 = 30;
+    	final int POOR_4 = 35;
+    	final int POOR_3 = 40;
+    	final int OK = 50;
+    	final int GOOD_3 = 55;
+    	final int GOOD_4 = 60;
+    	final int GOOD = 65;
+    	final int EXCELLENT_3 = 60;
+    	final int EXCELLENT_4 = 70;
+    	final int EXCELLENT_5 = 75;
+    	final int EXCELLENT_6 = 80;
+    	final int EXCELLENT_7 = 85;
+    	final int EXCELLENT_8 = 90;
+    	final int EXCELLENT = 95;
+    	
+
+    	String status = "";
+    	Word w = listToRate.get(0);
+
+    	if (r == RATINGS.RESEARCH) {
+    		status = w.getEntry() + ": Needs research";
+    		w.setNeedsResearch(true);
+//    		dict.putWord(w);
+    	} else if (r == RATINGS.MANUAL) {
+    		status = w.getEntry() + ": " + rat + " (Manual)";
+    		w.setRating(rat);
+    		w.setManuallyRated(true);
+//    		dict.putWord(w);
+    	} else if (r == RATINGS.EXCELLENT) {
+    		switch (w.length()) {
+    		case 3:
+    			rat = EXCELLENT_3;
+    			break;
+    		case 4:
+    			rat = EXCELLENT_4;
+    			break;
+    		case 5:
+    			rat = EXCELLENT_5;
+    			break;
+    		case 6:
+    			rat = EXCELLENT_6;
+    			break;
+    		case 7: 
+    			rat = EXCELLENT_7;
+    			break;
+    		case 8: 
+    			rat = EXCELLENT_8;
+    			break;
+    		default: 
+    			rat = EXCELLENT;
+    			break;
+    		}
+    		status = w.getEntry() + ": " + rat + " (Excellent)";
+    		w.setRating(rat);
+    		w.setManuallyRated(true);
+//    		dict.putWord(w);
+    	} else if (r == RATINGS.GOOD) {
+    		switch (w.length()) {
+    		case 3:
+    			rat = GOOD_3;
+    			break;
+    		case 4:
+    			rat = GOOD_4;
+    			break;
+    		default: 
+    			rat = GOOD;
+    			break;
+    		}
+    		status = w.getEntry() + ": " + rat + " (Good)";
+    		w.setRating(rat);
+    		w.setManuallyRated(true);
+//    		dict.putWord(w);
+    	} else if (r == RATINGS.OK) {
+    		rat = OK;
+    		status = w.getEntry() + ": " + rat + " (Ok)";
+    		w.setRating(rat);
+    		w.setManuallyRated(true);
+//    		dict.putWord(w);
+    	} else if (r == RATINGS.POOR) {
+    		switch (w.length()) {
+    		case 3:
+    			rat = POOR_3;
+    			break;
+    		case 4:
+    			rat = POOR_4;
+    			break;
+    		case 5:
+    			rat = POOR_5;
+    			break;
+    		default: 
+    			rat = POOR;
+    			break;
+    		}
+    		status = w.getEntry() + ": " + rat + " (Poor)";
+    		w.setRating(rat);
+    		w.setManuallyRated(true);
+//    		dict.putWord(w);
+    	} else if (r == RATINGS.TERRIBLE) {
+    		switch (w.length()) {
+    		case 3:
+    			rat = TERRIBLE_3;
+    			break;
+    		case 4:
+    			rat = TERRIBLE_4;
+    			break;
+    		case 5:
+    			rat = TERRIBLE_5;
+    			break;
+    		default: 
+    			rat = TERRIBLE;
+    			break;
+    		}
+    		status = w.getEntry() + ": " + rat + " (Terrible)";
+    		w.setRating(rat);
+    		w.setManuallyRated(true);
+//    		dict.putWord(w);
+    	} else if (r == RATINGS.SKIP) {
+    		status = w.getEntry() + ": Skipped";
+    	}
+    	
+    	listToRate.remove(0);	// Remove rated (or skipped) item from list
+
+    	rateResultArea.setText("");
+		for ( Word w1 : listToRate ) {
+			if (w1.equals(listToRate.get(0))) {
+				rateResultArea.append(w1.toString());
+			} else {
+				rateResultArea.append("\n" + w1.toString());
+			}
+		}
+		
+		if (listToRate.isEmpty()) {
+			wordToRate.setText("");
+			setRatingButtons(false);
+		} else {
+			wordToRate.setText(listToRate.get(0).getEntry());
+			setRatingButtons(true);
+		}
+
+    	return status;
     }
     
     public String doLoad()
@@ -1194,12 +1360,12 @@ public class XDictGui extends JFrame implements WindowListener
 
 				Word w = new Word.Builder(wTmp.getEntry()).rating(rating).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).build();
 
-		    	if (w.getEntry().length() < 3) {
+		    	if (w.length() < 3) {
 		    		status = WORD_STATUS.ERROR;
 		    		loadResultArea.append(w.getEntry() + " is less than 3 characters.\n");
 //					statText = " (Skipped)";
 					skipCount++;
-		    	} else if (w.getEntry().length() > 25) {
+		    	} else if (w.length() > 25) {
 		    		status = WORD_STATUS.ERROR;
 		    		loadResultArea.append(w.getEntry() + " is more than 25 characters.\n");
 //					statText = " (Skipped)";
@@ -1300,12 +1466,14 @@ public class XDictGui extends JFrame implements WindowListener
     		methCtrl = MethodControl.AUTOMATIC;
     	}
     	
-    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl);
+    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
     	
     	for (int start = 0; start < resultSetSize; start += QUERY_LIMIT) {
-        	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, start, QUERY_LIMIT);
+			getStatusLine().showInfo("Processing export..." + start + " records processed.");
+
+        	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, start, QUERY_LIMIT, false);
 			for ( Word w : list ) {
-				exportResultArea.append(w.toString() + "\n");
+//				exportResultArea.append(w.toString() + "\n");
 				try {
 					fw.write(w.toString() + "\n");
 				} catch (IOException e) {
@@ -1340,6 +1508,10 @@ public class XDictGui extends JFrame implements WindowListener
         wordRatingSlider.setPaintTicks(true);
         wordRatingSlider.setPaintLabels(true);
         
+        manualRatingSlider.setMajorTickSpacing(10);
+        manualRatingSlider.setMinorTickSpacing(2);
+        manualRatingSlider.setPaintTicks(true);
+        manualRatingSlider.setPaintLabels(true);
     }
 
     public void setupListeners()
@@ -1361,7 +1533,12 @@ public class XDictGui extends JFrame implements WindowListener
         queryMethodManual.addChangeListener(queryChangedListener);
         queryMethodAuto.addChangeListener(queryChangedListener);
         resultPaneTabs.addChangeListener(tabListener);
+        manualRatingSlider.addChangeListener(manualRatingListener);
     }
+
+    /*
+     ************  WINDOW CONTROL ************
+     */
 
 	public void windowActivated(WindowEvent e) {
 	}
@@ -1391,6 +1568,10 @@ public class XDictGui extends JFrame implements WindowListener
 	public void windowOpened(WindowEvent e) {
 	}
     
+    /*
+     ************  MAIN ************
+     */
+	
     public static void main(String[] args) 
     {
         try {

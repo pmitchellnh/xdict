@@ -34,6 +34,11 @@ public class Reconciler1 implements ReconcilerInterface
 		return false;
 	}
 	
+	/*
+	 * If applying word is manual, favor it (whether existing is manual or not)
+	 * Else if existing is manual, favor it (don't override a manual with an auto)
+	 * Else favor the higher value (both auto)
+	 */
 	private byte ReconcileRating(Word w1, Word w2) 
 	{
 		byte val1 = w1.getRating();

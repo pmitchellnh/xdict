@@ -75,7 +75,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		String query = "insert into " + TABLE_WORDS 
 			+ " (ENTRY, LENGTH, RATING, USED_ANY, USED_NYT, NEEDS_RESEARCH, MANUALLY_RATED, LAST_MODIFIED) values('"
 			+ w.getEntry() + "',"
-			+ w.getEntry().length() + ","
+			+ w.length() + ","
 			+ w.getRating() + ","
 			+ w.isUsedAny() + ","
 			+ w.isUsedNYT() + ","
@@ -96,7 +96,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	private int updateWord(Word w) {
 		// Add word to DB
 		String query = "update " + TABLE_WORDS + " set "
-			+ "LENGTH=" + w.getEntry().length() + ","
+			+ "LENGTH=" + w.length() + ","
 			+ "RATING=" + w.getRating() + ","
 			+ "USED_ANY=" + w.isUsedAny() + ","
 			+ "USED_NYT=" + w.isUsedNYT() + ","
@@ -178,7 +178,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	}
 
 	@Override
-	public ArrayList<Word> getWords(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, int start, int limit) 
+	public ArrayList<Word> getWords(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, int start, int limit, boolean ratingQuery) 
 	{
 		ArrayList<Word> list = new ArrayList<Word>();
 		boolean firstWhere = true;	// use to track when to put AND in query
@@ -256,6 +256,11 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 				sb.append(" AND ");
 			sb.append("USED_ANY > 0");
 			firstWhere = false;
+		} else if (ratingQuery) {		// for rating query, assume unchecked means we want words NOT on the lists
+			if (firstWhere == false)
+				sb.append(" AND ");
+			sb.append("USED_ANY = 0");
+			firstWhere = false;
 		}
 		
 		if ( resCtrl == ResearchControl.NEEDS_RESEARCH ) {
@@ -306,7 +311,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	}
 
 	@Override
-	public int getCount(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl) 
+	public int getCount(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, boolean ratingQuery) 
 	{
 		boolean firstWhere = true;	// use to track when to put AND in query
 		StringBuilder sb = new StringBuilder("");
@@ -381,6 +386,11 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append("USED_ANY > 0");
+			firstWhere = false;
+		} else if (ratingQuery) {		// for rating query, assume unchecked means we want words NOT on the lists
+			if (firstWhere == false)
+				sb.append(" AND ");
+			sb.append("USED_ANY = 0");
 			firstWhere = false;
 		}
 		

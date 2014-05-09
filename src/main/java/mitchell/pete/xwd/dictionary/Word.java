@@ -110,6 +110,10 @@ public class Word
 		return entry;
 	}
 	
+	public int length() {
+		return entry.length();
+	}
+	
 	public byte getRating() {
 		return rating;
 	}
@@ -263,7 +267,7 @@ public class Word
 	 */
 	public String toString()
 	{
-		String s = new String( entry + ":" + rating );
+		String s = new String( entry + ";" + rating );
 		
 		return s;
 	}
@@ -274,11 +278,11 @@ public class Word
 	public String toStringQuery()
 	{
 		String s = new String ( entry + "(" + entry.length() + "), "
-				+ rating + ", "
-				+ ( usedAny ? "any, " : "" )
-				+ ( usedNYT ? "nyt, " : "" )
-				+ ( needsResearch ? "research, " : "" )
-				+ ( manuallyRated ? "manual, " : "" ));
+				+ rating
+				+ ( usedAny ? ", any " : "" )
+				+ ( usedNYT ? ", nyt, " : "" )
+				+ ( needsResearch ? ", research " : "" )
+				+ ( manuallyRated ? ", manual " : "" ));
 		return s;
 	}
 	

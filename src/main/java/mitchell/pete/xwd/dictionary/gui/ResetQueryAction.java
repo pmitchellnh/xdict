@@ -13,7 +13,7 @@ public class ResetQueryAction extends AbstractAction
     {
         this.gui = g;
 
-        putValue(Action.LONG_DESCRIPTION, "Reset query fields to default values");
+        putValue(Action.SHORT_DESCRIPTION, "Reset query fields to default values");
         putValue(Action.NAME, "Reset Query");
     }
 

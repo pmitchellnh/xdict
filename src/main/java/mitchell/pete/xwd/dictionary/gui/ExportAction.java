@@ -14,7 +14,7 @@ public class ExportAction extends AbstractAction implements Runnable
     {
         this.gui = g;
 
-        putValue(Action.LONG_DESCRIPTION, "Export words");
+        putValue(Action.SHORT_DESCRIPTION, "Export to a dictionary file");
         putValue(Action.NAME, "Export");
     }
 

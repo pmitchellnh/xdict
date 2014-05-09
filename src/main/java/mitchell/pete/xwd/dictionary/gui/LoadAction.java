@@ -14,7 +14,7 @@ public class LoadAction extends AbstractAction implements Runnable
     {
         this.gui = g;
 
-        putValue(Action.LONG_DESCRIPTION, "Load words");
+        putValue(Action.SHORT_DESCRIPTION, "Load words from an external file");
         putValue(Action.NAME, "Load");
     }
 

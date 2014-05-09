@@ -16,7 +16,7 @@ public class AddAction extends AbstractAction implements Runnable
     {
         this.gui = g;
 
-        putValue(Action.LONG_DESCRIPTION, "Add new word");
+        putValue(Action.SHORT_DESCRIPTION, "Add this word");
         putValue(Action.NAME, "Add");
     }
 
