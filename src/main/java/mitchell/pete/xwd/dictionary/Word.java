@@ -36,6 +36,7 @@ public class Word
 		private boolean needsResearch = false;
 		private boolean manuallyRated = false;
 		private Timestamp lastModified = NO_DATE;
+		private String comment = null;
 		private WordInfo info = null;
 		
 		// Builder Constructor
@@ -65,6 +66,7 @@ public class Word
 		public Builder manuallyRated(boolean val)	{ manuallyRated = val; return this; }
 		public Builder lastModified(Timestamp val)	{ lastModified = val; return this; }
 		public Builder wordInfo(WordInfo val)		{ info = val; return this; }
+		public Builder comment(String val)			{ comment = val; return this; }
 		
 		public Word build()
 		{
@@ -89,6 +91,11 @@ public class Word
 		
 		if ( usedNYT )
 			usedAny = true;
+		
+		if (builder.comment != null) {
+			info = new WordInfo();
+			info.setComment(builder.comment);
+		}
 	}
 
 	/*
@@ -207,27 +214,30 @@ public class Word
 		lastModified = ts;
 	}
 	
-	public String getComments() {
-		String c = (info == null ? null : info.getComments());
+	public boolean hasComment() {
+		if (getComment().isEmpty())
+			return false;
+		else
+			return true;
+	}
+	
+	public String getComment() {
+		String c = (info == null ? null : info.getComment());
 
 		return (c == null ? "" : c);	// Return empty string, not null
 	}
 
-	public void setComments(String comments) 
+	public boolean setComment(String comment) 
 	{
+		if (getComment().equals(comment))		// No change
+			return false;
+		
 		if (info == null) {
 			info = new WordInfo();
 		}
-		info.setComments(comments);
-	}
-
-	public void addToComments(String comments) 
-	{
-		if (info == null) {
-			setComments(comments);
-		} else {
-			info.addToComments(comments);
-		}
+		info.setComment(comment);
+		
+		return true;
 	}
 
 	public WordInfo.Sparkle getSparkle() {
@@ -273,7 +283,7 @@ public class Word
 	}
 	
 	/**
-	 *	This os the format that will used for query display 
+	 *	This is the format that will used for query display 
 	 */
 	public String toStringQuery()
 	{
@@ -282,7 +292,8 @@ public class Word
 				+ ( usedAny ? ", any " : "" )
 				+ ( usedNYT ? ", nyt, " : "" )
 				+ ( needsResearch ? ", research " : "" )
-				+ ( manuallyRated ? ", manual " : "" ));
+				+ ( manuallyRated ? ", manual " : "" )
+				+ ( getComment().isEmpty() ? "" : " (" + getComment() + ")") );
 		return s;
 	}
 	

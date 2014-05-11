@@ -6,8 +6,6 @@ import mitchell.pete.xwd.dictionary.Word;
 
 public interface XDictDB_Interface 
 {
-	enum DBControl { CREATE_IF_NEEDED, OPEN_ONLY, TESTING_ONLY };	// TESTING_ONLY will delete/create!!
-	
 	enum LengthControl { ALL, EQUALS, ATLEAST, ATMOST };		// used to build queries
 	enum PatternControl { ALL, EQUALS, STARTSWITH, CONTAINS };	// used to build queries
 	enum RatingControl { ALL, ATLEAST, ATMOST };				// used to build queries

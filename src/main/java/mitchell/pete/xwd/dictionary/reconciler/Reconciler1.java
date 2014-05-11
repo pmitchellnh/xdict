@@ -100,4 +100,16 @@ public class Reconciler1 implements ReconcilerInterface
 			return false;
 	}
 
+	public boolean ReconcileComment(Word w1, Word w2) 
+	{
+		// Overwrite comments for manually-rated word.  Else keep what's there.
+		// Should never auto-generate comments.
+		if (w2.isManuallyRated()) {
+			w1.setComment(w2.getComment());
+			return true;
+		}
+		return false;
+	}
+
+
 }

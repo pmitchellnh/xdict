@@ -11,14 +11,14 @@ public class WordInfo
 	private Facility facility;
 	private Currency currency;
 	private Taste taste;
-	private String comments;
+	private String comment;
 
 	public WordInfo() {
 		sparkle = Sparkle.UNDEFINED;
 		facility = Facility.UNDEFINED;
 		currency = Currency.UNDEFINED;
 		taste = Taste.UNDEFINED;
-		comments = null;
+		comment = null;
 	}
 	
 	public Sparkle getSparkle() {
@@ -53,25 +53,17 @@ public class WordInfo
 		this.taste = taste;
 	}
 
-	public String getComments() {
-		return comments;
+	public String getComment() {
+		return comment;
 	}
 
-	public void setComments(String comments) {
-		if (comments.isEmpty())
-			this.comments = null;	// Don't store an empty string
+	public void setComment(String comment) {
+		if (comment.isEmpty())
+			this.comment = null;	// Don't store an empty string
 		else
-			this.comments = comments;
+			this.comment = comment;
 	}
 	
-	public void addToComments(String comments) {
-		if (comments == null) {
-			setComments(comments);
-		} else {
-			this.comments += comments;
-		}
-	}
-
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();
@@ -91,9 +83,9 @@ public class WordInfo
 			sb.append("Taste: ");
 			sb.append(taste.toString());
 		}
-		if (comments != null) {
+		if (comment != null) {
 			sb.append("Comments: ");
-			sb.append(comments);
+			sb.append(comment);
 		}
 		
 		return sb.toString();

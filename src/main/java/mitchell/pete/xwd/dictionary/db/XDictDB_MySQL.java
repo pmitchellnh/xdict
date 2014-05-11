@@ -16,6 +16,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	private String user = "xdict";
 	private String password = "xdict";
 	private String TABLE_WORDS = "WORDS";
+	private String TABLE_COMMENTS = "COMMENTS";
 
 	private Reconciler1 reconciler = new Reconciler1();
 
@@ -67,6 +68,15 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			status = WORD_STATUS.DUPLICATE;
 		}
 		
+		if (!oldWord.hasComment() && w.hasComment()) {			// comment added
+			insertComment(w);
+		} else if (reconciler.ReconcileComment(oldWord, w)) {	// something changed
+			if (!oldWord.hasComment()) {						// comment removed
+				deleteComment(w);
+			} else {											// comment updated
+				updateComment(w);
+			}
+		}
 		return status;
 	}
 	
@@ -114,12 +124,51 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		
 		return w.getRating();
 	}
+	
+	private void insertComment(Word w) {
+		String query = "insert into " + TABLE_COMMENTS 
+			+ " (ENTRY, COMMENT) values('"
+			+ w.getEntry() + "','"
+			+ w.getComment() + "')";
+		
+		try {
+			stmt.executeUpdate(query);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
+		}
+	}
+	
+	private void updateComment(Word w) {
+		String query = "update " + TABLE_COMMENTS + " set "
+				+ "COMMENT='" + w.getComment() + "' "
+				+ "where ENTRY='" + w.getEntry() + "'";
+			
+			try {
+				stmt.executeUpdate(query);
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+				System.out.println("SQL: " + query);
+			}
+	}
+	
+	private void deleteComment(Word w) {
+		String query = "delete from " + TABLE_COMMENTS + " where ENTRY = '" + w.getEntry() + "'";
+		try {
+			stmt.executeUpdate(query);
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			System.out.println("SQL: " + query);
+		}
+	}
 
 	@Override
 	public Word getWord(String s) 
 	{
 		String key = Word.format(s);
-		String query = "select * from " + TABLE_WORDS + " where ENTRY = '" + key + "'";
+		String query = "select * from " + TABLE_WORDS + 
+				" LEFT JOIN COMMENTS ON WORDS.ENTRY=COMMENTS.ENTRY" +
+				" where WORDS.ENTRY = '" + key + "'";
 		
 		try {
 			stmt = conn.createStatement();
@@ -147,8 +196,10 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		String key = Word.format(s);
 		
 		String query = "delete from " + TABLE_WORDS + " where ENTRY = '" + key + "'";
+		String query1 = "delete from " + TABLE_COMMENTS + " where ENTRY = '" + key + "'";
 		try {
 			stmt.executeUpdate(query);
+			stmt.executeUpdate(query1);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
@@ -187,26 +238,36 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		
 		sb.append( "select * from " );
 		sb.append( TABLE_WORDS );
+		sb.append(" LEFT JOIN COMMENTS ON ");
+		sb.append( TABLE_WORDS );
+		sb.append(".ENTRY=");
+		sb.append(TABLE_COMMENTS);
+		sb.append(".ENTRY");
+
+		
 		sb.append( " where " );
 		
 		if ( patCtrl == PatternControl.EQUALS ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
-			sb.append("ENTRY = '");
+			sb.append(TABLE_WORDS);
+			sb.append(".ENTRY = '");
 			sb.append(key);
 			sb.append("'" );
 			firstWhere = false;
 		} else if ( patCtrl == PatternControl.STARTSWITH ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
-			sb.append("ENTRY LIKE '");
+			sb.append(TABLE_WORDS);
+			sb.append(".ENTRY LIKE '");
 			sb.append(key);
 			sb.append("%'" );
 			firstWhere = false;
 		} else if ( patCtrl == PatternControl.CONTAINS ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
-			sb.append("ENTRY LIKE '%");
+			sb.append(TABLE_WORDS);
+			sb.append(".ENTRY LIKE '%");
 			sb.append(key);
 			sb.append("%'" );
 			firstWhere = false;
@@ -286,11 +347,13 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			sb.append("MANUALLY_RATED > 0");
 			firstWhere = false;
 		}
-		
+		sb.append(" ORDER BY ");
+		sb.append(TABLE_WORDS);
+		sb.append(".ENTRY");
 		sb.append(" LIMIT " + start + "," + limit);
 		
 		String query = sb.toString();
-		System.out.println("Query: " + query);
+//		System.out.println("Query: " + query);
 		
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -440,7 +503,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	public ArrayList<Word> getAllWords() 
 	{
 		ArrayList<Word> list = new ArrayList<Word>();
-		String query = "select * from " + TABLE_WORDS;
+		String query = "select * from " + TABLE_WORDS + " LEFT JOIN COMMENTS ON WORDS.ENTRY=COMMENTS.ENTRY";
 		
 		try {
 			ResultSet rs = stmt.executeQuery(query);
@@ -509,10 +572,11 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		boolean needs_research = rs.getBoolean("NEEDS_RESEARCH");
 		boolean manually_rated = rs.getBoolean("MANUALLY_RATED");
 		Timestamp last_modified = rs.getTimestamp("LAST_MODIFIED");
+		String comment = rs.getString("COMMENT");
 
 		Word w = new Word.Builder(entry).rating(rating).
 				usedNYT(used_nyt).usedAny(used_any).needsResearch(needs_research).
-				manuallyRated(manually_rated).lastModified(last_modified).build();
+				manuallyRated(manually_rated).lastModified(last_modified).comment(comment).build();
 		
 		return w;
 	}
