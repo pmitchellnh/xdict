@@ -1,5 +1,8 @@
 package mitchell.pete.xwd.dictionary.db;
 
+import mitchell.pete.xwd.dictionary.Word;
+import mitchell.pete.xwd.dictionary.reconciler.Reconciler1;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -7,9 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-
-import mitchell.pete.xwd.dictionary.Word;
-import mitchell.pete.xwd.dictionary.reconciler.Reconciler1;
 
 public class XDictDB_MySQL implements XDictDB_Interface {
 	private String dbURL = "";
@@ -68,7 +68,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			status = WORD_STATUS.DUPLICATE;
 		}
 		
-		if (!oldWord.hasComment() && w.hasComment()) {			// comment added
+		if (oldWord == null || (!oldWord.hasComment() && w.hasComment())) {			// comment added
 			insertComment(w);
 		} else if (reconciler.ReconcileComment(oldWord, w)) {	// something changed
 			if (!oldWord.hasComment()) {						// comment removed
@@ -165,7 +165,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	@Override
 	public Word getWord(String s) 
 	{
-		String key = Word.format(s);
+		String key = Word.format(s, Word.NO_WILDS);
 		String query = "select * from " + TABLE_WORDS + 
 				" LEFT JOIN COMMENTS ON WORDS.ENTRY=COMMENTS.ENTRY" +
 				" where WORDS.ENTRY = '" + key + "'";
@@ -193,7 +193,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	@Override
 	public void deleteWord(String s) 
 	{
-		String key = Word.format(s);
+		String key = Word.format(s, Word.NO_WILDS);
 		
 		String query = "delete from " + TABLE_WORDS + " where ENTRY = '" + key + "'";
 		String query1 = "delete from " + TABLE_COMMENTS + " where ENTRY = '" + key + "'";
@@ -234,7 +234,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		ArrayList<Word> list = new ArrayList<Word>();
 		boolean firstWhere = true;	// use to track when to put AND in query
 		StringBuilder sb = new StringBuilder("");
-		String key = Word.format(s);
+		String key = Word.format(s, Word.WILD_OK);
 		
 		sb.append( "select * from " );
 		sb.append( TABLE_WORDS );
@@ -251,7 +251,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			if (firstWhere == false )
 				sb.append(" AND ");
 			sb.append(TABLE_WORDS);
-			sb.append(".ENTRY = '");
+			sb.append(".ENTRY LIKE '");
 			sb.append(key);
 			sb.append("'" );
 			firstWhere = false;
@@ -272,81 +272,89 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			sb.append("%'" );
 			firstWhere = false;
 		}
-		
-		if ( lenCtrl == LengthControl.EQUALS ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("LENGTH = ");
-			sb.append(len);
-			firstWhere = false;
-		} else if ( lenCtrl == LengthControl.ATLEAST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("LENGTH >= ");
-			sb.append(len);
-			firstWhere = false;
-		} else if ( lenCtrl == LengthControl.ATMOST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("LENGTH <= ");
-			sb.append(len);
-			firstWhere = false;
-		}
-		
-		if ( ratCtrl == RatingControl.ATLEAST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("RATING >= ");
-			sb.append(rat);
-			firstWhere = false;
-		} else if ( ratCtrl == RatingControl.ATMOST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("RATING <= ");
-			sb.append(rat);
-			firstWhere = false;
-		}
-		
-		if ( useCtrl == UsedControl.USED_NYT ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("USED_NYT > 0");
-			firstWhere = false;
-		} else if ( useCtrl == UsedControl.USED_ANY ) { // NYT => ANY, so don't need this if NYT set
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("USED_ANY > 0");
-			firstWhere = false;
-		} else if (ratingQuery) {		// for rating query, assume unchecked means we want words NOT on the lists
-			if (firstWhere == false)
-				sb.append(" AND ");
-			sb.append("USED_ANY = 0");
-			firstWhere = false;
-		}
-		
-		if ( resCtrl == ResearchControl.NEEDS_RESEARCH ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("NEEDS_RESEARCH > 0");
-			firstWhere = false;
-		} else if ( resCtrl == ResearchControl.NO_RESEARCH ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("NEEDS_RESEARCH = 0");
-			firstWhere = false;
-		}
-		
-		if (methCtrl == MethodControl.AUTOMATIC) {
-			if (firstWhere == false)
-				sb.append(" AND ");
-			sb.append("MANUALLY_RATED = 0");
-			firstWhere = false;
-		} else if (methCtrl == MethodControl.MANUAL) {
-			if (firstWhere == false)
-				sb.append(" AND ");
-			sb.append("MANUALLY_RATED > 0");
-			firstWhere = false;
-		}
+
+        // If looking for an exact pattern, ignore other criteria
+        if (patCtrl != PatternControl.EQUALS || key.contains("_")) {
+            if (lenCtrl == LengthControl.ALL) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH >= 1");
+                firstWhere = false;
+            } else if (lenCtrl == LengthControl.EQUALS) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH = ");
+                sb.append(len);
+                firstWhere = false;
+            } else if (lenCtrl == LengthControl.ATLEAST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH >= ");
+                sb.append(len);
+                firstWhere = false;
+            } else if (lenCtrl == LengthControl.ATMOST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH <= ");
+                sb.append(len);
+                firstWhere = false;
+            }
+
+            if (ratCtrl == RatingControl.ATLEAST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("RATING >= ");
+                sb.append(rat);
+                firstWhere = false;
+            } else if (ratCtrl == RatingControl.ATMOST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("RATING <= ");
+                sb.append(rat);
+                firstWhere = false;
+            }
+
+            if (useCtrl == UsedControl.USED_NYT) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("USED_NYT > 0");
+                firstWhere = false;
+            } else if (useCtrl == UsedControl.USED_ANY) { // NYT => ANY, so don't need this if NYT set
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("USED_ANY > 0");
+                firstWhere = false;
+            } else if (useCtrl == UsedControl.NOT_USED) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("USED_ANY = 0");
+                firstWhere = false;
+            }
+
+            if (resCtrl == ResearchControl.NEEDS_RESEARCH) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("NEEDS_RESEARCH > 0");
+                firstWhere = false;
+            } else if (resCtrl == ResearchControl.NO_RESEARCH) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("NEEDS_RESEARCH = 0");
+                firstWhere = false;
+            }
+
+            if (methCtrl == MethodControl.AUTOMATIC) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("MANUALLY_RATED = 0");
+                firstWhere = false;
+            } else if (methCtrl == MethodControl.MANUAL) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("MANUALLY_RATED > 0");
+                firstWhere = false;
+            }
+        }
 		sb.append(" ORDER BY ");
 		sb.append(TABLE_WORDS);
 		sb.append(".ENTRY");
@@ -378,7 +386,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	{
 		boolean firstWhere = true;	// use to track when to put AND in query
 		StringBuilder sb = new StringBuilder("");
-		String key = Word.format(s);
+		String key = Word.format(s, Word.WILD_OK);
 		
 		sb.append( "select count(*) from " );
 		sb.append( TABLE_WORDS );
@@ -386,7 +394,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		if ( patCtrl == PatternControl.EQUALS ) {
 			if (firstWhere == false )
 				sb.append(" AND ");
-			sb.append("ENTRY = '");
+			sb.append("ENTRY LIKE '");
 			sb.append(key);
 			sb.append("'" );
 			firstWhere = false;
@@ -405,79 +413,88 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			sb.append("%'" );
 			firstWhere = false;
 		}
-		
-		if ( lenCtrl == LengthControl.EQUALS ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("LENGTH = ");
-			sb.append(len);
-			firstWhere = false;
-		} else if ( lenCtrl == LengthControl.ATLEAST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("LENGTH >= ");
-			sb.append(len);
-			firstWhere = false;
-		} else if ( lenCtrl == LengthControl.ATMOST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("LENGTH <= ");
-			sb.append(len);
-			firstWhere = false;
-		}
-		
-		if ( ratCtrl == RatingControl.ATLEAST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("RATING >= ");
-			sb.append(rat);
-			firstWhere = false;
-		} else if ( ratCtrl == RatingControl.ATMOST ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("RATING <= ");
-			sb.append(rat);
-			firstWhere = false;
-		}
-		
-		if ( useCtrl == UsedControl.USED_NYT ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("USED_NYT > 0");
-			firstWhere = false;
-		} else if ( useCtrl == UsedControl.USED_ANY ) { // NYT => ANY, so don't need this if NYT set
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("USED_ANY > 0");
-			firstWhere = false;
-		} else if (ratingQuery) {		// for rating query, assume unchecked means we want words NOT on the lists
-			if (firstWhere == false)
-				sb.append(" AND ");
-			sb.append("USED_ANY = 0");
-			firstWhere = false;
-		}
-		
-		if ( resCtrl == ResearchControl.NEEDS_RESEARCH ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("NEEDS_RESEARCH > 0");
-			firstWhere = false;
-		} else if ( resCtrl == ResearchControl.NO_RESEARCH ) {
-			if (firstWhere == false )
-				sb.append(" AND ");
-			sb.append("NEEDS_RESEARCH = 0");
-			firstWhere = false;
-		}
-		
-		if (methCtrl == MethodControl.AUTOMATIC) {
-			if (firstWhere == false)
-				sb.append(" AND ");
-			sb.append("MANUALLY_RATED = 0");
-		} else if (methCtrl == MethodControl.MANUAL) {
-			if (firstWhere == false)
-				sb.append(" AND ");
-			sb.append("MANUALLY_RATED > 0");
-		}
+
+        // If looking for an exact pattern, ignore other criteria
+        if (patCtrl != PatternControl.EQUALS || key.contains("_")) {
+            if (lenCtrl == LengthControl.ALL) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH >= 1");
+                firstWhere = false;
+            } else if (lenCtrl == LengthControl.EQUALS) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH = ");
+                sb.append(len);
+                firstWhere = false;
+            } else if (lenCtrl == LengthControl.ATLEAST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH >= ");
+                sb.append(len);
+                firstWhere = false;
+            } else if (lenCtrl == LengthControl.ATMOST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("LENGTH <= ");
+                sb.append(len);
+                firstWhere = false;
+            }
+
+
+            if (ratCtrl == RatingControl.ATLEAST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("RATING >= ");
+                sb.append(rat);
+                firstWhere = false;
+            } else if (ratCtrl == RatingControl.ATMOST) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("RATING <= ");
+                sb.append(rat);
+                firstWhere = false;
+            }
+
+            if (useCtrl == UsedControl.USED_NYT) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("USED_NYT > 0");
+                firstWhere = false;
+            } else if (useCtrl == UsedControl.USED_ANY) { // NYT => ANY, so don't need this if NYT set
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("USED_ANY > 0");
+                firstWhere = false;
+            } else if (useCtrl == UsedControl.NOT_USED) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("USED_ANY = 0");
+                firstWhere = false;
+            }
+
+            if (resCtrl == ResearchControl.NEEDS_RESEARCH) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("NEEDS_RESEARCH > 0");
+                firstWhere = false;
+            } else if (resCtrl == ResearchControl.NO_RESEARCH) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("NEEDS_RESEARCH = 0");
+                firstWhere = false;
+            }
+
+            if (methCtrl == MethodControl.AUTOMATIC) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("MANUALLY_RATED = 0");
+            } else if (methCtrl == MethodControl.MANUAL) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("MANUALLY_RATED > 0");
+            }
+        }
 		
 		String query = sb.toString();
 		

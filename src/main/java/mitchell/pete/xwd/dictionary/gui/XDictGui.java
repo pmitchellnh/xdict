@@ -1,47 +1,7 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.Insets;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
-import mitchell.pete.xwd.dictionary.Word;
 import mitchell.pete.xwd.dictionary.LoadAndExportUtilities;
+import mitchell.pete.xwd.dictionary.Word;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.LengthControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.MethodControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.PatternControl;
@@ -51,6 +11,22 @@ import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.UsedControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
 import mitchell.pete.xwd.dictionary.db.XDictDB_MySQL;
 import mitchell.pete.xwd.dictionary.gui.RateAction.RATINGS;
+
+import javax.swing.*;
+import javax.swing.border.BevelBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
 
 public class XDictGui extends JFrame implements WindowListener 
 {
@@ -80,6 +56,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JMenu             fileMenu               = new JMenu();
     private JMenu             viewMenu               = new JMenu();
     private JMenuItem		  resetQueryMenuItem	 = new JMenuItem(new ResetQueryAction(this));
+    private JMenuItem		  backupMenuItem	 	 = new JMenuItem(new BackupAction(this));
     private JTextArea         queryResultArea        = new JTextArea();
     private JScrollPane       queryScrollPane        = new JScrollPane();
     private JTextArea         addResultArea          = new JTextArea();
@@ -118,6 +95,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JLabel manualRatingLabel        = new JLabel(String.valueOf(manualRatingSlider.getValue()));
     private JCheckBox usedAny               = new JCheckBox("Used Any: ");
     private JCheckBox usedNYT               = new JCheckBox("Used NYT: ");
+    private JCheckBox notUsed               = new JCheckBox("Not Used: ");
     private JCheckBox research              = new JCheckBox("Needs Research: ");
     private JButton queryButton				= new JButton(new QueryAction(this, false, false));
     private JButton nextButton				= new JButton(new QueryAction(this, true, false));
@@ -127,6 +105,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JButton exportButton		    = new JButton(new ExportAction(this));
     private JButton terribleButton		    = new JButton(new RateAction(this, RATINGS.TERRIBLE));
     private JButton poorButton		        = new JButton(new RateAction(this, RATINGS.POOR));
+    private JButton lameButton		        = new JButton(new RateAction(this, RATINGS.LAME));
     private JButton okButton   		        = new JButton(new RateAction(this, RATINGS.OK));
     private JButton goodButton		        = new JButton(new RateAction(this, RATINGS.GOOD));
     private JButton excellentButton		    = new JButton(new RateAction(this, RATINGS.EXCELLENT));
@@ -239,6 +218,14 @@ public class XDictGui extends JFrame implements WindowListener
     	}
     };
 
+    ChangeListener notUsedListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            nextButton.setEnabled(false);
+        }
+    };
+
     ChangeListener queryChangedListener = new ChangeListener()
     {
     	public void stateChanged(ChangeEvent e)
@@ -286,6 +273,7 @@ public class XDictGui extends JFrame implements WindowListener
         menuBar.add(fileMenu);
 
         fileMenu.setText("File");
+        fileMenu.add(backupMenuItem);
 
 //        Action    action;
 //        JMenuItem menuItem;
@@ -508,11 +496,21 @@ public class XDictGui extends JFrame implements WindowListener
         c.weighty = 0;
         controlPanel.add(usedNYT);
         gbl.setConstraints(usedNYT, c);
-        
-        // Research Checkbox
+
+        // NotUsed Checkbox
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.NONE;
         c.gridx = 2;
+        c.gridy = 2;
+        c.weightx = 0;
+        c.weighty = 0;
+        controlPanel.add(notUsed);
+        gbl.setConstraints(notUsed, c);
+
+        // Research Checkbox
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.NONE;
+        c.gridx = 3;
         c.gridy = 2;
         c.weightx = 0;
         c.weighty = 0;
@@ -715,6 +713,7 @@ public class XDictGui extends JFrame implements WindowListener
     	JPanel result = new JPanel();
         result.add(terribleButton);
         result.add(poorButton);
+        result.add(lameButton);
         result.add(okButton);
         result.add(goodButton);
         result.add(excellentButton);
@@ -730,6 +729,7 @@ public class XDictGui extends JFrame implements WindowListener
     private void setRatingButtons(boolean state) {
     	terribleButton.setEnabled(state);
     	poorButton.setEnabled(state);
+    	lameButton.setEnabled(state);
     	okButton.setEnabled(state);
     	goodButton.setEnabled(state);
     	excellentButton.setEnabled(state);
@@ -971,12 +971,13 @@ public class XDictGui extends JFrame implements WindowListener
     }
     
     public void resetQuery(boolean rating) {
-        wordEntry.setText("");
+//        wordEntry.setText("");
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(RATING_DEFAULT);
         manualRatingSlider.setValue(RATING_DEFAULT);
-        usedAny.setSelected(false);
-        usedNYT.setSelected(false);
+        usedAny.setSelected(true);
+        usedNYT.setSelected(true);
+        notUsed.setSelected(true);
         research.setSelected(false);
         if (rating) {
         	queryMethodAuto.setSelected(true);
@@ -1069,10 +1070,16 @@ public class XDictGui extends JFrame implements WindowListener
     	else if ( queryLengthAtLeast.isSelected() )
     		lenCtrl = LengthControl.ATLEAST;
 
-    	if ( usedNYT.isSelected() )
-    		useCtrl = UsedControl.USED_NYT;
+    	if ( usedNYT.isSelected() ) {
+            if (notUsed.isSelected())
+                useCtrl = UsedControl.ALL;
+            else
+                useCtrl = UsedControl.USED_NYT;
+        }
     	else if ( usedAny.isSelected() )
-        		useCtrl = UsedControl.USED_ANY;
+                useCtrl = UsedControl.USED_ANY;
+        else if ( notUsed.isSelected())
+            useCtrl = UsedControl.NOT_USED;
     	
     	if ( research.isSelected() )
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
@@ -1157,15 +1164,21 @@ public class XDictGui extends JFrame implements WindowListener
     	else if ( queryLengthAtLeast.isSelected() )
     		lenCtrl = LengthControl.ATLEAST;
 
-    	if ( usedNYT.isSelected() )
-    		useCtrl = UsedControl.USED_NYT;
-    	else if ( usedAny.isSelected() )
-        	useCtrl = UsedControl.USED_ANY;
-    	else 
-    		useCtrl = UsedControl.NOT_USED;
-    	
-    	if ( research.isSelected() )
+        if ( usedNYT.isSelected() ) {
+            if (notUsed.isSelected())
+                useCtrl = UsedControl.ALL;
+            else
+                useCtrl = UsedControl.USED_NYT;
+        }
+        else if ( usedAny.isSelected() )
+            useCtrl = UsedControl.USED_ANY;
+        else if ( notUsed.isSelected())
+            useCtrl = UsedControl.NOT_USED;
+
+        if ( research.isSelected() )
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
+    	else
+    		resCtrl = ResearchControl.NO_RESEARCH;
     	
     	if (queryMethodManual.isSelected()) {
     		methCtrl = MethodControl.MANUAL;
@@ -1223,19 +1236,23 @@ public class XDictGui extends JFrame implements WindowListener
     
     public String doRate(RATINGS r)
     {
-    	final int TERRIBLE = 1;
-    	final int TERRIBLE_5 = 5;
-    	final int TERRIBLE_4 = 10;
-    	final int TERRIBLE_3 = 15;
-    	final int POOR = 25;
-    	final int POOR_5 = 30;
-    	final int POOR_4 = 35;
-    	final int POOR_3 = 40;
-    	final int OK = 50;
-    	final int GOOD_3 = 55;
-    	final int GOOD_4 = 60;
-    	final int GOOD = 65;
-    	final int EXCELLENT_3 = 60;
+    	final int TERRIBLE = 5;
+    	final int TERRIBLE_5 = 10;
+    	final int TERRIBLE_4 = 15;
+    	final int TERRIBLE_3 = 20;
+    	final int POOR = 15;
+    	final int POOR_5 = 20;
+    	final int POOR_4 = 25;
+    	final int POOR_3 = 30;
+    	final int LAME = 35;
+    	final int LAME_5 = 40;
+    	final int LAME_4 = 45;
+    	final int LAME_3 = 50;
+    	final int OK = 60;
+    	final int GOOD_3 = 63;
+    	final int GOOD_4 = 65;
+    	final int GOOD = 70;
+    	final int EXCELLENT_3 = 65;
     	final int EXCELLENT_4 = 70;
     	final int EXCELLENT_5 = 75;
     	final int EXCELLENT_6 = 80;
@@ -1313,6 +1330,26 @@ public class XDictGui extends JFrame implements WindowListener
     		w.setManuallyRated(true);
     		w.setNeedsResearch(false);	// rated manually; research complete
     		dict.putWord(w);
+    	} else if (r == RATINGS.LAME) {
+    		switch (w.length()) {
+    		case 3:
+    			rat = LAME_3;
+    			break;
+    		case 4:
+    			rat = LAME_4;
+    			break;
+    		case 5:
+    			rat = LAME_5;
+    			break;
+    		default: 
+    			rat = LAME;
+    			break;
+    		}
+    		status = w.getEntry() + ": " + rat + " (Lame)";
+    		w.setRating(rat);
+    		w.setManuallyRated(true);
+    		w.setNeedsResearch(false);	// rated manually; research complete
+    		dict.putWord(w);
     	} else if (r == RATINGS.POOR) {
     		switch (w.length()) {
     		case 3:
@@ -1358,6 +1395,7 @@ public class XDictGui extends JFrame implements WindowListener
     	}
     	
     	listToRate.remove(0);	// Remove rated (or skipped) item from list
+	    nextButton.setEnabled(false);	// Disable "next", as we now need to re-query since the rated word is no longer there
 
     	rateResultArea.setText("");
 		for ( Word w1 : listToRate ) {
@@ -1461,9 +1499,13 @@ public class XDictGui extends JFrame implements WindowListener
     	return retStatus;
     }
     
-    public String doExport()
+    public String doExport(boolean isBackup)
     {
     	String filename = exportFile.getText();
+    	if (isBackup) {
+    		Timestamp t = new Timestamp(new Date().getTime());
+    		filename = "backups/bkup_" + t.toString();
+    	}
     	exportResultArea.setText("");
     	FileWriter fw;
 
@@ -1478,9 +1520,9 @@ public class XDictGui extends JFrame implements WindowListener
     	ArrayList<Word> list = null;
     	int resultSetSize = 0;
     	
-    	String key = wordEntry.getText();
-    	int length = wordLengthSlider.getValue();
-    	int rat = wordRatingSlider.getValue();
+    	String key = (isBackup ? "" : wordEntry.getText());
+    	int length = (isBackup ? 3 : wordLengthSlider.getValue());
+    	int rat = (isBackup ? 0 : wordRatingSlider.getValue());
     	LengthControl lenCtrl = LengthControl.ALL;
     	PatternControl patCtrl = PatternControl.ALL;
     	RatingControl ratCtrl = RatingControl.ALL;
@@ -1488,51 +1530,57 @@ public class XDictGui extends JFrame implements WindowListener
     	ResearchControl resCtrl = ResearchControl.ALL;
     	MethodControl methCtrl = MethodControl.ALL;
     	
-    	if ( queryRatingAtMost.isSelected() )
-    		ratCtrl = RatingControl.ATMOST;
-    	else if ( queryRatingAtLeast.isSelected() )
-    		ratCtrl = RatingControl.ATLEAST;
-
-    	if ( key.length() == 0 )	// no pattern selected
-    		patCtrl = PatternControl.ALL;
-    	else if ( queryEntryEquals.isSelected() )
-    		patCtrl = PatternControl.EQUALS;
-    	else if ( queryEntryStarts.isSelected() )
-    		patCtrl = PatternControl.STARTSWITH;
-    	else if ( queryEntryContains.isSelected() )
-    		patCtrl = PatternControl.CONTAINS;
-
-    	if ( queryLengthEquals.isSelected() )
-    		lenCtrl = LengthControl.EQUALS;
-    	else if ( queryLengthAtMost.isSelected() )
-    		lenCtrl = LengthControl.ATMOST;
-    	else if ( queryLengthAtLeast.isSelected() )
-    		lenCtrl = LengthControl.ATLEAST;
-
-    	if ( usedNYT.isSelected() )
-    		useCtrl = UsedControl.USED_NYT;
-    	else if ( usedAny.isSelected() )
-        		useCtrl = UsedControl.USED_ANY;
-    	
-    	if ( research.isSelected() )
-    		resCtrl = ResearchControl.NEEDS_RESEARCH;
-    	
-    	if (queryMethodManual.isSelected()) {
-    		methCtrl = MethodControl.MANUAL;
-    	} else if (queryMethodAuto.isSelected()) {
-    		methCtrl = MethodControl.AUTOMATIC;
+    	// For backup, we take everything regardless of selections...
+    	if (!isBackup) {
+	    	if ( queryRatingAtMost.isSelected() )
+	    		ratCtrl = RatingControl.ATMOST;
+	    	else if ( queryRatingAtLeast.isSelected() )
+	    		ratCtrl = RatingControl.ATLEAST;
+	
+	    	if ( key.length() == 0 )	// no pattern selected
+	    		patCtrl = PatternControl.ALL;
+	    	else if ( queryEntryEquals.isSelected() )
+	    		patCtrl = PatternControl.EQUALS;
+	    	else if ( queryEntryStarts.isSelected() )
+	    		patCtrl = PatternControl.STARTSWITH;
+	    	else if ( queryEntryContains.isSelected() )
+	    		patCtrl = PatternControl.CONTAINS;
+	
+	    	if ( queryLengthEquals.isSelected() )
+	    		lenCtrl = LengthControl.EQUALS;
+	    	else if ( queryLengthAtMost.isSelected() )
+	    		lenCtrl = LengthControl.ATMOST;
+	    	else if ( queryLengthAtLeast.isSelected() )
+	    		lenCtrl = LengthControl.ATLEAST;
+	
+	    	if ( usedNYT.isSelected() )
+	    		useCtrl = UsedControl.USED_NYT;
+	    	else if ( usedAny.isSelected() )
+	        		useCtrl = UsedControl.USED_ANY;
+	    	
+	    	if ( research.isSelected() )
+	    		resCtrl = ResearchControl.NEEDS_RESEARCH;
+	    	
+	    	if (queryMethodManual.isSelected()) {
+	    		methCtrl = MethodControl.MANUAL;
+	    	} else if (queryMethodAuto.isSelected()) {
+	    		methCtrl = MethodControl.AUTOMATIC;
+	    	}
     	}
-    	
     	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
     	
     	for (int start = 0; start < resultSetSize; start += QUERY_LIMIT) {
-			getStatusLine().showInfo("Processing export..." + start + " records processed.");
+			getStatusLine().showInfo("Processing " + (isBackup ? "backup..." : "export...") + start + " records processed.");
 
         	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, start, QUERY_LIMIT, false);
 			for ( Word w : list ) {
 //				exportResultArea.append(w.toString() + "\n");
 				try {
-					fw.write(w.toString() + "\n");
+					if (isBackup) {
+						fw.write(w.fullInfo() + "\n");
+					} else {
+						fw.write(w.toString() + "\n");
+					}
 				} catch (IOException e) {
 					exportResultArea.append("Error writing to file: " + filename + ".\n");
 					exportResultArea.append(e.toString());
@@ -1548,7 +1596,7 @@ public class XDictGui extends JFrame implements WindowListener
 			return "Error.";
 		}
 		
-		return "Exported " + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
+		return (isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
     }
         
     
@@ -1577,6 +1625,7 @@ public class XDictGui extends JFrame implements WindowListener
         wordRatingSlider.addChangeListener(ratingListener);
         usedNYT.addChangeListener(usedNYTListener);
         usedAny.addChangeListener(usedAnyListener);
+        notUsed.addChangeListener(notUsedListener);
         research.addChangeListener(queryChangedListener);
         queryEntryEquals.addChangeListener(queryChangedListener);
         queryEntryStarts.addChangeListener(queryChangedListener);

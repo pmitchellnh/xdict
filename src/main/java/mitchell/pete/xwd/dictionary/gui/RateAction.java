@@ -1,13 +1,12 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import java.awt.event.*;
-import java.util.Date;
-
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.Date;
 
 public class RateAction extends AbstractAction implements Runnable
 {
-	public enum RATINGS { TERRIBLE, POOR, OK, GOOD, EXCELLENT, MANUAL, RESEARCH, SKIP };
+	public enum RATINGS { TERRIBLE, POOR, LAME, OK, GOOD, EXCELLENT, MANUAL, RESEARCH, SKIP };
 	private static final long serialVersionUID = 1L;
 	private XDictGui gui = null;
 	private RATINGS rating;
@@ -25,6 +24,10 @@ public class RateAction extends AbstractAction implements Runnable
         	case POOR:
                 putValue(Action.SHORT_DESCRIPTION, "I suppose. In a pinch.");
                 putValue(Action.NAME, "Poor");
+                break;
+        	case LAME:
+                putValue(Action.SHORT_DESCRIPTION, "Not crazy about it.");
+                putValue(Action.NAME, "Lame");
                 break;
         	case OK:
                 putValue(Action.SHORT_DESCRIPTION, "Nothing wrong with it.");

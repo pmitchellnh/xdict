@@ -23,6 +23,9 @@ public class Word
 	private final static byte MIN_RATING = 0;
 	private final static byte MAX_RATING = 100;
 	public final static byte DEFAULT_RATING = 50;
+
+    public final static boolean WILD_OK = true;
+    public final static boolean NO_WILDS = false;
 	
 	public static class Builder
 	{
@@ -80,7 +83,7 @@ public class Word
 	
 	private Word(Builder builder)
 	{
-		entry = format(builder.word);
+		entry = format(builder.word, NO_WILDS);
 		rating = builder.rating;
 		usedAny = builder.usedAny;
 		usedNYT = builder.usedNYT;
@@ -297,6 +300,22 @@ public class Word
 		return s;
 	}
 	
+	/**
+	 *	This is the format that will used for backups (full data) 
+	 */
+	public String fullInfo()
+	{
+		String s = new String ( entry + ";" 
+				+ rating + ";"
+				+ ( usedAny ? "1;" : "0;" )
+				+ ( usedNYT ? "1;" : "0;" )
+				+ ( needsResearch ? "1;" : "0;" )
+				+ ( manuallyRated ? "1;" : "0;" )
+				+ lastModified.toString() + ";"
+				+ ( getComment().isEmpty() ? "" : "[" + getComment() + "]") );
+		return s;
+	}
+	
 	public void dump(boolean dumpInfo)
 	{
 		String s = toStringQuery();
@@ -311,9 +330,9 @@ public class Word
 	/*
 	 * Format passed string -- sanitize and convert to upper case
 	 */
-	public static String format(String text)
+	public static String format(String text, boolean wildOk)
 	{
-		text = clean(text);
+		text = clean(text, wildOk);
 		text = text.toUpperCase();
 		
 		return text;
@@ -322,17 +341,20 @@ public class Word
 	/*
 	 * Sanitize passed string, removing any invalid characters
 	 */
-	private static String clean(String text)
+	private static String clean(String text, boolean wildOk)
 	{
 		StringBuffer sb = new StringBuffer(text);
 
 		// work backwards, so deletes don't screw up the index
 		for ( int i = text.length()-1; i >= 0; --i )
 		{
-			if ( !isValid( sb.charAt(i) ) )
+			if ( !isValid( sb.charAt(i), wildOk ) )
 			{
 				sb.deleteCharAt(i);
 			}
+            if ( wildOk && sb.charAt(i) == '?' ) {
+                sb.replace(i, i+1, "_");
+            }
 		}
 		return sb.toString();
 	}
@@ -340,11 +362,12 @@ public class Word
 	/*
 	 * Check character for valid crossword entry (alphanumeric only)
 	 */
-	private static boolean isValid( char c )
+	private static boolean isValid( char c, boolean wildOk )
 	{
 		if ( (c >= 'A' && c <= 'Z') ||
 			 (c >= 'a' && c <= 'z') ||
-			 (c >= '0' && c <= '9') )
+			 (c >= '0' && c <= '9') ||
+                (wildOk && (c == '_' || c == '?')))
 		{
 			return true;
 		}
