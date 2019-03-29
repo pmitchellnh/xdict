@@ -12,11 +12,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class XDictDB_MySQL implements XDictDB_Interface {
+    private String TEST_MODE = "";
 	private String dbURL = "";
 	private String user = "xdict";
 	private String password = "xdict";
-	private String TABLE_WORDS = "WORDS";
-	private String TABLE_COMMENTS = "COMMENTS";
+	private String TABLE_WORDS = "WORDS" + TEST_MODE;
+	private String TABLE_COMMENTS = "COMMENTS" + TEST_MODE;
 
 	private Reconciler1 reconciler = new Reconciler1();
 
@@ -126,6 +127,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	}
 	
 	private void insertComment(Word w) {
+        if (w.getComment().isEmpty())
+            return;
 		String query = "insert into " + TABLE_COMMENTS 
 			+ " (ENTRY, COMMENT) values('"
 			+ w.getEntry() + "','"
@@ -140,6 +143,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	}
 	
 	private void updateComment(Word w) {
+        if (w.getComment().isEmpty())
+            return;
 		String query = "update " + TABLE_COMMENTS + " set "
 				+ "COMMENT='" + w.getComment() + "' "
 				+ "where ENTRY='" + w.getEntry() + "'";
@@ -167,8 +172,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	{
 		String key = Word.format(s, Word.NO_WILDS);
 		String query = "select * from " + TABLE_WORDS + 
-				" LEFT JOIN COMMENTS ON WORDS.ENTRY=COMMENTS.ENTRY" +
-				" where WORDS.ENTRY = '" + key + "'";
+				" LEFT JOIN " + TABLE_COMMENTS + " ON " + TABLE_WORDS + ".ENTRY=" + TABLE_COMMENTS + ".ENTRY" +
+				" where " + TABLE_WORDS + ".ENTRY = '" + key + "'";
 		
 		try {
 			stmt = conn.createStatement();
@@ -238,7 +243,9 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		
 		sb.append( "select * from " );
 		sb.append( TABLE_WORDS );
-		sb.append(" LEFT JOIN COMMENTS ON ");
+		sb.append(" LEFT JOIN ");
+        sb.append( TABLE_COMMENTS);
+        sb.append(" ON ");
 		sb.append( TABLE_WORDS );
 		sb.append(".ENTRY=");
 		sb.append(TABLE_COMMENTS);
@@ -520,7 +527,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	public ArrayList<Word> getAllWords() 
 	{
 		ArrayList<Word> list = new ArrayList<Word>();
-		String query = "select * from " + TABLE_WORDS + " LEFT JOIN COMMENTS ON WORDS.ENTRY=COMMENTS.ENTRY";
+		String query = "select * from " + TABLE_WORDS + " LEFT JOIN " + TABLE_COMMENTS + " ON " + TABLE_WORDS +
+                ".ENTRY=" + TABLE_COMMENTS + ".ENTRY";
 		
 		try {
 			ResultSet rs = stmt.executeQuery(query);

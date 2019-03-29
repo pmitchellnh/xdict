@@ -1,5 +1,6 @@
 package mitchell.pete.xwd.dictionary;
 
+import java.sql.Timestamp;
 import java.util.StringTokenizer;
 
 public class LoadAndExportUtilities {
@@ -41,8 +42,59 @@ public class LoadAndExportUtilities {
 	
 		return w;
 	}
-	
-	/*
+
+    /**
+     * The following parses a text line based on ';'.
+     * @return
+     */
+    public static Word parseBackupEntry(String line) {
+        StringTokenizer st = new StringTokenizer(line, ";", false);
+        String entry = "";
+        byte rating = 0;
+        boolean usedAny = false;
+        boolean usedNYT = false;
+        boolean needsResearch = false;
+        boolean manuallyRated = false;
+        Timestamp timestamp = null;
+        String comment = "";
+        if (st.hasMoreTokens()) {
+            entry = st.nextToken();
+        }
+        if (st.hasMoreTokens()) {
+            rating = Byte.valueOf(st.nextToken());
+        }
+        if (st.hasMoreTokens()) {
+            Byte b = Byte.valueOf(st.nextToken());
+            usedAny = (b == 1);
+        }
+        if (st.hasMoreTokens()) {
+            Byte b = Byte.valueOf(st.nextToken());
+            usedNYT = (b == 1);
+        }
+        if (st.hasMoreTokens()) {
+            Byte b = Byte.valueOf(st.nextToken());
+            needsResearch = (b == 1);
+        }
+        if (st.hasMoreTokens()) {
+            Byte b = Byte.valueOf(st.nextToken());
+            manuallyRated = (b == 1);
+        }
+        if (st.hasMoreTokens()) {
+            timestamp = Timestamp.valueOf(st.nextToken());
+        }
+        if (st.hasMoreTokens()) {
+            String token = st.nextToken();
+            if (token.length() <3)
+                comment = null;
+            else
+                comment = token.substring(1,token.length() - 1);
+        }
+        Word w = new Word.Builder(entry).rating(rating).usedAny(usedAny).usedNYT(usedNYT).needsResearch(needsResearch).manuallyRated(manuallyRated).lastModified(timestamp).comment(comment).build();
+
+        return w;
+    }
+
+    /*
 	 * Adjust rating based on word length.
 	 */
 	public static byte normalizeRating(String entry, byte rating) {

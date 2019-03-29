@@ -57,6 +57,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JMenu             viewMenu               = new JMenu();
     private JMenuItem		  resetQueryMenuItem	 = new JMenuItem(new ResetQueryAction(this));
     private JMenuItem		  backupMenuItem	 	 = new JMenuItem(new BackupAction(this));
+    private JMenuItem		  restoreMenuItem	 	 = new JMenuItem(new RestoreAction(this));
     private JTextArea         queryResultArea        = new JTextArea();
     private JScrollPane       queryScrollPane        = new JScrollPane();
     private JTextArea         addResultArea          = new JTextArea();
@@ -236,7 +237,7 @@ public class XDictGui extends JFrame implements WindowListener
 
     public XDictGui() 
     {
-        this.setSize(new Dimension(1200, 800));
+        this.setSize(new Dimension(1300, 800));
         this.setTitle("XDict");
         //this.setIconImage(new ImageIcon(getClass().getResource("icons/logoicon.gif")).getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -274,6 +275,7 @@ public class XDictGui extends JFrame implements WindowListener
 
         fileMenu.setText("File");
         fileMenu.add(backupMenuItem);
+        fileMenu.add(restoreMenuItem);
 
 //        Action    action;
 //        JMenuItem menuItem;
@@ -1498,7 +1500,58 @@ public class XDictGui extends JFrame implements WindowListener
     	String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + "(" + skipCount + " skipped.)";
     	return retStatus;
     }
-    
+
+    public String doRestore()
+    {
+        String filename = loadFile.getText();
+        if ( !filename.startsWith("backups/bkup") ) {
+            loadResultArea.setText("Can only restore files starting with \"backups/bkup\"; Filename: [" + filename + "]");
+            return "Error.";
+        }
+        loadResultArea.setText("Restoring from file: " + filename + "\n");
+        BufferedReader br;
+
+        try {
+            br = new BufferedReader(new FileReader(filename));
+        } catch (FileNotFoundException e) {
+            loadResultArea.append("File not found.\n");
+            loadResultArea.append(e.toString());
+            return "Error.";
+        }
+        String line;
+        int count = 0;
+        WORD_STATUS status;
+//		String statText = "";
+
+        try {
+            while ((line = br.readLine()) != null) {
+                if (line.length() < 3) {
+                    continue;
+                }
+                Word w = LoadAndExportUtilities.parseBackupEntry(line);
+//                loadResultArea.append(w.fullInfo() + "\n");
+
+                status = dict.putWord(w);
+                count++;
+                if (count % 1000 == 0) {
+                    getStatusLine().showInfo("Processing load..." + count + " records processed.");
+
+                }
+            }
+        } catch (IOException e) {
+            loadResultArea.append("Error reading file.\n");
+            loadResultArea.append(e.toString());
+        }
+        try {
+            br.close();
+        } catch (IOException e) {
+            loadResultArea.append("Error closing file.\n");
+            loadResultArea.append(e.toString());
+        }
+        String retStatus = "" + count + " words processed.";
+        return retStatus;
+    }
+
     public String doExport(boolean isBackup)
     {
     	String filename = exportFile.getText();
@@ -1553,11 +1606,17 @@ public class XDictGui extends JFrame implements WindowListener
 	    	else if ( queryLengthAtLeast.isSelected() )
 	    		lenCtrl = LengthControl.ATLEAST;
 	
-	    	if ( usedNYT.isSelected() )
-	    		useCtrl = UsedControl.USED_NYT;
-	    	else if ( usedAny.isSelected() )
-	        		useCtrl = UsedControl.USED_ANY;
-	    	
+            if ( usedNYT.isSelected() ) {
+                if (notUsed.isSelected())
+                    useCtrl = UsedControl.ALL;
+                else
+                    useCtrl = UsedControl.USED_NYT;
+            }
+            else if ( usedAny.isSelected() )
+                useCtrl = UsedControl.USED_ANY;
+            else if ( notUsed.isSelected())
+                useCtrl = UsedControl.NOT_USED;
+
 	    	if ( research.isSelected() )
 	    		resCtrl = ResearchControl.NEEDS_RESEARCH;
 	    	
