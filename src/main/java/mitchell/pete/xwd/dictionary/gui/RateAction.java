@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class RateAction extends AbstractAction implements Runnable
 {
-	public enum RATINGS { TERRIBLE, POOR, LAME, OK, GOOD, EXCELLENT, MANUAL, RESEARCH, SKIP };
+	public enum RATINGS { KILL, TERRIBLE, POOR, LAME, OK, GOOD, EXCELLENT, MANUAL, RESEARCH, SKIP };
 	private static final long serialVersionUID = 1L;
 	private XDictGui gui = null;
 	private RATINGS rating;
@@ -17,6 +17,10 @@ public class RateAction extends AbstractAction implements Runnable
         rating = r;
 
         switch (rating) {
+            case KILL:
+                putValue(Action.SHORT_DESCRIPTION, "Not a word. Kill it.");
+                putValue(Action.NAME, "Kill");
+                break;
         	case TERRIBLE:
                 putValue(Action.SHORT_DESCRIPTION, "You're joking, right?.");
                 putValue(Action.NAME, "Terrible");
