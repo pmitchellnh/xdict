@@ -1,8 +1,7 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import java.awt.event.*;
-
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class ResetQueryAction extends AbstractAction
 {
@@ -18,15 +17,24 @@ public class ResetQueryAction extends AbstractAction
         putValue(Action.NAME, "Reset Query");
     }
     
-    public void setRating(boolean rating) {
-    	ratingQuery = rating;
-    }
+//    public void setRating(boolean rating) {
+//    	ratingQuery = rating;
+//    }
 
     public void actionPerformed(ActionEvent e)
     {
 		if ( gui != null )
 		{
-			gui.resetQuery(ratingQuery);
+            if (gui.isQueryEnabled())
+                gui.resetQuery(false);
+            else if (gui.isRatingEnabled())
+                gui.resetQuery(true);
+            else if (gui.isAddEnabled())
+                gui.resetAdd();
+            else if (gui.isExportEnabled())
+                gui.resetExport();
+            else if (gui.isLoadEnabled())
+                gui.resetLoad();
 		}
     }
 }

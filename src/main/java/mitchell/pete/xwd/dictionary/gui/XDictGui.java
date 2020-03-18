@@ -47,6 +47,7 @@ public class XDictGui extends JFrame implements WindowListener
     private static int LENGTH_DEFAULT = 3;
     private static int RATING_DEFAULT = 1;
     private static int EXPORT_RATING_DEFAULT = 10;
+    private static int LOAD_RATING_DEFAULT = 50;
 
     // Use this list to drive the manual rating process.
 	private ArrayList<Word> listToRate = null;
@@ -171,7 +172,6 @@ public class XDictGui extends JFrame implements WindowListener
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
                 getRootPane().setDefaultButton(queryButton);
-				((ResetQueryAction)(resetQueryMenuItem.getAction())).setRating(false);	// set the right "reset" action
     			resetQuery(false);
     		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
     			queryButton.setEnabled(false);
@@ -190,6 +190,7 @@ public class XDictGui extends JFrame implements WindowListener
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
                 getRootPane().setDefaultButton(loadButton);
+                resetLoad();
 			} else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
 				queryButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -207,7 +208,6 @@ public class XDictGui extends JFrame implements WindowListener
 				exportButton.setEnabled(false);
 				rateQueryButton.setEnabled(true);
                 getRootPane().setDefaultButton(rateQueryButton);
-				((ResetQueryAction)(resetQueryMenuItem.getAction())).setRating(true);	// set the right "reset" action
     			resetQuery(true);
 			}
     	}
@@ -1066,6 +1066,22 @@ public void resetQuery(boolean rating) {
 
     }
 
+    public void resetLoad() {
+        wordEntry.setText("");
+        wordLengthSlider.setValue(LENGTH_DEFAULT);
+        wordRatingSlider.setValue(LOAD_RATING_DEFAULT);
+        usedAny.setSelected(false);
+        usedNYT.setSelected(false);
+        notUsed.setSelected(true);
+        research.setSelected(false);
+        queryMethodAuto.setSelected(true);
+        queryLengthAtLeast.setSelected(true);
+        queryEntryEquals.setSelected(true);
+        queryRatingEquals.setSelected(true);
+        wordComment.setText("");
+
+    }
+
     public void resetAdd() {
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(RATING_DEFAULT);
@@ -1793,7 +1809,7 @@ public void resetQuery(boolean rating) {
 				Word wTmp = LoadAndExportUtilities.parseWordAndRating(line, ";:");
 				// If it has a rating, use it; else grab the rating setting from the UI.
 				rating = ((wTmp.getRating() > 0) ? wTmp.getRating() : (byte)wordRatingSlider.getValue());
-				rating = LoadAndExportUtilities.normalizeRating(wTmp.getEntry(), rating);
+//				rating = LoadAndExportUtilities.normalizeRating(wTmp.getEntry(), rating);
 
 				Word w = new Word.Builder(wTmp.getEntry()).rating(rating).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).build();
 
@@ -2000,7 +2016,12 @@ public void resetQuery(boolean rating) {
 		return (isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
     }
         
-    
+    public boolean isQueryEnabled() { return queryButton.isEnabled(); }
+    public boolean isRatingEnabled() { return rateQueryButton.isEnabled(); }
+    public boolean isAddEnabled() { return addButton.isEnabled(); }
+    public boolean isExportEnabled() { return exportButton.isEnabled(); }
+    public boolean isLoadEnabled() { return loadButton.isEnabled(); }
+
     public void setupSliders()
     {
         wordLengthSlider.setMajorTickSpacing(2);
