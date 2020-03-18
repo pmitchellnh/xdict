@@ -46,7 +46,8 @@ public class XDictGui extends JFrame implements WindowListener
     private static int queryStart = 0;
     private static int LENGTH_DEFAULT = 3;
     private static int RATING_DEFAULT = 1;
-    
+    private static int EXPORT_RATING_DEFAULT = 10;
+
     // Use this list to drive the manual rating process.
 	private ArrayList<Word> listToRate = null;
 
@@ -57,7 +58,8 @@ public class XDictGui extends JFrame implements WindowListener
     private JMenu             fileMenu               = new JMenu();
     private JMenu             viewMenu               = new JMenu();
     private JMenuItem		  resetQueryMenuItem	 = new JMenuItem(new ResetQueryAction(this));
-    private JMenuItem		  displayStatsMenuItem	 = new JMenuItem(new StatsAction(this));
+    private JMenuItem         progressStatsMenuItem  = new JMenuItem(new ProgressAction(this));
+    private JMenuItem         breakdownStatsMenuItem = new JMenuItem(new BreakdownAction(this));
     private JMenuItem		  backupMenuItem	 	 = new JMenuItem(new BackupAction(this));
     private JMenuItem		  restoreMenuItem	 	 = new JMenuItem(new RestoreAction(this));
     private JTextArea         queryResultArea        = new JTextArea();
@@ -83,6 +85,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JRadioButton queryLengthAtLeast = new JRadioButton("At Least");
     private JRadioButton queryRatingAtMost = new JRadioButton("At Most");
     private JRadioButton queryRatingAtLeast = new JRadioButton("At Least");
+    private JRadioButton queryRatingEquals = new JRadioButton("Equals");
     private JRadioButton queryMethodAll = new JRadioButton("All");
     private JRadioButton queryMethodManual = new JRadioButton("Hand-rated");
     private JRadioButton queryMethodAuto = new JRadioButton("Auto-loaded");
@@ -393,7 +396,8 @@ public class XDictGui extends JFrame implements WindowListener
 
         viewMenu.setText("View");
 
-        viewMenu.add(displayStatsMenuItem);
+        viewMenu.add(progressStatsMenuItem);
+        viewMenu.add(breakdownStatsMenuItem);
         viewMenu.add(resetQueryMenuItem);
     }
 
@@ -533,7 +537,7 @@ public class XDictGui extends JFrame implements WindowListener
         c.weightx = 0;
         c.weighty = 0;
         c.gridwidth = GridBagConstraints.REMAINDER;
-        JComponent b2 = buildRadioButton2(queryRatingAtLeast, queryRatingAtMost, 1 );
+        JComponent b2 = buildRadioButton3(queryRatingAtLeast, queryRatingAtMost, queryRatingEquals, 1);
         JComponent entryRating = buildComboSlider("Rating", b2, wordRatingLabel, wordRatingSlider);
         controlPanel.add(entryRating);
         gbl.setConstraints(entryRating, c);
@@ -1048,8 +1052,8 @@ public void resetQuery(boolean rating) {
     public void resetExport() {
         wordEntry.setText("");
         wordLengthSlider.setValue(LENGTH_DEFAULT);
-        wordRatingSlider.setValue(RATING_DEFAULT);
-        manualRatingSlider.setValue(RATING_DEFAULT);
+        wordRatingSlider.setValue(EXPORT_RATING_DEFAULT);
+        manualRatingSlider.setValue(EXPORT_RATING_DEFAULT);
         usedAny.setSelected(true);
         usedNYT.setSelected(true);
         notUsed.setSelected(true);
@@ -1078,8 +1082,8 @@ public void resetQuery(boolean rating) {
 
     }
 
-    public void getDatabaseStats() {
-        queryResultArea.setText("Database Statistics:" + "\n");
+    public void getRatingProgress() {
+        queryResultArea.setText("Rating Progress:" + "\n");
 
         int totalRated = 0;
         int totalUnrated = 0;
@@ -1118,6 +1122,78 @@ public void resetQuery(boolean rating) {
         DecimalFormat df = new DecimalFormat("##.##%");
         String formattedPercent = df.format(percent);
         queryResultArea.append("TOTAL:   Total: " + (totalRated + totalUnrated) + "  Rated: " + totalRated + "  Unrated: " + totalUnrated + "  Percent: " + formattedPercent + "\n");
+
+        return;
+    }
+
+    public void getRatingBreakdown() {
+        queryResultArea.setText("Rating Breakdown:" + "\n");
+
+        int totalHorrible = 0;   // 0 to 25
+        int totalBad = 0;        // 26 to 50
+        int totalMedium = 0;     // 51 to 60
+        int totalGood = 0;       // 61+
+
+        String key = wordEntry.getText();
+        PatternControl patCtrl = PatternControl.ALL;
+
+        if ( key.length() == 0 )	// no pattern selected
+            patCtrl = PatternControl.ALL;
+        else if ( queryEntryEquals.isSelected() )
+            patCtrl = PatternControl.EQUALS;
+        else if ( queryEntryStarts.isSelected() )
+            patCtrl = PatternControl.STARTSWITH;
+        else if ( queryEntryContains.isSelected() )
+            patCtrl = PatternControl.CONTAINS;
+
+        for ( int length = 3; length < 26; length++ ) {
+
+            int horribleCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 0, 20, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int badCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 21, 40, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int mediumCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 41, 60, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int goodCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 61, 100, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+
+            int combinedCount = horribleCount + badCount + mediumCount + goodCount;
+            if (combinedCount == 0 )
+                continue;
+
+            double horriblePercent = (double)horribleCount / (double)combinedCount;
+            double badPercent = (double)badCount / (double)combinedCount;
+            double mediumPercent = (double)mediumCount / (double)combinedCount;
+            double goodPercent = (double)goodCount / (double)combinedCount;
+            DecimalFormat df = new DecimalFormat("##.#%");
+            String formattedHorriblePercent = df.format(horriblePercent);
+            String formattedBadPercent = df.format(badPercent);
+            String formattedMediumPercent = df.format(mediumPercent);
+            String formattedGoodPercent = df.format(goodPercent);
+            totalHorrible += horribleCount;
+            totalBad += badCount;
+            totalMedium += mediumCount;
+            totalGood += goodCount;
+
+            queryResultArea.append("Length: " + length + "  Total: " + combinedCount + "   (0-20): " + horribleCount + " (" + formattedHorriblePercent + ") " +
+                    "  (21-40): " + badCount + " (" + formattedBadPercent + ") " +
+                    "  (41-60): " + mediumCount + " (" + formattedMediumPercent + ") " +
+                    "  (61+): " + goodCount + " (" + formattedGoodPercent + ") " + "\n");
+
+        }
+
+        int totalCount = totalHorrible + totalBad + totalMedium + totalGood;
+
+        double horriblePercent = (double)totalHorrible / (double)totalCount;
+        double badPercent = (double)totalBad / (double)totalCount;
+        double mediumPercent = (double)totalMedium / (double)totalCount;
+        double goodPercent = (double)totalGood / (double)totalCount;
+        DecimalFormat df = new DecimalFormat("##.#%");
+        String formattedHorriblePercent = df.format(horriblePercent);
+        String formattedBatPercent = df.format(badPercent);
+        String formattedMediumPercent = df.format(mediumPercent);
+        String formattedGoodPercent = df.format(goodPercent);
+
+        queryResultArea.append("TOTAL:   Total: " + totalCount + "   (0-20): " + totalHorrible + " (" + formattedHorriblePercent + ") " +
+                "  (21-40): " + totalBad + " (" + formattedBatPercent + ") " +
+                "  (41-60): " + totalMedium + " (" + formattedMediumPercent + ") " +
+                "  (61+): " + totalGood + " (" + formattedGoodPercent + ") " + "\n");
 
         return;
     }
@@ -1183,6 +1259,8 @@ public void resetQuery(boolean rating) {
     		ratCtrl = RatingControl.ATMOST;
     	else if ( queryRatingAtLeast.isSelected() )
     		ratCtrl = RatingControl.ATLEAST;
+        else if ( queryRatingEquals.isSelected() )
+            ratCtrl = RatingControl.EQUALS;
 
     	if ( key.length() == 0 )	// no pattern selected
     		patCtrl = PatternControl.ALL;
@@ -1277,6 +1355,8 @@ public void resetQuery(boolean rating) {
     		ratCtrl = RatingControl.ATMOST;
     	else if ( queryRatingAtLeast.isSelected() )
     		ratCtrl = RatingControl.ATLEAST;
+        else if ( queryRatingEquals.isSelected() )
+            ratCtrl = RatingControl.EQUALS;
 
     	if ( key.length() == 0 )	// no pattern selected
     		patCtrl = PatternControl.ALL;
@@ -1367,28 +1447,28 @@ public void resetQuery(boolean rating) {
     public String doRate(RATINGS r) {
         final int KILL = 0;
         final int TERRIBLE = 5;
-        final int TERRIBLE_5 = 10;
-        final int TERRIBLE_4 = 15;
-        final int TERRIBLE_3 = 20;
+        final int TERRIBLE_5 = 6;
+        final int TERRIBLE_4 = 8;
+        final int TERRIBLE_3 = 10;
         final int POOR = 15;
         final int POOR_5 = 20;
         final int POOR_4 = 25;
         final int POOR_3 = 30;
-        final int LAME = 35;
-        final int LAME_5 = 40;
-        final int LAME_4 = 45;
-        final int LAME_3 = 50;
+        final int LAME = 45;
+        final int LAME_5 = 47;
+        final int LAME_4 = 49;
+        final int LAME_3 = 51;
         final int OK = 60;
         final int GOOD_3 = 63;
         final int GOOD_4 = 65;
-        final int GOOD = 70;
+        final int GOOD = 67;
         final int EXCELLENT_3 = 65;
-        final int EXCELLENT_4 = 70;
-        final int EXCELLENT_5 = 75;
-        final int EXCELLENT_6 = 80;
-        final int EXCELLENT_7 = 85;
-        final int EXCELLENT_8 = 90;
-        final int EXCELLENT = 95;
+        final int EXCELLENT_4 = 67;
+        final int EXCELLENT_5 = 69;
+        final int EXCELLENT_6 = 71;
+        final int EXCELLENT_7 = 73;
+        final int EXCELLENT_8 = 75;
+        final int EXCELLENT = 77;
 
         String status = "";
         Word w = listToRate.get(0);
@@ -1849,7 +1929,9 @@ public void resetQuery(boolean rating) {
 	    		ratCtrl = RatingControl.ATMOST;
 	    	else if ( queryRatingAtLeast.isSelected() )
 	    		ratCtrl = RatingControl.ATLEAST;
-	
+            else if ( queryRatingEquals.isSelected() )
+                ratCtrl = RatingControl.EQUALS;
+
 	    	if ( key.length() == 0 )	// no pattern selected
 	    		patCtrl = PatternControl.ALL;
 	    	else if ( queryEntryEquals.isSelected() )

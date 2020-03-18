@@ -18,31 +18,31 @@ public class RateAction extends AbstractAction implements Runnable
 
         switch (rating) {
             case KILL:
-                putValue(Action.SHORT_DESCRIPTION, "Not a word. Kill it.");
+                putValue(Action.SHORT_DESCRIPTION, "Not a word. Kill it. (0)");
                 putValue(Action.NAME, "Kill");
                 break;
         	case TERRIBLE:
-                putValue(Action.SHORT_DESCRIPTION, "You're joking, right?.");
+                putValue(Action.SHORT_DESCRIPTION, "You're joking, right? (5-10).");
                 putValue(Action.NAME, "Terrible");
                 break;
         	case POOR:
-                putValue(Action.SHORT_DESCRIPTION, "I suppose. In a pinch.");
+                putValue(Action.SHORT_DESCRIPTION, "I suppose. In a pinch. (15-30)");
                 putValue(Action.NAME, "Poor");
                 break;
         	case LAME:
-                putValue(Action.SHORT_DESCRIPTION, "Not crazy about it.");
+                putValue(Action.SHORT_DESCRIPTION, "Not crazy about it. (45-51)");
                 putValue(Action.NAME, "Lame");
                 break;
         	case OK:
-                putValue(Action.SHORT_DESCRIPTION, "Nothing wrong with it.");
+                putValue(Action.SHORT_DESCRIPTION, "Nothing wrong with it. (60)");
                 putValue(Action.NAME, "Ok");
                 break;
         	case GOOD:
-                putValue(Action.SHORT_DESCRIPTION, "Yeah, that's pretty good.");
+                putValue(Action.SHORT_DESCRIPTION, "Yeah, that's pretty good. (63-67)");
                 putValue(Action.NAME, "Good");
                 break;
         	case EXCELLENT:
-                putValue(Action.SHORT_DESCRIPTION, "Now that's what I'm talking about.");
+                putValue(Action.SHORT_DESCRIPTION, "Now that's what I'm talking about. (65-77)");
                 putValue(Action.NAME, "Excellent");
                 break;
         	case MANUAL:

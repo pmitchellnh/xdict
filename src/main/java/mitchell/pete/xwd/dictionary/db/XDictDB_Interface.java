@@ -1,14 +1,14 @@
 package mitchell.pete.xwd.dictionary.db;
 
-import java.util.ArrayList;
-
 import mitchell.pete.xwd.dictionary.Word;
+
+import java.util.ArrayList;
 
 public interface XDictDB_Interface 
 {
 	enum LengthControl { ALL, EQUALS, ATLEAST, ATMOST };		// used to build queries
 	enum PatternControl { ALL, EQUALS, STARTSWITH, CONTAINS };	// used to build queries
-	enum RatingControl { ALL, ATLEAST, ATMOST };				// used to build queries
+	enum RatingControl { ALL, ATLEAST, ATMOST, EQUALS };		// used to build queries
 	enum UsedControl { ALL, USED_ANY, USED_NYT, NOT_USED };		// used to build queries
 	enum ResearchControl { ALL, NEEDS_RESEARCH, NO_RESEARCH };	// use to build queries
 	enum MethodControl { ALL, MANUAL, AUTOMATIC };				// used to build queries
@@ -36,7 +36,13 @@ public interface XDictDB_Interface
 			ResearchControl resCtrl,
 			MethodControl methCtrl,
 			boolean ratingQuery);	// generic query
-	ArrayList<Word> getAllWords();				// return all words
+    int getCount( LengthControl lenCtrl, int len,
+                  PatternControl patCtrl, String s,
+                  int minRat, int maxRat,
+                  UsedControl useCtrl,
+                  ResearchControl resCtrl,
+                  MethodControl methCtrl);	// for rating breakdown report
+    ArrayList<Word> getAllWords();				// return all words
 	boolean connect();							// returns false if cannot connect
 	void disconnect();
 	void clear_AreYouSureYouWantToDoThis();		// delete table and start fresh
