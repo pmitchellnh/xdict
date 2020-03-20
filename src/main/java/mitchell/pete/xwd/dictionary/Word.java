@@ -12,8 +12,8 @@ public class Word
 	private boolean needsResearch;
 	private boolean manuallyRated;
 	private Timestamp lastModified;
-	private WordInfo info;
-	
+	private String comment;
+
 	private static Calendar calendar = Calendar.getInstance();
 	public final static Timestamp NO_DATE = new Timestamp(0);
 	public enum TimestampType { NOW, NEVER };
@@ -39,9 +39,8 @@ public class Word
 		private boolean needsResearch = false;
 		private boolean manuallyRated = false;
 		private Timestamp lastModified = NO_DATE;
-		private String comment = null;
-		private WordInfo info = null;
-		
+		private String comment = "";
+
 		// Builder Constructor
 		public Builder(String w)
 		{
@@ -68,7 +67,6 @@ public class Word
 		public Builder needsResearch(boolean val)	{ needsResearch = val; return this; }
 		public Builder manuallyRated(boolean val)	{ manuallyRated = val; return this; }
 		public Builder lastModified(Timestamp val)	{ lastModified = val; return this; }
-		public Builder wordInfo(WordInfo val)		{ info = val; return this; }
 		public Builder comment(String val)			{ comment = val; return this; }
 		
 		public Word build()
@@ -90,15 +88,11 @@ public class Word
 		needsResearch = builder.needsResearch;
 		manuallyRated = builder.manuallyRated;
 		lastModified = builder.lastModified;
-		info = builder.info;
+		comment = builder.comment;
 		
 		if ( usedNYT )
 			usedAny = true;
 		
-		if (builder.comment != null) {
-			info = new WordInfo();
-			info.setComment(builder.comment);
-		}
 	}
 
 	/*
@@ -113,7 +107,7 @@ public class Word
 		needsResearch = w.needsResearch;
 		manuallyRated = w.manuallyRated;
 		lastModified = w.lastModified;
-		info = w.info;
+		comment = w.comment;
 	}
 	
 	public String getEntry() {
@@ -218,61 +212,26 @@ public class Word
 	}
 	
 	public boolean hasComment() {
-		if (getComment().isEmpty())
+		if (comment == null || comment.isEmpty())
 			return false;
 		else
 			return true;
 	}
 	
 	public String getComment() {
-		String c = (info == null ? null : info.getComment());
+		String c = (comment == null ? "" : comment);
 
-		return (c == null ? "" : c);	// Return empty string, not null
+		return c;
 	}
 
 	public boolean setComment(String comment) 
 	{
-		if (getComment().equals(comment))		// No change
+		if (this.comment != null && this.comment.equals(comment))		// No change
 			return false;
 		
-		if (info == null) {
-			info = new WordInfo();
-		}
-		info.setComment(comment);
+		this.comment = (comment == null ? "" : comment);
 		
 		return true;
-	}
-
-	public WordInfo.Sparkle getSparkle() {
-		if (info != null) {
-			return info.getSparkle();
-		} else {
-			return WordInfo.Sparkle.UNDEFINED;
-		}
-	}
-
-	public WordInfo.Facility getFacility() {
-		if (info != null) {
-			return info.getFacility();
-		} else {
-			return WordInfo.Facility.UNDEFINED;
-		}
-	}
-
-	public WordInfo.Currency getCurrency() {
-		if (info != null) {
-			return info.getCurrency();
-		} else {
-			return WordInfo.Currency.UNDEFINED;
-		}
-	}
-
-	public WordInfo.Taste getTaste() {
-		if (info != null) {
-			return info.getTaste();
-		} else {
-			return WordInfo.Taste.UNDEFINED;
-		}
 	}
 
 	/**
@@ -296,7 +255,7 @@ public class Word
 				+ ( usedNYT ? ", nyt, " : "" )
 				+ ( needsResearch ? ", research " : "" )
 				+ ( manuallyRated ? ", manual " : "" )
-				+ ( getComment().isEmpty() ? "" : " (" + getComment() + ")") );
+				+ ( (comment == null || comment.isEmpty()) ? "" : " (" + comment + ")") );
 		return s;
 	}
 	
@@ -312,19 +271,8 @@ public class Word
 				+ ( needsResearch ? "1;" : "0;" )
 				+ ( manuallyRated ? "1;" : "0;" )
 				+ lastModified.toString() + ";"
-				+ ( getComment().isEmpty() ? "" : "[" + getComment() + "]") );
+				+ ( (comment == null || comment.isEmpty()) ? "" : "[" + comment + "]") );
 		return s;
-	}
-	
-	public void dump(boolean dumpInfo)
-	{
-		String s = toStringQuery();
-		
-		System.out.println(s);
-
-		if (dumpInfo && info != null) {
-			info.dump();
-		}
 	}
 	
 	/*

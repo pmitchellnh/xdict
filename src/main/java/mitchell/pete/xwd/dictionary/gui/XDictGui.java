@@ -709,7 +709,7 @@ public class XDictGui extends JFrame implements WindowListener
     	JPanel result = new JPanel();
         result.setBorder(BorderFactory.createTitledBorder("Results"));
 
-        rateResultArea.setText("Rate Result Area");
+        rateResultArea.setText("");
         result.add(rateResultArea);
         
         return result;
@@ -743,7 +743,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JComponent buildLoadDisplayPanel() 
     {
         loadScrollPane = new JScrollPane(loadResultArea);
-        loadResultArea.setText("Load Result Area");
+        loadResultArea.setText("");
         return loadScrollPane;
     }
     
@@ -775,7 +775,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JComponent buildExportDisplayPanel() 
     {
         exportScrollPane = new JScrollPane(exportResultArea);
-        exportResultArea.setText("Export Result Area");
+        exportResultArea.setText("");
         return exportScrollPane;
     }
 
@@ -953,6 +953,7 @@ public void resetQuery(boolean rating) {
         queryEntryEquals.setSelected(true);
         queryRatingAtLeast.setSelected(true);
         wordComment.setText("");
+        queryResultArea.setText("");
 
     }
 
@@ -970,6 +971,7 @@ public void resetQuery(boolean rating) {
         queryEntryEquals.setSelected(true);
         queryRatingAtLeast.setSelected(true);
         wordComment.setText("");
+        exportResultArea.setText("");
 
     }
 
@@ -986,7 +988,8 @@ public void resetQuery(boolean rating) {
         queryEntryEquals.setSelected(true);
         queryRatingEquals.setSelected(true);
         wordComment.setText("");
-
+        loadFile.setText("");
+        loadResultArea.setText("");
     }
 
     public void resetAdd() {
@@ -1002,6 +1005,7 @@ public void resetQuery(boolean rating) {
         queryEntryEquals.setSelected(true);
         queryRatingAtLeast.setSelected(true);
         wordComment.setText("");
+        addResultArea.setText("");
 
     }
 
@@ -1840,6 +1844,9 @@ public void resetQuery(boolean rating) {
     public String doRestore()
     {
         resultPaneTabs.setSelectedIndex(3);     // set to load result pane to display results
+        if (loadFile.getText().isEmpty())       // if blank, preset with directory, but don't override what's there
+            loadFile.setText("backups/");
+
         String filename = loadFile.getText();
         if ( !filename.startsWith("backups/bkup") ) {
             loadResultArea.setText("Can only restore files starting with \"backups/bkup\"; Filename: [" + filename + "]\n");
@@ -1901,7 +1908,6 @@ public void resetQuery(boolean rating) {
     {
     	String filename = exportFile.getText();
     	if (isBackup) {
-            resultPaneTabs.setSelectedIndex(4);     // set to export result pane to display results
     		Timestamp t = new Timestamp(new Date().getTime());
     		filename = "backups/bkup" + XDictConfig.TEST_MODE_SUFFIX + "_" + t.toString();
     	}
