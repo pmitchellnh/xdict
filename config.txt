@@ -1,0 +1,31 @@
+# config.txt  - Configuration Parameters
+#
+# Note that all lines starting with '#' are considered comments and ignored
+# For parameters that have values, use '=' with NO SPACES
+# i.e.
+# KEY=value
+#    NOT
+# KEY = value
+
+# Using TEST_MODE references different DB tables, so you can experiment without risk
+# of contaminating or corrupting your "real" data.  To enable TEST_MODE, uncomment
+# the following line.
+TEST_MODE
+
+# LOAD_FILE_DELIMITERS are the single characters that are used to separate words and
+# ratings in a rated word list.  The default [:; ] means that any of the following
+# formats are handled:
+# COW:50
+# COW;50
+# COW 50
+# Note that '=', '[' and ']' CANNOT be used as Loadfile delimiters, as they are
+# used in the processing of this file.
+LOAD_FILE_DELIMITERS=[:; ]
+
+# EXPORT_FILE_DELIMITER is the (typically) single character that is used to separate
+# words and ratings in an exported word list.  This should match the format of
+# your crossword-constructing dictionary, so you can actually use your exported
+# word list as a dictionary.  Crossfire uses word;rating, which is the default here.
+# Note that the [] are used to contain the character and are not ignored once this
+# parameter has been parsed.  As such, '=', '[' and ']' cannot be used as a value.
+EXPORT_FILE_DELIMITER=[;]
