@@ -12,8 +12,8 @@ public class BreakdownAction extends AbstractAction
     {
         this.gui = g;
 
-        putValue(Action.SHORT_DESCRIPTION, "Rating Breakdown Report");
-        putValue(Action.NAME, "Breakdown Report");
+        putValue(Action.SHORT_DESCRIPTION, "Report of rating ranges, broken down by word length");
+        putValue(Action.NAME, "Rating Breakdown Report");
     }
 
     public void actionPerformed(ActionEvent e)

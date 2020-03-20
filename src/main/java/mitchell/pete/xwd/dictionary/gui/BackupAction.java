@@ -13,7 +13,7 @@ public class BackupAction extends AbstractAction implements Runnable
     {
         this.gui = g;
 
-        putValue(Action.SHORT_DESCRIPTION, "Backup this dictionary to a file");
+        putValue(Action.SHORT_DESCRIPTION, "Backup this dictionary to a timestamped file");
         putValue(Action.NAME, "Backup");
     }
 

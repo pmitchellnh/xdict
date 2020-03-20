@@ -1,20 +1,20 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.util.Date;
+        import javax.swing.*;
+        import java.awt.event.ActionEvent;
+        import java.util.Date;
 
-public class RestoreAction extends AbstractAction implements Runnable
+public class ClearAction extends AbstractAction implements Runnable
 {
     private static final long serialVersionUID = 1L;
     private XDictGui gui = null;
 
-    public RestoreAction(XDictGui g)
+    public ClearAction(XDictGui g)
     {
         this.gui = g;
 
-        putValue(Action.SHORT_DESCRIPTION, "Restore dictionary from a backup file");
-        putValue(Action.NAME, "Restore...");
+        putValue(Action.SHORT_DESCRIPTION, "Clear all tables (Start over, or prepare for a full restore)");
+        putValue(Action.NAME, "Clear Tables...");
     }
 
     public void actionPerformed(ActionEvent e)
@@ -26,10 +26,9 @@ public class RestoreAction extends AbstractAction implements Runnable
     {
         try
         {
-            gui.getStatusLine().showInfo("Processing restore...");
             Date start = new Date();
 
-            String status = gui.doRestore();
+            String status = gui.doClear();
 
             Date stop = new Date();
             gui.getStatusLine().showInfo( status + " (" + ((stop.getTime() - start.getTime()) / (double) 1000) + " secs)." );

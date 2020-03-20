@@ -14,7 +14,7 @@ public class XDictDB_MySQLTest extends TestCase {
 	public void setUp() {
 		dict = new XDictDB_MySQL( dbName );
 		dict.connect();
-		dict.clear_AreYouSureYouWantToDoThis();
+		dict.clear_YesIReallyMeanToDoThis();
 	}
 	
 	@After

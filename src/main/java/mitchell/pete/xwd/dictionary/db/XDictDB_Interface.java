@@ -45,5 +45,7 @@ public interface XDictDB_Interface
     ArrayList<Word> getAllWords();				// return all words
 	boolean connect();							// returns false if cannot connect
 	void disconnect();
-	void clear_AreYouSureYouWantToDoThis();		// delete table and start fresh
+    ArrayList<String> showAllTables();          // get names of all tables (test, etc.) in DB
+    int getTableSize(String tableName);         // get size (number of entries) in table
+	void clear_YesIReallyMeanToDoThis();		// delete table and start fresh
 }

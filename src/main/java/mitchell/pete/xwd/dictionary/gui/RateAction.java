@@ -50,7 +50,7 @@ public class RateAction extends AbstractAction implements Runnable
                 putValue(Action.NAME, "Manual");
                 break;
         	case RESEARCH:
-                putValue(Action.SHORT_DESCRIPTION, "Better check this one out.");
+                putValue(Action.SHORT_DESCRIPTION, "Flag it for later research.");
                 putValue(Action.NAME, "Research");
                 break;
         	case SKIP:

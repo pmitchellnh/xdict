@@ -1,6 +1,7 @@
 package mitchell.pete.xwd.dictionary.db;
 
 import mitchell.pete.xwd.dictionary.Word;
+import mitchell.pete.xwd.dictionary.XDictConfig;
 import mitchell.pete.xwd.dictionary.reconciler.Reconciler1;
 
 import java.sql.Connection;
@@ -12,12 +13,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 
 public class XDictDB_MySQL implements XDictDB_Interface {
-    private String TEST_MODE = "";
 	private String dbURL = "";
 	private String user = "xdict";
 	private String password = "xdict";
-	private String TABLE_WORDS = "WORDS" + TEST_MODE;
-	private String TABLE_COMMENTS = "COMMENTS" + TEST_MODE;
+	private String TABLE_WORDS = "WORDS" + XDictConfig.TEST_MODE_SUFFIX;
+	private String TABLE_COMMENTS = "COMMENTS" + XDictConfig.TEST_MODE_SUFFIX;
 
 	private Reconciler1 reconciler = new Reconciler1();
 
@@ -710,8 +710,11 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			e.printStackTrace();
 			return false;
 		}
-		
-		return true;
+
+        TABLE_WORDS = "WORDS" + XDictConfig.TEST_MODE_SUFFIX;
+        TABLE_COMMENTS = "COMMENTS" + XDictConfig.TEST_MODE_SUFFIX;
+
+        return true;
 	}
 
 	@Override
@@ -721,16 +724,62 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	}
 
 	@Override
-	public void clear_AreYouSureYouWantToDoThis() {
-		String query = "delete from WORDS";
+	public void clear_YesIReallyMeanToDoThis() {
+		String query1 = "delete from WORDS" + XDictConfig.TEST_MODE_SUFFIX;
+        String query2 = "delete from COMMENTS" + XDictConfig.TEST_MODE_SUFFIX;
 		try {
-			stmt.executeUpdate(query);
+			stmt.executeUpdate(query1);
+            stmt.executeUpdate(query2);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
-			System.out.println("SQL: " + query);
+			System.out.println("SQL: " + query1);
+            System.out.println("SQL: " + query2);
 		}
 	}
-	
+
+    @Override
+    public ArrayList<String> showAllTables()
+    {
+        ArrayList<String> list = new ArrayList<String>();
+        String query = "SHOW TABLES";
+
+        try {
+            ResultSet rs = stmt.executeQuery(query);
+            {
+                while( rs.next() )
+                {
+                    list.add(rs.getString(1));
+                }
+                rs.close();
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.out.println("SQL: " + query);
+        }
+
+        return list;
+    }
+
+    @Override
+    public int getTableSize(String tableName) {
+        String query = "select count(*) from " + tableName;
+        int size = 0;
+
+        try {
+            ResultSet rs = stmt.executeQuery(query);
+            if (rs.next())
+            {
+                size = rs.getInt(1);
+                rs.close();
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.out.println("SQL: " + query);
+        }
+
+        return size;
+    }
+
 	private Word getWordFromResultSet( ResultSet rs ) throws SQLException
 	{
 		String entry = rs.getString("ENTRY");

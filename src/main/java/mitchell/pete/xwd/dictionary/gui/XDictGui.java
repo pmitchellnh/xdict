@@ -2,6 +2,7 @@ package mitchell.pete.xwd.dictionary.gui;
 
 import mitchell.pete.xwd.dictionary.LoadAndExportUtilities;
 import mitchell.pete.xwd.dictionary.Word;
+import mitchell.pete.xwd.dictionary.XDictConfig;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.LengthControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.MethodControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.PatternControl;
@@ -56,17 +57,19 @@ public class XDictGui extends JFrame implements WindowListener
     private static final String NO_RESULTS_FOUND = "No entries found that match this criteria.\n";
 
     private JMenuBar          menuBar                = new JMenuBar();
-    private JMenu             fileMenu               = new JMenu();
+    private JMenu             databaseMenu           = new JMenu();
     private JMenu             viewMenu               = new JMenu();
+    private JMenu             reportMenu             = new JMenu();
     private JMenuItem		  resetQueryMenuItem	 = new JMenuItem(new ResetQueryAction(this));
     private JMenuItem         progressStatsMenuItem  = new JMenuItem(new ProgressAction(this));
     private JMenuItem         breakdownStatsMenuItem = new JMenuItem(new BreakdownAction(this));
+    private JMenuItem         databaseInfoMenuItem   = new JMenuItem(new DatabaseInfoAction(this));
     private JMenuItem		  backupMenuItem	 	 = new JMenuItem(new BackupAction(this));
     private JMenuItem		  restoreMenuItem	 	 = new JMenuItem(new RestoreAction(this));
+    private JMenuItem         clearMenuItem          = new JMenuItem(new ClearAction(this));
     private JTextArea         queryResultArea        = new JTextArea();
     private JScrollPane       queryScrollPane        = new JScrollPane();
     private JTextArea         addResultArea          = new JTextArea();
-    private JScrollPane       addScrollPane          = new JScrollPane();
     private JTextArea         rateResultArea         = new JTextArea();
     private JTextArea         loadResultArea         = new JTextArea();
     private JScrollPane       loadScrollPane         = new JScrollPane();
@@ -283,111 +286,21 @@ public class XDictGui extends JFrame implements WindowListener
      ************  MENUS ************
      */
     private void buildMenus() {
-        buildFileMenu();
         buildViewMenu();
+        buildReportMenu();
+        buildDatabaseMenu();
 
         this.setJMenuBar(menuBar);
     }
     
-    private void buildFileMenu() {
-        menuBar.add(fileMenu);
+    private void buildDatabaseMenu() {
+        menuBar.add(databaseMenu);
 
-        fileMenu.setText("File");
-        fileMenu.add(backupMenuItem);
-        fileMenu.add(restoreMenuItem);
-
-//        Action    action;
-//        JMenuItem menuItem;
-//        JButton   button;
-
-        /*
-         * Use as example of adding action to menu
-         */
-        /*
-        action = new DependencyExtractAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK));
-        menuItem.setMnemonic('e');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        action = new RefreshDependencyGraphAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, Event.CTRL_MASK));
-        menuItem.setMnemonic('r');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        toolbar.addSeparator();
-        fileMenu.addSeparator();
-        
-        action = new OpenFileAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK));
-        menuItem.setMnemonic('o');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-        
-        action = new SaveFileAction(this, commandLine.getSingleSwitch("encoding"), commandLine.getSingleSwitch("dtd-prefix"));
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK));
-        menuItem.setMnemonic('s');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        if (commandLine.isPresent("indent-text")) {
-            ((SaveFileAction) action).setIndentText(commandLine.getSingleSwitch("indent-text"));
-        }
-        
-        toolbar.addSeparator();
-        fileMenu.addSeparator();
-        
-        action = new NewDependencyGraphAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK));
-        menuItem.setMnemonic('n');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        toolbar.addSeparator();
-        fileMenu.addSeparator();
-        
-        action = new DependencyQueryAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, Event.CTRL_MASK));
-        menuItem.setMnemonic('d');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        action = new ClosureQueryAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK));
-        menuItem.setMnemonic('c');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        action = new MetricsQueryAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.CTRL_MASK));
-        menuItem.setMnemonic('m');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        action = new AllQueriesAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK));
-        menuItem.setMnemonic('a');
-        button = toolbar.add(action);
-        button.setToolTipText((String) action.getValue(Action.LONG_DESCRIPTION));
-
-        toolbar.addSeparator();
-        fileMenu.addSeparator();
-
-        action = new ExitAction(this);
-        menuItem = fileMenu.add(action);
-        menuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.CTRL_MASK));
-        menuItem.setMnemonic('x');
-        */
+        databaseMenu.setText("Database");
+        databaseMenu.add(databaseInfoMenuItem);
+        databaseMenu.add(backupMenuItem);
+        databaseMenu.add(restoreMenuItem);
+        databaseMenu.add(clearMenuItem);
     }
     
     private void buildViewMenu() 
@@ -396,12 +309,20 @@ public class XDictGui extends JFrame implements WindowListener
 
         viewMenu.setText("View");
 
-        viewMenu.add(progressStatsMenuItem);
-        viewMenu.add(breakdownStatsMenuItem);
         viewMenu.add(resetQueryMenuItem);
     }
 
-    
+    private void buildReportMenu()
+    {
+        menuBar.add(reportMenu);
+
+        reportMenu.setText("Reports");
+
+        reportMenu.add(progressStatsMenuItem);
+        reportMenu.add(breakdownStatsMenuItem);
+    }
+
+
     /*
      ************  UI ************
      */
@@ -653,7 +574,6 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	JPanel result = new JPanel();
         result.setLayout(new GridLayout(1, 3));
-        //result.setBorder(BorderFactory.createTitledBorder(""));
 
     	// Add radio buttons to control useMode
         ButtonGroup group = new ButtonGroup();
@@ -663,9 +583,6 @@ public class XDictGui extends JFrame implements WindowListener
         group.add(queryLengthAtMost);
         group.add(queryLengthAtLeast);
         
-        //queryLengthEquals.setHorizontalAlignment(SwingConstants.LEFT);
-        //queryLengthAtMost.setHorizontalAlignment(SwingConstants.LEFT);
-        //queryLengthAtLeast.setHorizontalAlignment(SwingConstants.LEFT);
     	queryLengthEquals.setVerticalAlignment(SwingConstants.TOP);
     	queryLengthAtMost.setVerticalAlignment(SwingConstants.TOP);
     	queryLengthAtLeast.setVerticalAlignment(SwingConstants.TOP);
@@ -691,9 +608,6 @@ public class XDictGui extends JFrame implements WindowListener
     
     private JComponent buildAddDisplayPanel() 
     {
-//        addScrollPane = new JScrollPane(addResultArea);
-//        addResultArea.setText("Add Result Area");
-//        return addScrollPane;
         JPanel result = new JPanel();
         result.setBorder(BorderFactory.createTitledBorder("Results"));
 
@@ -764,11 +678,6 @@ public class XDictGui extends JFrame implements WindowListener
         result.add(okButton2);
         result.add(goodButton2);
         result.add(excellentButton2);
-//        result.add(manualButton);
-//        JComponent entryRating = buildGenericCombo2("Manual Rating", manualRatingLabel, manualRatingSlider);
-//        result.add(entryRating);
-//        result.add(researchButton);
-//        result.add(skipButton);
         setAddRatingButtons(true);
         return result;
     }
@@ -891,14 +800,13 @@ public class XDictGui extends JFrame implements WindowListener
         
         return result;
     }
-    
+
+    // Radio button with 2 options
     private JComponent buildRadioButton2(JRadioButton b1, JRadioButton b2, int defaultButton)
     {
     	JPanel result = new JPanel();
         result.setLayout(new GridLayout(1, 2));
-        //result.setBorder(BorderFactory.createTitledBorder(""));
 
-    	// Add radio buttons to control useMode
         ButtonGroup group = new ButtonGroup();
 
         switch (defaultButton)
@@ -923,14 +831,13 @@ public class XDictGui extends JFrame implements WindowListener
 
         return result;
     }
-    
+
+    // Radio button with 3 options
     private JComponent buildRadioButton3(JRadioButton b1, JRadioButton b2, JRadioButton b3, int defaultButton)
     {
     	JPanel result = new JPanel();
         result.setLayout(new GridLayout(1, 3));
-        //result.setBorder(BorderFactory.createTitledBorder(""));
 
-    	// Add radio buttons to control useMode
         ButtonGroup group = new ButtonGroup();
 
         switch (defaultButton)
@@ -1099,12 +1006,13 @@ public void resetQuery(boolean rating) {
     }
 
     public void getRatingProgress() {
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
         queryResultArea.setText("Rating Progress:" + "\n");
 
         int totalRated = 0;
         int totalUnrated = 0;
 
-        String key = wordEntry.getText();
+        String key = "";
         PatternControl patCtrl = PatternControl.ALL;
 
         if ( key.length() == 0 )	// no pattern selected
@@ -1143,14 +1051,16 @@ public void resetQuery(boolean rating) {
     }
 
     public void getRatingBreakdown() {
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
         queryResultArea.setText("Rating Breakdown:" + "\n");
 
         int totalHorrible = 0;   // 0 to 25
         int totalBad = 0;        // 26 to 50
         int totalMedium = 0;     // 51 to 60
-        int totalGood = 0;       // 61+
+        int totalGood = 0;       // 61 to 80
+        int totalGreat = 0;      // 81 to 100
 
-        String key = wordEntry.getText();
+        String key = "";
         PatternControl patCtrl = PatternControl.ALL;
 
         if ( key.length() == 0 )	// no pattern selected
@@ -1167,9 +1077,10 @@ public void resetQuery(boolean rating) {
             int horribleCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 0, 20, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
             int badCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 21, 40, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
             int mediumCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 41, 60, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int goodCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 61, 100, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int goodCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 61, 80, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int greatCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 81, 100, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
 
-            int combinedCount = horribleCount + badCount + mediumCount + goodCount;
+            int combinedCount = horribleCount + badCount + mediumCount + goodCount + greatCount;
             if (combinedCount == 0 )
                 continue;
 
@@ -1177,41 +1088,110 @@ public void resetQuery(boolean rating) {
             double badPercent = (double)badCount / (double)combinedCount;
             double mediumPercent = (double)mediumCount / (double)combinedCount;
             double goodPercent = (double)goodCount / (double)combinedCount;
+            double greatPercent = (double)greatCount / (double)combinedCount;
             DecimalFormat df = new DecimalFormat("##.#%");
             String formattedHorriblePercent = df.format(horriblePercent);
             String formattedBadPercent = df.format(badPercent);
             String formattedMediumPercent = df.format(mediumPercent);
             String formattedGoodPercent = df.format(goodPercent);
+            String formattedGreatPercent = df.format(greatPercent);
             totalHorrible += horribleCount;
             totalBad += badCount;
             totalMedium += mediumCount;
             totalGood += goodCount;
+            totalGreat += greatCount;
 
             queryResultArea.append("Length: " + length + "  Total: " + combinedCount + "   (0-20): " + horribleCount + " (" + formattedHorriblePercent + ") " +
                     "  (21-40): " + badCount + " (" + formattedBadPercent + ") " +
                     "  (41-60): " + mediumCount + " (" + formattedMediumPercent + ") " +
-                    "  (61+): " + goodCount + " (" + formattedGoodPercent + ") " + "\n");
+                    "  (61-80): " + goodCount + " (" + formattedGoodPercent + ") " +
+                    "  (81-100): " + greatCount + " {" + formattedGreatPercent + ")\n");
 
         }
 
-        int totalCount = totalHorrible + totalBad + totalMedium + totalGood;
+        int totalCount = totalHorrible + totalBad + totalMedium + totalGood + totalGreat;
 
         double horriblePercent = (double)totalHorrible / (double)totalCount;
         double badPercent = (double)totalBad / (double)totalCount;
         double mediumPercent = (double)totalMedium / (double)totalCount;
         double goodPercent = (double)totalGood / (double)totalCount;
+        double greatPercent = (double)totalGreat / (double)totalCount;
         DecimalFormat df = new DecimalFormat("##.#%");
         String formattedHorriblePercent = df.format(horriblePercent);
         String formattedBatPercent = df.format(badPercent);
         String formattedMediumPercent = df.format(mediumPercent);
         String formattedGoodPercent = df.format(goodPercent);
+        String formattedGreatPercent = df.format(greatPercent);
 
         queryResultArea.append("TOTAL:   Total: " + totalCount + "   (0-20): " + totalHorrible + " (" + formattedHorriblePercent + ") " +
                 "  (21-40): " + totalBad + " (" + formattedBatPercent + ") " +
                 "  (41-60): " + totalMedium + " (" + formattedMediumPercent + ") " +
-                "  (61+): " + totalGood + " (" + formattedGoodPercent + ") " + "\n");
+                "  (61-80): " + totalGood + " (" + formattedGoodPercent + ") " +
+                "  (81-100): " + totalGreat + " (" + formattedGreatPercent + ")\n");
 
         return;
+    }
+
+    public void getDatabaseInfo() {
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
+        queryResultArea.setText("Database Info:" + "\n\n");
+
+        ArrayList<String> tables = dict.showAllTables();
+
+        if (XDictConfig.testMode) {
+            queryResultArea.append("Active Tables (TEST MODE)\n");
+            queryResultArea.append("------------------------- \n");
+            for (String t : tables) {
+                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+            queryResultArea.append("\nInactive Tables \n");
+            queryResultArea.append("--------------- \n");
+            for (String t : tables) {
+                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+        } else {
+            queryResultArea.append("Active Tables \n");
+            queryResultArea.append("------------- \n");
+            for (String t : tables) {
+                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+            queryResultArea.append("\nInactive Tables (TEST MODE)\n");
+            queryResultArea.append("--------------------------- \n");
+            for (String t : tables) {
+                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+        }
+
+        return;
+    }
+
+    public String doClear() {
+        String validation = "YES I REALLY MEAN TO DO THIS";
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
+        if (!wordComment.getText().contains(validation)) {
+            queryResultArea.setText("You are requesting to clear all tables in your " + (XDictConfig.testMode ? "TEST MODE " : "") + "database!\n");
+            queryResultArea.append("If you really mean to do this, you must enter \"YES I REALLY MEAN TO DO THIS\" in the Comment field and then retry.");
+            return "Are you sure?";
+        }
+
+        dict.clear_YesIReallyMeanToDoThis();
+
+        queryResultArea.setText("Tables cleared.");
+        wordComment.setText("");        // clear the validation field
+
+        return "Tables cleared.";
     }
 
     /*
@@ -1806,7 +1786,7 @@ public void resetQuery(boolean rating) {
 				if (line.length() < 3) {
 					continue;
 				}
-				Word wTmp = LoadAndExportUtilities.parseWordAndRating(line, ";:");
+				Word wTmp = LoadAndExportUtilities.parseWordAndRating(line, XDictConfig.LOAD_FILE_DELIMITERS);
 				// If it has a rating, use it; else grab the rating setting from the UI.
 				rating = ((wTmp.getRating() > 0) ? wTmp.getRating() : (byte)wordRatingSlider.getValue());
 //				rating = LoadAndExportUtilities.normalizeRating(wTmp.getEntry(), rating);
@@ -1859,9 +1839,18 @@ public void resetQuery(boolean rating) {
 
     public String doRestore()
     {
+        resultPaneTabs.setSelectedIndex(3);     // set to load result pane to display results
         String filename = loadFile.getText();
         if ( !filename.startsWith("backups/bkup") ) {
-            loadResultArea.setText("Can only restore files starting with \"backups/bkup\"; Filename: [" + filename + "]");
+            loadResultArea.setText("Can only restore files starting with \"backups/bkup\"; Filename: [" + filename + "]\n");
+            loadResultArea.append("Enter the backup file name in the File to Load field and then retry the Restore action.\n");
+            loadResultArea.append("WARNING: Do NOT restore with the LOAD button, as any non-rating data will not be restored!\n");
+            return "Error.";
+        }
+        if (filename.contains(XDictConfig.TEST_MODE_SUFFIX) && !XDictConfig.testMode) {
+            loadResultArea.setText("WARNING: You are trying to restore a TEST MODE database but are NOT in TEST MODE!!!\n");
+            loadResultArea.append("If you really mean to do this, you must rename the backup file to remove the " + XDictConfig.TEST_MODE_SUFFIX + "from the name.\n");
+            loadResultArea.append("This is for your own safety.\n");
             return "Error.";
         }
         loadResultArea.setText("Restoring from file: " + filename + "\n");
@@ -1912,8 +1901,9 @@ public void resetQuery(boolean rating) {
     {
     	String filename = exportFile.getText();
     	if (isBackup) {
+            resultPaneTabs.setSelectedIndex(4);     // set to export result pane to display results
     		Timestamp t = new Timestamp(new Date().getTime());
-    		filename = "backups/bkup_" + t.toString();
+    		filename = "backups/bkup" + XDictConfig.TEST_MODE_SUFFIX + "_" + t.toString();
     	}
     	exportResultArea.setText("");
     	FileWriter fw;
@@ -2108,9 +2098,21 @@ public void resetQuery(boolean rating) {
             // Ignore
         }
 
+        if ( !XDictConfig.processConfigFile())
+            return;
+
 		dict.connect();
         
         XDictGui gui = new XDictGui();
+        if (XDictConfig.testMode) {
+            gui.setTitle("***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE *****");
+            gui.queryResultArea.setText("YOU ARE IN TEST MODE!" + "\n\n");
+            gui.queryResultArea.append("All actions while in TEST MODE will apply to TEST tables." + "\n");
+            gui.queryResultArea.append("This allows you to play with the functionality of the system without concern for the actual data." + "\n");
+            gui.queryResultArea.append("To switch out of TEST MODE, comment out the TEST_MODE line in config.txt." + "\n");
+        } else {
+            gui.setTitle("XDict - A Crossword Dictionary Maintenance Tool by Pete Mitchell");
+        }
         gui.setVisible(true);
         
     }

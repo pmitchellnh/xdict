@@ -276,11 +276,11 @@ public class Word
 	}
 
 	/**
-	 * This is the format that will be stored in wordlists (word:rating)
+	 * This is the format that will be stored in exported wordlists (word:rating)
 	 */
 	public String toString()
 	{
-		String s = new String( entry + ";" + rating );
+		String s = new String( entry + XDictConfig.EXPORT_FILE_DELIMITER + rating );
 		
 		return s;
 	}
