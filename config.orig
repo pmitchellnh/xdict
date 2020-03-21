@@ -29,3 +29,42 @@ LOAD_FILE_DELIMITERS=[:; ]
 # Note that the [] are used to contain the character and are not ignored once this
 # parameter has been parsed.  As such, '=', '[' and ']' cannot be used as a value.
 EXPORT_FILE_DELIMITER=[;]
+
+# The following values are assigned to the rating buttons.
+# Values can be from 0 to 100.
+# It is possible, though not necessary, to assign different values to
+# words between 3 and 6 letters in length.  This is to support (my personal)
+# theory that shorter words are not as significant as longer words when evaluating
+# a puzzle fill.  For any length-specific values that you don't choose to differentiate,
+# either set it explicitly to the general value or comment it out (in which case the default
+# value will be used).
+TERRIBLE=5
+#TERRIBLE_6=5
+#TERRIBLE_5=5
+#TERRIBLE_4=5
+#TERRIBLE_3=5
+POOR=15
+#POOR_6=15
+#POOR_5=20
+#POOR_4=25
+#POOR_3=30
+LAME=45
+#LAME_6=45
+#LAME_5=45
+#LAME_4=45
+#LAME_3=50
+OK=60
+#OK_6=60
+#OK_5=60
+#OK_4=60
+#OK_3=60
+GOOD=65
+#GOOD_6=65
+#GOOD_5=65
+#GOOD_4=65
+#GOOD_3=63
+EXCELLENT=80
+#EXCELLENT_6=80
+#EXCELLENT_5=75
+#EXCELLENT_4=70
+#EXCELLENT_3=65

@@ -11,7 +11,7 @@ import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.ResearchControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.UsedControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
 import mitchell.pete.xwd.dictionary.db.XDictDB_MySQL;
-import mitchell.pete.xwd.dictionary.gui.RateAction.RATINGS;
+import mitchell.pete.xwd.dictionary.XDictConfig.RATINGS;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -117,22 +117,22 @@ public class XDictGui extends JFrame implements WindowListener
     private JButton addButton				= new JButton(new AddAction(this));
     private JButton loadButton				= new JButton(new LoadAction(this));
     private JButton exportButton		    = new JButton(new ExportAction(this));
-    private JButton killButton		        = new JButton(new RateAction(this, RATINGS.KILL));
-    private JButton terribleButton		    = new JButton(new RateAction(this, RATINGS.TERRIBLE));
-    private JButton poorButton		        = new JButton(new RateAction(this, RATINGS.POOR));
-    private JButton lameButton		        = new JButton(new RateAction(this, RATINGS.LAME));
-    private JButton okButton   		        = new JButton(new RateAction(this, RATINGS.OK));
-    private JButton goodButton		        = new JButton(new RateAction(this, RATINGS.GOOD));
-    private JButton excellentButton		    = new JButton(new RateAction(this, RATINGS.EXCELLENT));
-    private JButton terribleButton2		    = new JButton(new SetRatingAction(this, RATINGS.TERRIBLE));
-    private JButton poorButton2		        = new JButton(new SetRatingAction(this, RATINGS.POOR));
-    private JButton lameButton2		        = new JButton(new SetRatingAction(this, RATINGS.LAME));
-    private JButton okButton2   		    = new JButton(new SetRatingAction(this, RATINGS.OK));
-    private JButton goodButton2		        = new JButton(new SetRatingAction(this, RATINGS.GOOD));
-    private JButton excellentButton2		= new JButton(new SetRatingAction(this, RATINGS.EXCELLENT));
-    private JButton researchButton		    = new JButton(new RateAction(this, RATINGS.RESEARCH));
-    private JButton skipButton		    	= new JButton(new RateAction(this, RATINGS.SKIP));
-    private JButton manualButton		    = new JButton(new RateAction(this, RATINGS.MANUAL));
+    private JButton killButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.KILL));
+    private JButton terribleButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.TERRIBLE));
+    private JButton poorButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.POOR));
+    private JButton lameButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.LAME));
+    private JButton okButton   		        = new JButton(new RateAction(this, XDictConfig.RATINGS.OK));
+    private JButton goodButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.GOOD));
+    private JButton excellentButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.EXCELLENT));
+    private JButton terribleButton2		    = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.TERRIBLE));
+    private JButton poorButton2		        = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.POOR));
+    private JButton lameButton2		        = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.LAME));
+    private JButton okButton2   		    = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.OK));
+    private JButton goodButton2		        = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.GOOD));
+    private JButton excellentButton2		= new JButton(new SetRatingAction(this, XDictConfig.RATINGS.EXCELLENT));
+    private JButton researchButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.RESEARCH));
+    private JButton skipButton		    	= new JButton(new RateAction(this, XDictConfig.RATINGS.SKIP));
+    private JButton manualButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.MANUAL));
     private JTabbedPane resultPaneTabs 		= new JTabbedPane();
     
     private JTextField loadFile            = new JTextField(50);
@@ -1317,31 +1317,6 @@ public class XDictGui extends JFrame implements WindowListener
     }
 
     public String doRate(RATINGS r) {
-        final int KILL = 0;
-        final int TERRIBLE = 5;
-        final int TERRIBLE_5 = 6;
-        final int TERRIBLE_4 = 8;
-        final int TERRIBLE_3 = 10;
-        final int POOR = 15;
-        final int POOR_5 = 20;
-        final int POOR_4 = 25;
-        final int POOR_3 = 30;
-        final int LAME = 45;
-        final int LAME_5 = 47;
-        final int LAME_4 = 49;
-        final int LAME_3 = 51;
-        final int OK = 60;
-        final int GOOD_3 = 63;
-        final int GOOD_4 = 65;
-        final int GOOD = 67;
-        final int EXCELLENT_3 = 65;
-        final int EXCELLENT_4 = 67;
-        final int EXCELLENT_5 = 69;
-        final int EXCELLENT_6 = 71;
-        final int EXCELLENT_7 = 73;
-        final int EXCELLENT_8 = 75;
-        final int EXCELLENT = 77;
-
         String status = "";
         Word w = listToRate.get(0);
         int rat = manualRatingSlider.getValue();
@@ -1349,138 +1324,32 @@ public class XDictGui extends JFrame implements WindowListener
             w.setComment(wordComment.getText());
         }
 
-        if (r == RATINGS.RESEARCH) {
+        if (r == XDictConfig.RATINGS.RESEARCH) {
             status = w.getEntry() + ": Needs research";
             w.setNeedsResearch(true);
             dict.putWord(w);
-        } else if (r == RATINGS.MANUAL) {
+        } else if (r == XDictConfig.RATINGS.MANUAL) {
             status = w.getEntry() + ": " + rat + " (Manual)";
             w.setRating(rat);
             w.setManuallyRated(true);
             w.setNeedsResearch(false);    // rated manually; research complete
             dict.putWord(w);
-        } else if (r == RATINGS.EXCELLENT) {
-            switch (w.length()) {
-                case 3:
-                    rat = EXCELLENT_3;
-                    break;
-                case 4:
-                    rat = EXCELLENT_4;
-                    break;
-                case 5:
-                    rat = EXCELLENT_5;
-                    break;
-                case 6:
-                    rat = EXCELLENT_6;
-                    break;
-                case 7:
-                    rat = EXCELLENT_7;
-                    break;
-                case 8:
-                    rat = EXCELLENT_8;
-                    break;
-                default:
-                    rat = EXCELLENT;
-                    break;
-            }
-            status = w.getEntry() + ": " + rat + " (Excellent)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == RATINGS.GOOD) {
-            switch (w.length()) {
-                case 3:
-                    rat = GOOD_3;
-                    break;
-                case 4:
-                    rat = GOOD_4;
-                    break;
-                default:
-                    rat = GOOD;
-                    break;
-            }
-            status = w.getEntry() + ": " + rat + " (Good)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == RATINGS.OK) {
-            rat = OK;
-            status = w.getEntry() + ": " + rat + " (Ok)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == RATINGS.LAME) {
-            switch (w.length()) {
-                case 3:
-                    rat = LAME_3;
-                    break;
-                case 4:
-                    rat = LAME_4;
-                    break;
-                case 5:
-                    rat = LAME_5;
-                    break;
-                default:
-                    rat = LAME;
-                    break;
-            }
-            status = w.getEntry() + ": " + rat + " (Lame)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == RATINGS.POOR) {
-            switch (w.length()) {
-                case 3:
-                    rat = POOR_3;
-                    break;
-                case 4:
-                    rat = POOR_4;
-                    break;
-                case 5:
-                    rat = POOR_5;
-                    break;
-                default:
-                    rat = POOR;
-                    break;
-            }
-            status = w.getEntry() + ": " + rat + " (Poor)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == RATINGS.TERRIBLE) {
-            switch (w.length()) {
-                case 3:
-                    rat = TERRIBLE_3;
-                    break;
-                case 4:
-                    rat = TERRIBLE_4;
-                    break;
-                case 5:
-                    rat = TERRIBLE_5;
-                    break;
-                default:
-                    rat = TERRIBLE;
-                    break;
-            }
-            status = w.getEntry() + ": " + rat + " (Terrible)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == RATINGS.KILL) {
-            rat = KILL;
+        } else if (r == XDictConfig.RATINGS.KILL) {
+            rat = XDictConfig.KILL;
             status = w.getEntry() + ": " + rat + " (Killed)";
             w.setRating(rat);
             w.setManuallyRated(true);
             w.setNeedsResearch(false);    // rated manually; research complete
             dict.putWord(w);
-        } else if (r == RATINGS.SKIP) {
+        } else if (r == XDictConfig.RATINGS.SKIP) {
             status = w.getEntry() + ": Skipped";
+        } else {
+            rat = XDictConfig.getRating(r, w.length());
+            status = w.getEntry() + ": " + rat + " (" + r.toString() + ")";
+            w.setRating(rat);
+            w.setManuallyRated(true);
+            w.setNeedsResearch(false);    // rated manually; research complete
+            dict.putWord(w);
         }
 
         listToRate.remove(0);	// Remove rated (or skipped) item from list
@@ -1511,126 +1380,13 @@ public class XDictGui extends JFrame implements WindowListener
 
     public String doSetAddRate(RATINGS r)
     {
-    	final int TERRIBLE = 5;
-    	final int TERRIBLE_5 = 10;
-    	final int TERRIBLE_4 = 15;
-    	final int TERRIBLE_3 = 20;
-    	final int POOR = 15;
-    	final int POOR_5 = 20;
-    	final int POOR_4 = 25;
-    	final int POOR_3 = 30;
-    	final int LAME = 35;
-    	final int LAME_5 = 40;
-    	final int LAME_4 = 45;
-    	final int LAME_3 = 50;
-    	final int OK = 60;
-    	final int GOOD_3 = 63;
-    	final int GOOD_4 = 65;
-    	final int GOOD = 70;
-    	final int EXCELLENT_3 = 65;
-    	final int EXCELLENT_4 = 70;
-    	final int EXCELLENT_5 = 75;
-    	final int EXCELLENT_6 = 80;
-    	final int EXCELLENT_7 = 85;
-    	final int EXCELLENT_8 = 90;
-    	final int EXCELLENT = 95;
-    	
     	String status = "";
         String w = wordEntry.getText();
 
-        int rat;
+        int rat = XDictConfig.getRating(r, w.length());
 
-    	if (r == RATINGS.EXCELLENT) {
-    		switch (w.length()) {
-    		case 3:
-    			rat = EXCELLENT_3;
-    			break;
-    		case 4:
-    			rat = EXCELLENT_4;
-    			break;
-    		case 5:
-    			rat = EXCELLENT_5;
-    			break;
-    		case 6:
-    			rat = EXCELLENT_6;
-    			break;
-    		case 7: 
-    			rat = EXCELLENT_7;
-    			break;
-    		case 8: 
-    			rat = EXCELLENT_8;
-    			break;
-    		default: 
-    			rat = EXCELLENT;
-    			break;
-    		}
-            wordRatingSlider.setValue(rat);
-    	} else if (r == RATINGS.GOOD) {
-    		switch (w.length()) {
-    		case 3:
-    			rat = GOOD_3;
-    			break;
-    		case 4:
-    			rat = GOOD_4;
-    			break;
-    		default: 
-    			rat = GOOD;
-    			break;
-    		}
-            wordRatingSlider.setValue(rat);
-    	} else if (r == RATINGS.OK) {
-    		rat = OK;
-            wordRatingSlider.setValue(rat);
-    	} else if (r == RATINGS.LAME) {
-    		switch (w.length()) {
-    		case 3:
-    			rat = LAME_3;
-    			break;
-    		case 4:
-    			rat = LAME_4;
-    			break;
-    		case 5:
-    			rat = LAME_5;
-    			break;
-    		default: 
-    			rat = LAME;
-    			break;
-    		}
-            wordRatingSlider.setValue(rat);
-    	} else if (r == RATINGS.POOR) {
-    		switch (w.length()) {
-    		case 3:
-    			rat = POOR_3;
-    			break;
-    		case 4:
-    			rat = POOR_4;
-    			break;
-    		case 5:
-    			rat = POOR_5;
-    			break;
-    		default: 
-    			rat = POOR;
-    			break;
-    		}
-            wordRatingSlider.setValue(rat);
-    	} else if (r == RATINGS.TERRIBLE) {
-    		switch (w.length()) {
-    		case 3:
-    			rat = TERRIBLE_3;
-    			break;
-    		case 4:
-    			rat = TERRIBLE_4;
-    			break;
-    		case 5:
-    			rat = TERRIBLE_5;
-    			break;
-    		default: 
-    			rat = TERRIBLE;
-    			break;
-    		}
-            wordRatingSlider.setValue(rat);
-    	}
-    	
+        wordRatingSlider.setValue(rat);
+
     	return status;
     }
     
@@ -2077,7 +1833,6 @@ public class XDictGui extends JFrame implements WindowListener
         try {
             File file = new java.io.File("help/XDictHelp.html").getAbsoluteFile();
             Desktop.getDesktop().open(file);
-//            Desktop.getDesktop().browse(new URL(urlString).toURI());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,66 +1,29 @@
 package mitchell.pete.xwd.dictionary.gui;
 
+import mitchell.pete.xwd.dictionary.XDictConfig;
+
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.Date;
 
 public class RateAction extends AbstractAction implements Runnable
 {
-	public enum RATINGS { KILL, TERRIBLE, POOR, LAME, OK, GOOD, EXCELLENT, MANUAL, RESEARCH, SKIP };
+    ;
 	private static final long serialVersionUID = 1L;
 	private XDictGui gui = null;
-	private RATINGS rating;
+	private XDictConfig.RATINGS rating;
 
-    public RateAction(XDictGui g, RATINGS r) 
+    public RateAction(XDictGui g, XDictConfig.RATINGS r)
     {
         this.gui = g;
         rating = r;
 
-        switch (rating) {
-            case KILL:
-                putValue(Action.SHORT_DESCRIPTION, "Not a word. Kill it. (0)");
-                putValue(Action.NAME, "Kill");
-                break;
-        	case TERRIBLE:
-                putValue(Action.SHORT_DESCRIPTION, "You're joking, right? (5-10).");
-                putValue(Action.NAME, "Terrible");
-                break;
-        	case POOR:
-                putValue(Action.SHORT_DESCRIPTION, "I suppose. In a pinch. (15-30)");
-                putValue(Action.NAME, "Poor");
-                break;
-        	case LAME:
-                putValue(Action.SHORT_DESCRIPTION, "Not crazy about it. (45-51)");
-                putValue(Action.NAME, "Lame");
-                break;
-        	case OK:
-                putValue(Action.SHORT_DESCRIPTION, "Nothing wrong with it. (60)");
-                putValue(Action.NAME, "Ok");
-                break;
-        	case GOOD:
-                putValue(Action.SHORT_DESCRIPTION, "Yeah, that's pretty good. (63-67)");
-                putValue(Action.NAME, "Good");
-                break;
-        	case EXCELLENT:
-                putValue(Action.SHORT_DESCRIPTION, "Now that's what I'm talking about. (65-77)");
-                putValue(Action.NAME, "Excellent");
-                break;
-        	case MANUAL:
-                putValue(Action.SHORT_DESCRIPTION, "Rate manually using slider value.");
-                putValue(Action.NAME, "Manual");
-                break;
-        	case RESEARCH:
-                putValue(Action.SHORT_DESCRIPTION, "Flag it for later research.");
-                putValue(Action.NAME, "Research");
-                break;
-        	case SKIP:
-                putValue(Action.SHORT_DESCRIPTION, "Skip for now.");
-                putValue(Action.NAME, "Skip");
-                break;
-        }
+        putValue(Action.SHORT_DESCRIPTION, XDictConfig.getRateButtonDesc(rating));
+        putValue(Action.NAME, XDictConfig.getRateButtonName(rating));
+
     }
 
-    public void actionPerformed(ActionEvent e) 
+    public void actionPerformed(ActionEvent e)
     {
     	new Thread(this).start();
     }
