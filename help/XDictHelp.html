@@ -1,0 +1,239 @@
+<html>
+<head>
+  <title>XDict: Help</title>
+  <LINK REL=StyleSheet HREF="XDictHelp.css" TYPE="text/css" MEDIA="screen, print">
+</head>
+<body>
+<h1>XDict: A Crossword Database Maintenance Tool</h1>
+  <div id="contents"><h2>Table of Contents</h2>
+    <ol type='I'>
+      <h4><li><a href="#overview">Overview</a></h4>
+      <h4><li><a href="#features">Features</a></h4>
+      <h4><li><a href="#prequisites">Prerequisites</a></h4>
+        <div><ol type='A'>
+          <li><a href="#mysqldb">Install MySQL Database</a>
+          <li><a href="#javaruntime">Install Java Runtime</a>
+        </ol></div>
+      <h4><li><a href="#installation">Install and Run</a></h4>
+        <div><ol type='A'>
+          <li><a href="#dbsetup">Database Setup</a>
+          <li><a href="#install">Installing the Software</a>
+          <li><a href="#config">Configuration</a>
+          <li><a href="#runit">Running the Program</a>
+        </ol></div>
+      <h4><li><a href="#query">Querying the Database</a></h4>
+      <h4><li><a href="#add">Adding and Modifying Words</a></h4>
+      <h4><li><a href="#rate">Rating Words</a></h4>
+      <h4><li><a href="#load">Loading Word Lists</a></h4>
+        <div><ol type='A'>
+          <li><a href="#unrankedwordlists">Unranked Word Lists</a>
+          <li><a href="#rankwordlists">Ranked Word Lists</a>
+          <li><a href="#reconciler">Understanding the Reconciler</a>
+        </ol></div>
+      <h4><li><a href="#export">Exporting Word Lists</a></h4>
+      <h4><li><a href="#viewmenu">View Menu</a></h4>
+        <div><ol type='A'>
+          <li><a href="#resetquery">Reset Query</a>
+        </ol></div>
+      <h4><li><a href="#reportsmenu">Reports Menu</a></h4>
+        <div><ol type='A'>
+          <li><a href="#progressreport">Rating Progress Report</a>
+          <li><a href="#breakdownreport">Rating Breakdown Report</a>
+        </ol></div>
+      <h4><li><a href="#databasemenu">Database Menu</a></h4>
+        <div><ol type='A'>
+          <li><a href="#databaseinfo">Database Info</a>
+          <li><a href="#backup">Backup</a>
+          <li><a href="#restore">Restore</a>
+          <li><a href="#clear">Clear Tables</a>
+        </ol></div>
+      </ol>
+    </div>
+    <ol type='I'>
+    <div id="overview"><h2><li>Overview</h2>
+        XDict is a database tool designed to facilitate the creation and maintenance of
+        a crossword puzzle dictionary.  It was designed and continues to be maintained
+        by a crossword puzzle constructor for his personal use, and its features are
+        born from the actual needs and pains of trying to maintain word lists through
+        existing crossword construction tools (Crossword Compiler, Crossfire) or other
+        non-crossword-specific applications (Word, Excel, text files).
+        <p>
+    </div>
+    <div id="features"><h2><li>Features</h2>
+      <ul>
+        <li>Full-featured query, including "wildcard" letters
+        <li>Quick-and-easy method of manually rating
+        <li>Adjusted rating algorithm based on word length<sup>1</sup>
+        <li>Track which words have been manually rated
+        <li>Track words that have been used in NY Times (and other publications)<sup>2</sup>
+        <li>Add comments, for clarifications, notes, or clue suggestions
+        <li>Load rated or unrated word lists
+        <li>Reconcile logic handles "smart" merging of new lists into existing Database
+        <li>Export word lists appropriate for Crossword Compiler or Crossfire
+        <li>Backup/restore the database to/from file
+        <li>View rating statistics, broken down by word length
+        <li>"Test" mode allows you to experiment using a test DB without affecting your production DB
+        <li>Configuration file allows you to customize certain behaviors
+      </ul>
+      <p>
+      <sup>1</sup>Based on my own personal rating theory. See <a href="#rate">Rating Words</a> for more details.<br>
+      <sup>2</sup>Requires manual entry or proper setup when loading certain word lists.<br>
+    </div>
+    <div id="prerequisites"><h2><li>Prerequisites</h2>
+      <ol type='A'>
+      <div id="mysqldb"><h3><li>Install MySQL Database</h3>
+        <div class="note"><strong>NOTE: </strong><p>This program uses the MySQL database.
+          It is beyond the scope of this document to detail the download and installation of MySQL
+          on a specific machine/OS combination.  Please refer to existing online resources to install
+          MySQL on your machine.
+        </div>
+      </div>
+      <div id="javaruntime"><h3><li>Install Java Runtime</h3>
+      </div>
+      </ol>
+    </div>
+    <div id="installation"><h2><li>Install and Run</h2>
+      <ol type='A'>
+      <div id="dbsetup"><h3><li>Database Setup</h3>
+        Datase URL: jdbc:mysql://localhost:3306/xdict <br>
+        Database User: xdict <br>
+        Database Password: xdict <br>
+        <h3><li>Configuration</h3>
+          Parameters in the config.txt file can be used to customize certain parameters, as follows:
+          <ul>
+            <li>TEST_MODE: allows you to experiment with test tables without affecting your actual DB
+            <li>LOAD_FILE_DELIMTERS: allows you to specify the format of rated word lists you import
+            <li>EXPORT_FILE_DELIMITER: allows you to specify the format of your exported word list/dictionary
+          </ul>
+          See comments in config.txt for more details.
+        </div>
+        <div id="install"><h3><li>Installing the Software</h3>
+        </div>
+        <div id="config"><h3><li>Configuration</h3>
+        </div>
+        <div id="runit"><h3><li>Running the Program</h3>
+        </div>
+      </ol>
+    </div>
+    <div id="query"><h2><li>Querying the Database</h2>
+    </div>
+    <div id="add"><h2><li>Adding and Modifying Words</h2>
+    </div>
+    <div id="rate"><h2><li>Rating Words</h2>
+      <div class="note">Note:<p>Manually rating all your words can seem
+        like an impossible task.  My advice, as a constructor, is to start
+        small (literally).  3-letter words are the most common, so start there.
+        Then do 4-letter words.  This can be a task that you can perform whenever
+        you have a little free time.  Got 5 minutes?  Rate 100 words.
+      </div>
+      <p>
+      <div class="note">Note:<p>Here's another tip. When you're filling a themed
+        puzzle, there will be many spots where the fill choice is constrained by the
+        theme entries.  Use the pattern-matching feature to manually rate those
+        patterns before trying to fill the grid.  In this way, your rating activity
+        is specifically targeted to the puzzle(s) you are working on, so get
+        immediate benefit.<p>I typically do this multiple times throughout my
+        fill process: rate words, export to file, import new dictionary, continue
+        filling.
+      </div>
+    </div>
+    <div id="load"><h2><li>Loading Word Lists</h2>
+      <div class="alert">IMPORTANT:<p>It is HIGHLY recommended that you backup your database before
+        loading loading a wordlist.
+        By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
+        for example) you can <a href="#clear">clear the tables</a>, <a href="#restore">restore
+          to your backup file</a>, and try again.
+      </div>
+      <ol type='A'>
+        <div id="unrankedwordlists"><h3><li>Unranked Word Lists</h3>
+        </div>
+        <div id="rankwordlists"><h3><li>Ranked Word Lists</h3>
+        </div>
+        <div id="reconciler"><h3><li>Understanding the Reconciler</h3>
+        </div>
+      </ol>
+    </div>
+    <div id="export"><h2><li>Exporting Word Lists</h2>
+    </div>
+    <div id="viewmenu"><h2><li>View Menu</h2>
+      <ol type='A'>
+        <div id="resetquery"><h3><li>Reset Query</h3>
+        </div>
+      </ol>
+    </div>
+    <div id="reportsmenu"><h2><li>Reports Menu</h2>
+      <ol type='A'>
+        <div id="progressreport"><h3><li>Rating Progress Report</h3>
+          The Rating Progress Report shows you how much of your database has
+          been manually rated, broken down by word length. This report
+          gives you a nice view into what you've accomplished and still need to.
+          <div class="note">Note:<p>Manually rating all your words can seem
+            like an impossible task.  My advice, as a constructor, is to start
+            small (literally).  3-letter words are the most common, so start there.
+            Then do 4-letter words.  This can be a task that you can perform whenever
+            you have a little free time.  Got 5 minutes?  Rate 100 words.
+          </div>
+        </div>
+        <div id="breakdownreport"><h3><li>Rating Breakdown Report</h3>
+        </div>
+      </ol>
+    </div>
+    <div id="databasemenu"><h2><li>Database Menu</h2>
+      <ol type='A'>
+        <div id="databaseinfo"><h3><li>Database Info</h3>
+          The Database Info command lists your active and inactive tables, and
+          how many records are in each.
+        </div>
+        <div id="backup"><h3><li>Backup</h3>
+          The backup command takes a full backup of your database and stores it
+          in the "backups" subdirectory with the name "bkup_yyyy-mm-dd hh:mm:ss.sss",
+          where "yyyy-mm-dd hh:mm:ss.sss" is the timestamp when the backup was done.
+          <div class="alert">It is HIGHLY recommended that you backup your database periodically,
+            and especially before any major changes, such as <a href="#load">loading a
+            wordlist</a>.
+            By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
+            for example) you can <a href="#clear">clear the tables</a> and <a href="#restore">restore
+              to your backup file</a>.
+          </div>
+          <p>
+          <div class="note">
+            NOTE:
+            <p>
+            Backups done while in TEST MODE will be named "bkup_TEST_yyyy-mm-dd hh:mm:ss.sss".
+            Any attempt to restore a TEST MODE backup file while not in TEST MODE will result in an
+            error.  This is to prevent accidental cross-contamination.
+            <p>
+            If you truly want to restore a TEST MODE database into your production system, rename the
+            backup file to remove <thead> "_TEST" portion of the name.
+            </thead>
+          </div>
+        </div>
+        <div id="restore"><h3><li>Restore</h3>
+          To restore a backup file, select "Restore" from the Database Menu, which will bring you
+          to the "Load" tab and preset the "backup/" portion of the filename. This is because the
+          file MUST come from the "backup" directory (to prevent "restoring" of non-backup files).
+          Type (or cut and paste) into "File to Load" the filename of the backup file
+          you want to restore, and then (again) select "Restore" from the Database menu.
+          <p>
+          <div class="alert">Important:<p>Do NOT click the "Load" button to do a restore.  "Load"
+          will only load (and merge) word and ratings. "Restore" recreates the entire database as
+          it was when the backup file was created.
+          <p>
+          Note that for a pristine restore, you should Clear Tables first so you are starting from
+          scratch.  The restore command does not delete any records.
+        </div>
+        <div id="clear"><h3><li>Clear Tables</h3>
+          This command deletes ALL DATA from your tables.  This is useful if you have a backup file that
+          you want to return to.
+          <div class=note>Clearing tables is a destructive action. Make sure you have your
+            data backed up first or have nothing to lose (e.g., you're still playing in TEST MODE).
+            Since this is a destructive action, the system will require you to enter a specific
+            string into the Comment field to confirm that this action was not selected accidentally.  It
+            should be virtually impossible to take this action unintentionally.
+          </div>
+        </div>
+      </ol>
+    </div>
+  </ol>
+</body>
+</html>

@@ -21,6 +21,7 @@ import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -60,6 +61,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JMenu             databaseMenu           = new JMenu();
     private JMenu             viewMenu               = new JMenu();
     private JMenu             reportMenu             = new JMenu();
+    private JMenu             helpMenu               = new JMenu();
     private JMenuItem		  resetQueryMenuItem	 = new JMenuItem(new ResetQueryAction(this));
     private JMenuItem         progressStatsMenuItem  = new JMenuItem(new ProgressAction(this));
     private JMenuItem         breakdownStatsMenuItem = new JMenuItem(new BreakdownAction(this));
@@ -67,6 +69,8 @@ public class XDictGui extends JFrame implements WindowListener
     private JMenuItem		  backupMenuItem	 	 = new JMenuItem(new BackupAction(this));
     private JMenuItem		  restoreMenuItem	 	 = new JMenuItem(new RestoreAction(this));
     private JMenuItem         clearMenuItem          = new JMenuItem(new ClearAction(this));
+    private JMenuItem         helpMenuItem           = new JMenuItem(new OpenHelpAction(this));
+    private JMenuItem         aboutMenuItem          = new JMenuItem(new AboutAction(this));
     private JTextArea         queryResultArea        = new JTextArea();
     private JScrollPane       queryScrollPane        = new JScrollPane();
     private JTextArea         addResultArea          = new JTextArea();
@@ -289,6 +293,7 @@ public class XDictGui extends JFrame implements WindowListener
         buildViewMenu();
         buildReportMenu();
         buildDatabaseMenu();
+        buildHelpMenu();
 
         this.setJMenuBar(menuBar);
     }
@@ -322,6 +327,13 @@ public class XDictGui extends JFrame implements WindowListener
         reportMenu.add(breakdownStatsMenuItem);
     }
 
+    private void buildHelpMenu()
+    {
+        menuBar.add(helpMenu);
+        helpMenu.setText("Help");
+        helpMenu.add(helpMenuItem);
+        helpMenu.add(aboutMenuItem);
+    }
 
     /*
      ************  UI ************
@@ -933,8 +945,57 @@ public class XDictGui extends JFrame implements WindowListener
         
         return result;
     }
-    
-public void resetQuery(boolean rating) {
+
+    public boolean isQueryEnabled() { return queryButton.isEnabled(); }
+    public boolean isRatingEnabled() { return rateQueryButton.isEnabled(); }
+    public boolean isAddEnabled() { return addButton.isEnabled(); }
+    public boolean isExportEnabled() { return exportButton.isEnabled(); }
+    public boolean isLoadEnabled() { return loadButton.isEnabled(); }
+
+    public void setupSliders()
+    {
+        wordLengthSlider.setMajorTickSpacing(2);
+        wordLengthSlider.setMinorTickSpacing(1);
+        wordLengthSlider.setPaintTicks(true);
+        wordLengthSlider.setPaintLabels(true);
+        wordLengthSlider.setSnapToTicks(true);
+
+        wordRatingSlider.setMajorTickSpacing(10);
+        wordRatingSlider.setMinorTickSpacing(2);
+        wordRatingSlider.setPaintTicks(true);
+        wordRatingSlider.setPaintLabels(true);
+
+        manualRatingSlider.setMajorTickSpacing(10);
+        manualRatingSlider.setMinorTickSpacing(2);
+        manualRatingSlider.setPaintTicks(true);
+        manualRatingSlider.setPaintLabels(true);
+    }
+
+    public void setupListeners()
+    {
+        wordLengthSlider.addChangeListener(lengthListener);
+        wordRatingSlider.addChangeListener(ratingListener);
+        usedNYT.addChangeListener(usedNYTListener);
+        usedAny.addChangeListener(usedAnyListener);
+        notUsed.addChangeListener(notUsedListener);
+        research.addChangeListener(queryChangedListener);
+        queryEntryEquals.addChangeListener(queryChangedListener);
+        queryEntryStarts.addChangeListener(queryChangedListener);
+        queryEntryContains.addChangeListener(queryChangedListener);
+        queryLengthEquals.addChangeListener(queryChangedListener);
+        queryLengthAtMost.addChangeListener(queryChangedListener);
+        queryLengthAtLeast.addChangeListener(queryChangedListener);
+        queryRatingAtMost.addChangeListener(queryChangedListener);
+        queryRatingAtLeast.addChangeListener(queryChangedListener);
+        queryMethodAll.addChangeListener(queryChangedListener);
+        queryMethodManual.addChangeListener(queryChangedListener);
+        queryMethodAuto.addChangeListener(queryChangedListener);
+        resultPaneTabs.addChangeListener(tabListener);
+        manualRatingSlider.addChangeListener(manualRatingListener);
+    }
+
+
+    public void resetQuery(boolean rating) {
 //        wordEntry.setText("");
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(RATING_DEFAULT);
@@ -1007,195 +1068,6 @@ public void resetQuery(boolean rating) {
         wordComment.setText("");
         addResultArea.setText("");
 
-    }
-
-    public void getRatingProgress() {
-        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
-        queryResultArea.setText("Rating Progress:" + "\n");
-
-        int totalRated = 0;
-        int totalUnrated = 0;
-
-        String key = "";
-        PatternControl patCtrl = PatternControl.ALL;
-
-        if ( key.length() == 0 )	// no pattern selected
-            patCtrl = PatternControl.ALL;
-        else if ( queryEntryEquals.isSelected() )
-            patCtrl = PatternControl.EQUALS;
-        else if ( queryEntryStarts.isSelected() )
-            patCtrl = PatternControl.STARTSWITH;
-        else if ( queryEntryContains.isSelected() )
-            patCtrl = PatternControl.CONTAINS;
-
-        for ( int length = 3; length < 26; length++ ) {
-
-            int ratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.MANUAL, false);
-            int unratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.AUTOMATIC, false);
-
-            if (ratedCount + unratedCount == 0 )
-                continue;
-
-            double percent = (double)ratedCount / ( (double)ratedCount + (double)unratedCount);
-            DecimalFormat df = new DecimalFormat("##.##%");
-            String formattedPercent = df.format(percent);
-            totalRated += ratedCount;
-            totalUnrated += unratedCount;
-
-            queryResultArea.append("Length: " + length + "  Total: " + (ratedCount + unratedCount) + "  Rated: " + ratedCount + "  Unrated: " + unratedCount + "  Percent: " + formattedPercent + "\n");
-
-        }
-
-        double percent = (double)totalRated / ( (double)totalRated + (double)totalUnrated);
-        DecimalFormat df = new DecimalFormat("##.##%");
-        String formattedPercent = df.format(percent);
-        queryResultArea.append("TOTAL:   Total: " + (totalRated + totalUnrated) + "  Rated: " + totalRated + "  Unrated: " + totalUnrated + "  Percent: " + formattedPercent + "\n");
-
-        return;
-    }
-
-    public void getRatingBreakdown() {
-        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
-        queryResultArea.setText("Rating Breakdown:" + "\n");
-
-        int totalHorrible = 0;   // 0 to 25
-        int totalBad = 0;        // 26 to 50
-        int totalMedium = 0;     // 51 to 60
-        int totalGood = 0;       // 61 to 80
-        int totalGreat = 0;      // 81 to 100
-
-        String key = "";
-        PatternControl patCtrl = PatternControl.ALL;
-
-        if ( key.length() == 0 )	// no pattern selected
-            patCtrl = PatternControl.ALL;
-        else if ( queryEntryEquals.isSelected() )
-            patCtrl = PatternControl.EQUALS;
-        else if ( queryEntryStarts.isSelected() )
-            patCtrl = PatternControl.STARTSWITH;
-        else if ( queryEntryContains.isSelected() )
-            patCtrl = PatternControl.CONTAINS;
-
-        for ( int length = 3; length < 26; length++ ) {
-
-            int horribleCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 0, 20, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int badCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 21, 40, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int mediumCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 41, 60, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int goodCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 61, 80, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int greatCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 81, 100, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-
-            int combinedCount = horribleCount + badCount + mediumCount + goodCount + greatCount;
-            if (combinedCount == 0 )
-                continue;
-
-            double horriblePercent = (double)horribleCount / (double)combinedCount;
-            double badPercent = (double)badCount / (double)combinedCount;
-            double mediumPercent = (double)mediumCount / (double)combinedCount;
-            double goodPercent = (double)goodCount / (double)combinedCount;
-            double greatPercent = (double)greatCount / (double)combinedCount;
-            DecimalFormat df = new DecimalFormat("##.#%");
-            String formattedHorriblePercent = df.format(horriblePercent);
-            String formattedBadPercent = df.format(badPercent);
-            String formattedMediumPercent = df.format(mediumPercent);
-            String formattedGoodPercent = df.format(goodPercent);
-            String formattedGreatPercent = df.format(greatPercent);
-            totalHorrible += horribleCount;
-            totalBad += badCount;
-            totalMedium += mediumCount;
-            totalGood += goodCount;
-            totalGreat += greatCount;
-
-            queryResultArea.append("Length: " + length + "  Total: " + combinedCount + "   (0-20): " + horribleCount + " (" + formattedHorriblePercent + ") " +
-                    "  (21-40): " + badCount + " (" + formattedBadPercent + ") " +
-                    "  (41-60): " + mediumCount + " (" + formattedMediumPercent + ") " +
-                    "  (61-80): " + goodCount + " (" + formattedGoodPercent + ") " +
-                    "  (81-100): " + greatCount + " {" + formattedGreatPercent + ")\n");
-
-        }
-
-        int totalCount = totalHorrible + totalBad + totalMedium + totalGood + totalGreat;
-
-        double horriblePercent = (double)totalHorrible / (double)totalCount;
-        double badPercent = (double)totalBad / (double)totalCount;
-        double mediumPercent = (double)totalMedium / (double)totalCount;
-        double goodPercent = (double)totalGood / (double)totalCount;
-        double greatPercent = (double)totalGreat / (double)totalCount;
-        DecimalFormat df = new DecimalFormat("##.#%");
-        String formattedHorriblePercent = df.format(horriblePercent);
-        String formattedBatPercent = df.format(badPercent);
-        String formattedMediumPercent = df.format(mediumPercent);
-        String formattedGoodPercent = df.format(goodPercent);
-        String formattedGreatPercent = df.format(greatPercent);
-
-        queryResultArea.append("TOTAL:   Total: " + totalCount + "   (0-20): " + totalHorrible + " (" + formattedHorriblePercent + ") " +
-                "  (21-40): " + totalBad + " (" + formattedBatPercent + ") " +
-                "  (41-60): " + totalMedium + " (" + formattedMediumPercent + ") " +
-                "  (61-80): " + totalGood + " (" + formattedGoodPercent + ") " +
-                "  (81-100): " + totalGreat + " (" + formattedGreatPercent + ")\n");
-
-        return;
-    }
-
-    public void getDatabaseInfo() {
-        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
-        queryResultArea.setText("Database Info:" + "\n\n");
-
-        ArrayList<String> tables = dict.showAllTables();
-
-        if (XDictConfig.testMode) {
-            queryResultArea.append("Active Tables (TEST MODE)\n");
-            queryResultArea.append("------------------------- \n");
-            for (String t : tables) {
-                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
-                }
-            }
-            queryResultArea.append("\nInactive Tables \n");
-            queryResultArea.append("--------------- \n");
-            for (String t : tables) {
-                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
-                }
-            }
-        } else {
-            queryResultArea.append("Active Tables \n");
-            queryResultArea.append("------------- \n");
-            for (String t : tables) {
-                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
-                }
-            }
-            queryResultArea.append("\nInactive Tables (TEST MODE)\n");
-            queryResultArea.append("--------------------------- \n");
-            for (String t : tables) {
-                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
-                }
-            }
-        }
-
-        return;
-    }
-
-    public String doClear() {
-        String validation = "YES I REALLY MEAN TO DO THIS";
-        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
-        if (!wordComment.getText().contains(validation)) {
-            queryResultArea.setText("You are requesting to clear all tables in your " + (XDictConfig.testMode ? "TEST MODE " : "") + "database!\n");
-            queryResultArea.append("If you really mean to do this, you must enter \"YES I REALLY MEAN TO DO THIS\" in the Comment field and then retry.");
-            return "Are you sure?";
-        }
-
-        dict.clear_YesIReallyMeanToDoThis();
-
-        queryResultArea.setText("Tables cleared.");
-        wordComment.setText("");        // clear the validation field
-
-        return "Tables cleared.";
     }
 
     /*
@@ -2011,55 +1883,214 @@ public void resetQuery(boolean rating) {
 		
 		return (isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
     }
-        
-    public boolean isQueryEnabled() { return queryButton.isEnabled(); }
-    public boolean isRatingEnabled() { return rateQueryButton.isEnabled(); }
-    public boolean isAddEnabled() { return addButton.isEnabled(); }
-    public boolean isExportEnabled() { return exportButton.isEnabled(); }
-    public boolean isLoadEnabled() { return loadButton.isEnabled(); }
 
-    public void setupSliders()
-    {
-        wordLengthSlider.setMajorTickSpacing(2);
-        wordLengthSlider.setMinorTickSpacing(1);
-        wordLengthSlider.setPaintTicks(true);
-        wordLengthSlider.setPaintLabels(true);
-        wordLengthSlider.setSnapToTicks(true);
-        
-        wordRatingSlider.setMajorTickSpacing(10);
-        wordRatingSlider.setMinorTickSpacing(2);
-        wordRatingSlider.setPaintTicks(true);
-        wordRatingSlider.setPaintLabels(true);
-        
-        manualRatingSlider.setMajorTickSpacing(10);
-        manualRatingSlider.setMinorTickSpacing(2);
-        manualRatingSlider.setPaintTicks(true);
-        manualRatingSlider.setPaintLabels(true);
+    public void getDatabaseInfo() {
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
+        queryResultArea.setText("Database Info:" + "\n\n");
+
+        ArrayList<String> tables = dict.showAllTables();
+
+        if (XDictConfig.testMode) {
+            queryResultArea.append("Active Tables (TEST MODE)\n");
+            queryResultArea.append("------------------------- \n");
+            for (String t : tables) {
+                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+            queryResultArea.append("\nInactive Tables \n");
+            queryResultArea.append("--------------- \n");
+            for (String t : tables) {
+                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+        } else {
+            queryResultArea.append("Active Tables \n");
+            queryResultArea.append("------------- \n");
+            for (String t : tables) {
+                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+            queryResultArea.append("\nInactive Tables (TEST MODE)\n");
+            queryResultArea.append("--------------------------- \n");
+            for (String t : tables) {
+                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                    int size = dict.getTableSize(t);
+                    queryResultArea.append(t + " : " + size + " entries\n");
+                }
+            }
+        }
+
+        return;
     }
 
-    public void setupListeners()
-    {
-        wordLengthSlider.addChangeListener(lengthListener);
-        wordRatingSlider.addChangeListener(ratingListener);
-        usedNYT.addChangeListener(usedNYTListener);
-        usedAny.addChangeListener(usedAnyListener);
-        notUsed.addChangeListener(notUsedListener);
-        research.addChangeListener(queryChangedListener);
-        queryEntryEquals.addChangeListener(queryChangedListener);
-        queryEntryStarts.addChangeListener(queryChangedListener);
-        queryEntryContains.addChangeListener(queryChangedListener);
-        queryLengthEquals.addChangeListener(queryChangedListener);
-        queryLengthAtMost.addChangeListener(queryChangedListener);
-        queryLengthAtLeast.addChangeListener(queryChangedListener);
-        queryRatingAtMost.addChangeListener(queryChangedListener);
-        queryRatingAtLeast.addChangeListener(queryChangedListener);
-        queryMethodAll.addChangeListener(queryChangedListener);
-        queryMethodManual.addChangeListener(queryChangedListener);
-        queryMethodAuto.addChangeListener(queryChangedListener);
-        resultPaneTabs.addChangeListener(tabListener);
-        manualRatingSlider.addChangeListener(manualRatingListener);
+    public String doClear() {
+        String validation = "YES I REALLY MEAN TO DO THIS";
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
+        if (!wordComment.getText().contains(validation)) {
+            queryResultArea.setText("You are requesting to clear all tables in your " + (XDictConfig.testMode ? "TEST MODE " : "") + "database!\n");
+            queryResultArea.append("If you really mean to do this, you must enter \"YES I REALLY MEAN TO DO THIS\" in the Comment field and then retry.");
+            return "Are you sure?";
+        }
+
+        dict.clear_YesIReallyMeanToDoThis();
+
+        queryResultArea.setText("Tables cleared.");
+        wordComment.setText("");        // clear the validation field
+
+        return "Tables cleared.";
     }
 
+    public void getRatingProgress() {
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
+        queryResultArea.setText("Rating Progress:" + "\n");
+
+        int totalRated = 0;
+        int totalUnrated = 0;
+
+        String key = "";
+        PatternControl patCtrl = PatternControl.ALL;
+
+        if ( key.length() == 0 )	// no pattern selected
+            patCtrl = PatternControl.ALL;
+        else if ( queryEntryEquals.isSelected() )
+            patCtrl = PatternControl.EQUALS;
+        else if ( queryEntryStarts.isSelected() )
+            patCtrl = PatternControl.STARTSWITH;
+        else if ( queryEntryContains.isSelected() )
+            patCtrl = PatternControl.CONTAINS;
+
+        for ( int length = 3; length < 26; length++ ) {
+
+            int ratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.MANUAL, false);
+            int unratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.AUTOMATIC, false);
+
+            if (ratedCount + unratedCount == 0 )
+                continue;
+
+            double percent = (double)ratedCount / ( (double)ratedCount + (double)unratedCount);
+            DecimalFormat df = new DecimalFormat("##.##%");
+            String formattedPercent = df.format(percent);
+            totalRated += ratedCount;
+            totalUnrated += unratedCount;
+
+            queryResultArea.append("Length: " + length + "  Total: " + (ratedCount + unratedCount) + "  Rated: " + ratedCount + "  Unrated: " + unratedCount + "  Percent: " + formattedPercent + "\n");
+
+        }
+
+        double percent = (double)totalRated / ( (double)totalRated + (double)totalUnrated);
+        DecimalFormat df = new DecimalFormat("##.##%");
+        String formattedPercent = df.format(percent);
+        queryResultArea.append("TOTAL:   Total: " + (totalRated + totalUnrated) + "  Rated: " + totalRated + "  Unrated: " + totalUnrated + "  Percent: " + formattedPercent + "\n");
+
+        return;
+    }
+
+    public void getRatingBreakdown() {
+        resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
+        queryResultArea.setText("Rating Breakdown:" + "\n");
+
+        int totalHorrible = 0;   // 0 to 25
+        int totalBad = 0;        // 26 to 50
+        int totalMedium = 0;     // 51 to 60
+        int totalGood = 0;       // 61 to 80
+        int totalGreat = 0;      // 81 to 100
+
+        String key = "";
+        PatternControl patCtrl = PatternControl.ALL;
+
+        if ( key.length() == 0 )	// no pattern selected
+            patCtrl = PatternControl.ALL;
+        else if ( queryEntryEquals.isSelected() )
+            patCtrl = PatternControl.EQUALS;
+        else if ( queryEntryStarts.isSelected() )
+            patCtrl = PatternControl.STARTSWITH;
+        else if ( queryEntryContains.isSelected() )
+            patCtrl = PatternControl.CONTAINS;
+
+        for ( int length = 3; length < 26; length++ ) {
+
+            int horribleCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 0, 20, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int badCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 21, 40, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int mediumCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 41, 60, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int goodCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 61, 80, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+            int greatCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 81, 100, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+
+            int combinedCount = horribleCount + badCount + mediumCount + goodCount + greatCount;
+            if (combinedCount == 0 )
+                continue;
+
+            double horriblePercent = (double)horribleCount / (double)combinedCount;
+            double badPercent = (double)badCount / (double)combinedCount;
+            double mediumPercent = (double)mediumCount / (double)combinedCount;
+            double goodPercent = (double)goodCount / (double)combinedCount;
+            double greatPercent = (double)greatCount / (double)combinedCount;
+            DecimalFormat df = new DecimalFormat("##.#%");
+            String formattedHorriblePercent = df.format(horriblePercent);
+            String formattedBadPercent = df.format(badPercent);
+            String formattedMediumPercent = df.format(mediumPercent);
+            String formattedGoodPercent = df.format(goodPercent);
+            String formattedGreatPercent = df.format(greatPercent);
+            totalHorrible += horribleCount;
+            totalBad += badCount;
+            totalMedium += mediumCount;
+            totalGood += goodCount;
+            totalGreat += greatCount;
+
+            queryResultArea.append("Length: " + length + "  Total: " + combinedCount + "   (0-20): " + horribleCount + " (" + formattedHorriblePercent + ") " +
+                    "  (21-40): " + badCount + " (" + formattedBadPercent + ") " +
+                    "  (41-60): " + mediumCount + " (" + formattedMediumPercent + ") " +
+                    "  (61-80): " + goodCount + " (" + formattedGoodPercent + ") " +
+                    "  (81-100): " + greatCount + " {" + formattedGreatPercent + ")\n");
+
+        }
+
+        int totalCount = totalHorrible + totalBad + totalMedium + totalGood + totalGreat;
+
+        double horriblePercent = (double)totalHorrible / (double)totalCount;
+        double badPercent = (double)totalBad / (double)totalCount;
+        double mediumPercent = (double)totalMedium / (double)totalCount;
+        double goodPercent = (double)totalGood / (double)totalCount;
+        double greatPercent = (double)totalGreat / (double)totalCount;
+        DecimalFormat df = new DecimalFormat("##.#%");
+        String formattedHorriblePercent = df.format(horriblePercent);
+        String formattedBatPercent = df.format(badPercent);
+        String formattedMediumPercent = df.format(mediumPercent);
+        String formattedGoodPercent = df.format(goodPercent);
+        String formattedGreatPercent = df.format(greatPercent);
+
+        queryResultArea.append("TOTAL:   Total: " + totalCount + "   (0-20): " + totalHorrible + " (" + formattedHorriblePercent + ") " +
+                "  (21-40): " + totalBad + " (" + formattedBatPercent + ") " +
+                "  (41-60): " + totalMedium + " (" + formattedMediumPercent + ") " +
+                "  (61-80): " + totalGood + " (" + formattedGoodPercent + ") " +
+                "  (81-100): " + totalGreat + " (" + formattedGreatPercent + ")\n");
+
+        return;
+    }
+
+    public void doHelp() {
+        try {
+            File file = new java.io.File("help/XDictHelp.html").getAbsoluteFile();
+            Desktop.getDesktop().open(file);
+//            Desktop.getDesktop().browse(new URL(urlString).toURI());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void doAbout() {
+        Label copyrightL = new Label("\u00a9");
+        String aboutMessage = "This is XDict, a Crossword Dictionary Maintenance Program by Pete Mitchell\n\n" +
+                copyrightL.getText() + " 2020";
+        JOptionPane.showMessageDialog(this, aboutMessage,
+                "About XDict",
+                JOptionPane.PLAIN_MESSAGE);
+    }
     /*
      ************  WINDOW CONTROL ************
      */

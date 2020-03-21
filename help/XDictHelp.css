@@ -1,0 +1,29 @@
+
+BODY {
+  color: black;
+  font: 12pt Times, serif;
+  width: 800px
+}
+
+A:link { color: black }
+A:visited { color: black }
+A:active { color: black }
+A:hover { font: 14pt; color: red }
+
+.alert A:link { color: white }
+.alert A:visited { color: white }
+.alert A:active { color: yellow }
+.alert A:hover { font: 14pt; color: yellow }
+
+.alert {
+  padding: 15px;
+  background-color: #f44336;
+  color: white;
+  width: 500px;
+}
+.note {
+  padding: 15px;
+  background-color: #dddddd;
+  color: black;
+  width: 500px;
+}
