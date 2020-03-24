@@ -13,7 +13,7 @@ public class OpenHelpAction extends AbstractAction implements Runnable
         this.gui = g;
 
         putValue(Action.SHORT_DESCRIPTION, "Open help files in a browser");
-        putValue(Action.NAME, "Help");
+        putValue(Action.NAME, "View Help Documentation");
     }
 
     public void actionPerformed(ActionEvent e)

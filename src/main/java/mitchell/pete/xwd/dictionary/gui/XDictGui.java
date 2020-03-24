@@ -58,6 +58,7 @@ public class XDictGui extends JFrame implements WindowListener
     private static final String NO_RESULTS_FOUND = "No entries found that match this criteria.\n";
 
     private JMenuBar          menuBar                = new JMenuBar();
+    private JMenu             xDictMenu              = new JMenu();
     private JMenu             databaseMenu           = new JMenu();
     private JMenu             viewMenu               = new JMenu();
     private JMenu             reportMenu             = new JMenu();
@@ -290,6 +291,7 @@ public class XDictGui extends JFrame implements WindowListener
      ************  MENUS ************
      */
     private void buildMenus() {
+        buildXDictMenu();
         buildViewMenu();
         buildReportMenu();
         buildDatabaseMenu();
@@ -297,7 +299,17 @@ public class XDictGui extends JFrame implements WindowListener
 
         this.setJMenuBar(menuBar);
     }
-    
+
+    private void buildXDictMenu() {
+        menuBar.add(xDictMenu);
+
+        Font f = xDictMenu.getFont();
+        xDictMenu.setFont(new Font(f.getFontName(), Font.BOLD, f.getSize()));
+
+        xDictMenu.setText("XDict");
+        xDictMenu.add(aboutMenuItem);
+    }
+
     private void buildDatabaseMenu() {
         menuBar.add(databaseMenu);
 
@@ -332,7 +344,6 @@ public class XDictGui extends JFrame implements WindowListener
         menuBar.add(helpMenu);
         helpMenu.setText("Help");
         helpMenu.add(helpMenuItem);
-        helpMenu.add(aboutMenuItem);
     }
 
     /*

@@ -22,6 +22,14 @@
           <li><a href="#runit">Running the Program</a>
         </ol></div>
       <h4><li><a href="#query">Querying the Database</a></h4>
+        <div><ol type='A'>
+          <li><a href="#queryentry">Entry Control</a>
+          <li><a href="#querylength">Length Control</a>
+          <li><a href="#querymethod">Rating Method Control</a>
+          <li><a href="#queryrating">Rating Control</a>
+          <li><a href="#queryused">Crossword Use Control</a>
+          <li><a href="#queryresearch">Research Control</a>
+        </div>
       <h4><li><a href="#add">Adding and Modifying Words</a></h4>
       <h4><li><a href="#rate">Rating Words</a></h4>
       <h4><li><a href="#load">Loading Word Lists</a></h4>
@@ -82,13 +90,16 @@
     <div id="prerequisites"><h2><li>Prerequisites</h2>
       <ol type='A'>
       <div id="mysqldb"><h3><li>Install MySQL Database</h3>
-        <div class="note"><strong>NOTE: </strong><p>This program uses the MySQL database.
+        <div class="note">Note:<p>This program uses the MySQL database.
           It is beyond the scope of this document to detail the download and installation of MySQL
           on a specific machine/OS combination.  Please refer to existing online resources to install
           MySQL on your machine.
         </div>
       </div>
       <div id="javaruntime"><h3><li>Install Java Runtime</h3>
+        <div class="todo">TODO:<p>Find out what is required and whether we need detailed
+          instructions here.  Is it different for Mac vs Windows, etc.?
+        </div>
       </div>
       </ol>
     </div>
@@ -108,6 +119,8 @@
           See comments in config.txt for more details.
         </div>
         <div id="install"><h3><li>Installing the Software</h3>
+          <div class="todo">TODO:<p>How are we going to do this? WAR file?
+          </div>
         </div>
         <div id="config"><h3><li>Configuration</h3>
         </div>
@@ -116,18 +129,48 @@
       </ol>
     </div>
     <div id="query"><h2><li>Querying the Database</h2>
+      The query tab provides a robust query interface to view your database.
+      <ol type='A'>
+        <div id="queryentry"><h3><li>Entry Control</h3>
+          The Entry control allows you to constrain the result to match a particular pattern
+          of letters. You can specify whether you want the pattern to exactly match (Equals),
+          match the beginning of (Starts with), or match anywhere in (Contains) an entry in
+          your database.<p>
+          Note that, while database entries are all stored in upper case, the entry field is
+          not case-sensitive.
+          <div class="tip">Tip:<p>
+            The entry field will accept '?' or '_' characters as single-character wildcards.
+            For example, an Equals query on  "a?t?d" (or "a_t_d") might match ACTED, ANTED, or APTED.
+          </div>
+        </div>
+        <div id="querylength"><h3><li>Length Control</h3>
+        </div>
+        <div id="querymethod"><h3><li>Rating Method Control</h3>
+        </div>
+        <div id="queryrating"><h3><li>Rating Control</h3>
+        </div>
+        <div id="queryused"><h3><li>Crossword Use Control</h3>
+        </div>
+        <div id="queryresearch"><h3><li>Research Control</h3>
+        </div>
+      </ol>
     </div>
     <div id="add"><h2><li>Adding and Modifying Words</h2>
     </div>
     <div id="rate"><h2><li>Rating Words</h2>
-      <div class="note">Note:<p>Manually rating all your words can seem
+      <div class="tip">Tip:<p>You can add a comment to a word during the rating process.
+        Simply type the comment in the "Comments" field before selecting the appropriate
+         rating button.
+      </div>
+      <p>
+      <div class="tip">Tip:<p>Manually rating all your words can seem
         like an impossible task.  My advice, as a constructor, is to start
         small (literally).  3-letter words are the most common, so start there.
         Then do 4-letter words.  This can be a task that you can perform whenever
         you have a little free time.  Got 5 minutes?  Rate 100 words.
       </div>
       <p>
-      <div class="note">Note:<p>Here's another tip. When you're filling a themed
+      <div class="tip">Tip:<p>Here's another tip. When you're filling a themed
         puzzle, there will be many spots where the fill choice is constrained by the
         theme entries.  Use the pattern-matching feature to manually rate those
         patterns before trying to fill the grid.  In this way, your rating activity
@@ -142,7 +185,19 @@
         loading loading a wordlist.
         By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
         for example) you can <a href="#clear">clear the tables</a>, <a href="#restore">restore
-          to your backup file</a>, and try again.
+        to your backup file</a>, and try again.
+      </div>
+      <div class="todo">Tip:<p>There are several online resources for ranked and unranked word lists.
+        <p>
+        ==> INCLUDE MORE INFO HERE
+      </div>
+      <p>
+      <div class="tip">Tip:<p>Just because a word has been used in the New York Times or other
+        puzzle, does not necessarily make it a good word or desirable.  Many times a puzzle is
+        accepted based on its overall quality that may have an entry or two that frankly isn't
+        that good but is let slide.<p>Similarly, just because a word or phrase has NOT appeared in
+        a puzzle, doesn't mean it isn't desirable.  Part of making good crosswords is finding
+        those quality words and phrases that <i>haven't</i> been used yet.
       </div>
       <ol type='A'>
         <div id="unrankedwordlists"><h3><li>Unranked Word Lists</h3>
@@ -167,12 +222,6 @@
           The Rating Progress Report shows you how much of your database has
           been manually rated, broken down by word length. This report
           gives you a nice view into what you've accomplished and still need to.
-          <div class="note">Note:<p>Manually rating all your words can seem
-            like an impossible task.  My advice, as a constructor, is to start
-            small (literally).  3-letter words are the most common, so start there.
-            Then do 4-letter words.  This can be a task that you can perform whenever
-            you have a little free time.  Got 5 minutes?  Rate 100 words.
-          </div>
         </div>
         <div id="breakdownreport"><h3><li>Rating Breakdown Report</h3>
         </div>
@@ -196,10 +245,8 @@
               to your backup file</a>.
           </div>
           <p>
-          <div class="note">
-            NOTE:
-            <p>
-            Backups done while in TEST MODE will be named "bkup_TEST_yyyy-mm-dd hh:mm:ss.sss".
+          <div class="note">Note:<p>Backups done while in TEST MODE will be named
+            "bkup_TEST_yyyy-mm-dd hh:mm:ss.sss".
             Any attempt to restore a TEST MODE backup file while not in TEST MODE will result in an
             error.  This is to prevent accidental cross-contamination.
             <p>
@@ -225,9 +272,10 @@
         <div id="clear"><h3><li>Clear Tables</h3>
           This command deletes ALL DATA from your tables.  This is useful if you have a backup file that
           you want to return to.
-          <div class=note>Clearing tables is a destructive action. Make sure you have your
+          <div class=alert>Important:<p>Clearing tables is a destructive action. Make sure you have your
             data backed up first or have nothing to lose (e.g., you're still playing in TEST MODE).
-            Since this is a destructive action, the system will require you to enter a specific
+            <p>
+            Note that since this is a destructive action the system will require you to enter a specific
             string into the Comment field to confirm that this action was not selected accidentally.  It
             should be virtually impossible to take this action unintentionally.
           </div>

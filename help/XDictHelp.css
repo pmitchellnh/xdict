@@ -16,14 +16,30 @@ A:hover { font: 14pt; color: red }
 .alert A:hover { font: 14pt; color: yellow }
 
 .alert {
+  border-style: solid;
+  border-color: black;
   padding: 15px;
   background-color: #f44336;
   color: white;
   width: 500px;
 }
-.note {
+.todo {
   padding: 15px;
   background-color: #dddddd;
+  color: #f44336;
+  width: 500px;
+}
+.note {
+  border-style: solid;
+  border-color: black;
+  padding: 15px;
+  background-color: white;
   color: black;
+  width: 500px;
+}
+.tip {
+  padding: 15px;
+  background-color: #000000;
+  color: white;
   width: 500px;
 }
