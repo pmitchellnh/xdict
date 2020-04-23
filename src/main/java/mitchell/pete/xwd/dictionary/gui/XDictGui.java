@@ -164,7 +164,7 @@ public class XDictGui extends JFrame implements WindowListener
     	public void stateChanged(ChangeEvent e)
     	{
     		JSlider source = (JSlider)e.getSource();
-    	    manualRatingLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
+    	    manualRatingLabel.setText(PAD + String.valueOf(source.getValue()) + PAD);
     	}
     };
     ChangeListener tabListener = new ChangeListener()
@@ -179,6 +179,10 @@ public class XDictGui extends JFrame implements WindowListener
     			loadButton.setEnabled(false);
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
+                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+                usedNYT.addChangeListener(usedNYTListener);
+                usedAny.addChangeListener(usedAnyListener);
                 getRootPane().setDefaultButton(queryButton);
     			resetQuery(false);
     		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
@@ -188,6 +192,10 @@ public class XDictGui extends JFrame implements WindowListener
     			loadButton.setEnabled(false);
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
+                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+                usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
+                usedAny.addChangeListener(usedAnyListenerAddOrLoad);
                 getRootPane().setDefaultButton(addButton);
                 resetAdd();
 			} else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
@@ -197,6 +205,10 @@ public class XDictGui extends JFrame implements WindowListener
 				loadButton.setEnabled(true);
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
+                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+                usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
+                usedAny.addChangeListener(usedAnyListenerAddOrLoad);
                 getRootPane().setDefaultButton(loadButton);
                 resetLoad();
 			} else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
@@ -206,6 +218,10 @@ public class XDictGui extends JFrame implements WindowListener
 				loadButton.setEnabled(false);
     			exportButton.setEnabled(true);
     			rateQueryButton.setEnabled(false);
+                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+                usedNYT.addChangeListener(usedNYTListener);
+                usedAny.addChangeListener(usedAnyListener);
                 getRootPane().setDefaultButton(exportButton);
                 resetExport();
 			} else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
@@ -215,6 +231,11 @@ public class XDictGui extends JFrame implements WindowListener
 				loadButton.setEnabled(false);
 				exportButton.setEnabled(false);
 				rateQueryButton.setEnabled(true);
+                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+                usedNYT.addChangeListener(usedNYTListener);
+                usedAny.addChangeListener(usedAnyListener);
+                getRootPane().setDefaultButton(rateQueryButton);
                 getRootPane().setDefaultButton(rateQueryButton);
     			resetQuery(true);
 			}
@@ -224,26 +245,40 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	public void stateChanged(ChangeEvent e)
     	{
-    		JCheckBox source = (JCheckBox)e.getSource();
-    		// If not selected, then NYT cannot be selected
-    		if (!source.isSelected()) {
-    			usedNYT.setSelected(false);
-    		}
     	    nextButton.setEnabled(false);
-
     	}
+    };
+    ChangeListener usedAnyListenerAddOrLoad = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JCheckBox source = (JCheckBox)e.getSource();
+            // If not selected, then NYT cannot be selected
+            if (!source.isSelected()) {
+                usedNYT.setSelected(false);
+            }
+            nextButton.setEnabled(false);
+
+        }
     };
     ChangeListener usedNYTListener = new ChangeListener()
     {
     	public void stateChanged(ChangeEvent e)
     	{
-    		JCheckBox source = (JCheckBox)e.getSource();
-    		// If selected, then "Any" must also be selected
-    		if (source.isSelected()) {
-    			usedAny.setSelected(true);
-    		}
     	    nextButton.setEnabled(false);
     	}
+    };
+    ChangeListener usedNYTListenerAddOrLoad = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JCheckBox source = (JCheckBox)e.getSource();
+            // If selected, then "Any" must also be selected
+            if (source.isSelected()) {
+                usedAny.setSelected(true);
+            }
+            nextButton.setEnabled(false);
+        }
     };
 
     ChangeListener notUsedListener = new ChangeListener()
@@ -1095,14 +1130,14 @@ public class XDictGui extends JFrame implements WindowListener
     	WORD_STATUS status;
 
     	if ( usedNYT.isSelected() )
-    		useCtrl = UsedControl.USED_NYT;
+    		useCtrl = UsedControl.NYT;
     	else if ( usedAny.isSelected() )
-        		useCtrl = UsedControl.USED_ANY;
+        		useCtrl = UsedControl.ANY;
     	
     	if ( research.isSelected() )
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
     	
-    	Word w = new Word.Builder(key).rating((byte)rat).usedAny(useCtrl == UsedControl.USED_ANY).usedNYT(useCtrl == UsedControl.USED_NYT).needsResearch(resCtrl == ResearchControl.NEEDS_RESEARCH).manuallyRated(true).build();
+    	Word w = new Word.Builder(key).rating((byte)rat).usedAny(useCtrl == UsedControl.ANY).usedNYT(useCtrl == UsedControl.NYT).needsResearch(resCtrl == ResearchControl.NEEDS_RESEARCH).manuallyRated(true).build();
     	if (!wordComment.getText().isEmpty()) {
     		w.setComment(wordComment.getText());
     	}
@@ -1161,17 +1196,23 @@ public class XDictGui extends JFrame implements WindowListener
     	else if ( queryLengthAtLeast.isSelected() )
     		lenCtrl = LengthControl.ATLEAST;
 
-    	if ( usedNYT.isSelected() ) {
-            if (notUsed.isSelected())
-                useCtrl = UsedControl.ALL;
-            else
-                useCtrl = UsedControl.USED_NYT;
-        }
-    	else if ( usedAny.isSelected() )
-                useCtrl = UsedControl.USED_ANY;
-        else if ( notUsed.isSelected())
+        if ( usedNYT.isSelected() && usedAny.isSelected() && notUsed.isSelected())
+            useCtrl = UsedControl.ALL;
+        else if ( usedNYT.isSelected() && usedAny.isSelected() && !notUsed.isSelected())
+            useCtrl = UsedControl.ANY;
+        else if ( usedNYT.isSelected() && !usedAny.isSelected() && notUsed.isSelected())
+            useCtrl = UsedControl.NOT_OTHER;
+        else if ( !usedNYT.isSelected() && usedAny.isSelected() && notUsed.isSelected())
+            useCtrl = UsedControl.NOT_NYT;
+        else if ( usedNYT.isSelected() && !usedAny.isSelected() && !notUsed.isSelected())
+            useCtrl = UsedControl.NYT;
+        else if ( !usedNYT.isSelected() && usedAny.isSelected() && !notUsed.isSelected())
+            useCtrl = UsedControl.OTHER;
+        else if ( !usedNYT.isSelected() && !usedAny.isSelected() && notUsed.isSelected())
             useCtrl = UsedControl.NOT_USED;
-    	
+        else
+            useCtrl = UsedControl.NONE;
+
     	if ( research.isSelected() )
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
     	
@@ -1257,16 +1298,22 @@ public class XDictGui extends JFrame implements WindowListener
     	else if ( queryLengthAtLeast.isSelected() )
     		lenCtrl = LengthControl.ATLEAST;
 
-        if ( usedNYT.isSelected() ) {
-            if (notUsed.isSelected())
-                useCtrl = UsedControl.ALL;
-            else
-                useCtrl = UsedControl.USED_NYT;
-        }
-        else if ( usedAny.isSelected() )
-            useCtrl = UsedControl.USED_ANY;
-        else if ( notUsed.isSelected())
+        if ( usedNYT.isSelected() && usedAny.isSelected() && notUsed.isSelected())
+            useCtrl = UsedControl.ALL;
+        else if ( usedNYT.isSelected() && usedAny.isSelected() && !notUsed.isSelected())
+            useCtrl = UsedControl.ANY;
+        else if ( usedNYT.isSelected() && !usedAny.isSelected() && notUsed.isSelected())
+            useCtrl = UsedControl.NOT_OTHER;
+        else if ( !usedNYT.isSelected() && usedAny.isSelected() && notUsed.isSelected())
+            useCtrl = UsedControl.NOT_NYT;
+        else if ( usedNYT.isSelected() && !usedAny.isSelected() && !notUsed.isSelected())
+            useCtrl = UsedControl.NYT;
+        else if ( !usedNYT.isSelected() && usedAny.isSelected() && !notUsed.isSelected())
+            useCtrl = UsedControl.OTHER;
+        else if ( !usedNYT.isSelected() && !usedAny.isSelected() && notUsed.isSelected())
             useCtrl = UsedControl.NOT_USED;
+        else
+            useCtrl = UsedControl.NONE;
 
         if ( research.isSelected() )
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
@@ -1434,7 +1481,7 @@ public class XDictGui extends JFrame implements WindowListener
 				rating = ((wTmp.getRating() > 0) ? wTmp.getRating() : (byte)wordRatingSlider.getValue());
 //				rating = LoadAndExportUtilities.normalizeRating(wTmp.getEntry(), rating);
 
-				Word w = new Word.Builder(wTmp.getEntry()).rating(rating).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).build();
+				Word w = new Word.Builder(wTmp.getEntry()).rating(rating).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).manuallyRated(queryMethodManual.isSelected()).build();
 
 		    	if (w.length() < 3) {
 		    		status = WORD_STATUS.ERROR;
@@ -1548,7 +1595,7 @@ public class XDictGui extends JFrame implements WindowListener
     	String filename = exportFile.getText();
     	if (isBackup) {
     		Timestamp t = new Timestamp(new Date().getTime());
-    		filename = "backups/bkup" + XDictConfig.TEST_MODE_SUFFIX + "_" + t.toString();
+    		filename = "backups/bkup" + XDictConfig.DB_MODE_SUFFIX + "_" + t.toString();
     	}
     	exportResultArea.setText("");
     	FileWriter fw;
@@ -1603,10 +1650,10 @@ public class XDictGui extends JFrame implements WindowListener
                 if (notUsed.isSelected())
                     useCtrl = UsedControl.ALL;
                 else
-                    useCtrl = UsedControl.USED_NYT;
+                    useCtrl = UsedControl.NYT;
             }
             else if ( usedAny.isSelected() )
-                useCtrl = UsedControl.USED_ANY;
+                useCtrl = UsedControl.ANY;
             else if ( notUsed.isSelected())
                 useCtrl = UsedControl.NOT_USED;
 

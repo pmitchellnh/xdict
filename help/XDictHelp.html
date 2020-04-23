@@ -21,6 +21,11 @@
           <li><a href="#config">Configuration</a>
           <li><a href="#runit">Running the Program</a>
         </ol></div>
+      <h4><li><a href="#screen">Understanding the User Interface</a></h4>
+        <div><ol type='A'>
+          <li><a href="#menu">Menu Commands</a>
+          <li><a href="#modes">Action Mode Tabs</a>
+        </ol></div>
       <h4><li><a href="#query">Querying the Database</a></h4>
         <div><ol type='A'>
           <li><a href="#queryentry">Entry Control</a>
@@ -66,9 +71,11 @@
         existing crossword construction tools (Crossword Compiler, Crossfire) or other
         non-crossword-specific applications (Word, Excel, text files).
         <p>
+        <img src="./images/xdict01.png" alt="XDict main screen">
     </div>
     <div id="features"><h2><li>Features</h2>
       <ul>
+        <li>Supports entries between 3 and 25 letters long
         <li>Full-featured query, including "wildcard" letters
         <li>Quick-and-easy method of manually rating
         <li>Adjusted rating algorithm based on word length<sup>1</sup>
@@ -109,55 +116,155 @@
         Datase URL: jdbc:mysql://localhost:3306/xdict <br>
         Database User: xdict <br>
         Database Password: xdict <br>
-        <h3><li>Configuration</h3>
-          Parameters in the config.txt file can be used to customize certain parameters, as follows:
-          <ul>
-            <li>TEST_MODE: allows you to experiment with test tables without affecting your actual DB
-            <li>LOAD_FILE_DELIMTERS: allows you to specify the format of rated word lists you import
-            <li>EXPORT_FILE_DELIMITER: allows you to specify the format of your exported word list/dictionary
-          </ul>
-          See comments in config.txt for more details.
+      </div>
+      <div id="install"><h3><li>Installing the Software</h3>
+        <div class="todo">TODO:<p>How are we going to do this? WAR file?
         </div>
-        <div id="install"><h3><li>Installing the Software</h3>
-          <div class="todo">TODO:<p>How are we going to do this? WAR file?
-          </div>
+      </div>
+      <div id="config"><h3><li>Configuration</h3>
+        Before you start, copy (or rename, if you don't care to save the original) the "config.orig"
+        file to "config.txt". Then modify the config.txt file as desired.<p>
+        Parameters in the config.txt file can be used to customize certain parameters, as follows:
+        <ul>
+          <li>TEST_MODE: allows you to experiment with test tables without affecting your actual DB
+          <li>LOAD_FILE_DELIMTERS: allows you to specify the format of rated word lists you import
+          <li>EXPORT_FILE_DELIMITER: allows you to specify the format of your exported word list/dictionary
+          <li>Rating values, optionally broken down by 3, 4, 5, 6, and 7+ letter words. See <a href="#rate">Rating Words</a> for more details.
+        </ul>
+        See comments in config.txt for more details.
+      </div>
+      <div id="runit"><h3><li>Running the Program</h3>
+        <div class="todo">TODO:<p>Need detailed instructions here.
         </div>
-        <div id="config"><h3><li>Configuration</h3>
-        </div>
-        <div id="runit"><h3><li>Running the Program</h3>
-        </div>
+      </div>
+      </ol>
+    </div>
+    <div id="screen"><h2><li>Understanding the User Interface</h2>
+      <ol type='A'>
+      <div id="menu"><h3><li>Menu Commands</h3>
+      <img src="./images/xdict03.png" alt="Menu Commands"><p>
+      Certain actions can be done from the menu commands.  They are as follows:<p>
+      <ul>
+        <li><b>XDict Menu:</b> About this software.
+        <li><a href="#viewmenu"><b>View Menu:</b></a> Reset parameters to the default for the selected action.
+        <li><a href="#reportsmenu"><b>Reports Menu:</b></a> View rating progress and breakdown reports.
+        <li><a href="#databasemenu"><b>Database Menu:</b></a> View table info; backup, restore, and delete tables.
+        <li><b>Help Menu:</b> View this documentation.
+      </ul>
+      <div id="modes"><h3><li>Action Mode Tabs</h3>
+      <img src="./images/xdict02.png" alt="Action Tabs"><p>
+      The Action Mode Tabs control the type of major action you are doing.  Each action will
+      enable and disable certain UI elements and will set certain default values.  See the sections
+      on each action for details. The major actions are:<p>
+      <ul>
+        <li><a href="#query"><b>Query:</b></a> Find entries in your database based on specific criteria.
+        <li><a href="#add"><b>Add:</b></a> Manually add and rate new entries to your database.
+        <li><a href="#rate"><b>Rate:</b></a> Rate lists of words quickly, using preset buttons.
+        <li><a href="#load"><b>Load:</b></a> Load rated or unrated word lists into your database.
+        <li><a href="#export"><b>Export:</b></a> Create dictionary files to use with your constructing software.
+      </ul>
       </ol>
     </div>
     <div id="query"><h2><li>Querying the Database</h2>
       The query tab provides a robust query interface to view your database.
       <ol type='A'>
-        <div id="queryentry"><h3><li>Entry Control</h3>
-          The Entry control allows you to constrain the result to match a particular pattern
-          of letters. You can specify whether you want the pattern to exactly match (Equals),
-          match the beginning of (Starts with), or match anywhere in (Contains) an entry in
-          your database.<p>
-          Note that, while database entries are all stored in upper case, the entry field is
-          not case-sensitive.
-          <div class="tip">Tip:<p>
-            The entry field will accept '?' or '_' characters as single-character wildcards.
-            For example, an Equals query on  "a?t?d" (or "a_t_d") might match ACTED, ANTED, or APTED.
-          </div>
+      <div id="queryentry"><h3><li>Entry Control</h3>
+        <img src="./images/xdict04.png" alt="Entry Control"><p>
+        The Entry control allows you to constrain the result to match a particular pattern
+        of letters. You can specify whether you want the pattern to exactly match (Equals),
+        match the beginning of (Starts with), or match anywhere in (Contains) an entry in
+        your database.<p>
+        Note that, while database entries are all stored in upper case, the entry field is
+        not case-sensitive.
+        <div class="tip">Tip:<p>
+          The entry field will accept '?' or '_' characters as single-character wildcards.
+          For example, an Equals query on  "a?t?d" (or "a_t_d") might match ACTED, ANTED, or APTED.
         </div>
-        <div id="querylength"><h3><li>Length Control</h3>
+      </div>
+      <div id="querylength"><h3><li>Length Control</h3>
+        <img src="./images/xdict05.png" alt="Length Control"><p>
+        The Length control allows you to constrain the result to match a particular length,
+        a minimum length, or a maximum length.  The default is "at least 3", which returns
+        all lengths (since the database does not store entries less than 3-letters long).
+        Other examples: "At most 15" would show entries between 3- and 15-letters long, while
+        "Equals 7" would show only entries that are exactly 7-letters long.
+      </div>
+      <div id="querymethod"><h3><li>Rating Method Control</h3>
+        <img src="./images/xdict06.png" alt="Rating Method Control"><p>
+        The Rating Method control allows you to select just manually-rated words, just
+        auto-loaded words, or both.  Auto-loaded words are words that were loaded from a
+        rated or unrated word list, while manually-rated words are words that were added
+        or rated via the XDict program<sup>*</sup>.<p>
+        <div class="note"><sup>*</sup>Note: You <i>can</i> designate a loading word list as
+          "manually-rated", for cases where you are loading an already manicured list.
+          See <a href="#load">Loading Word Lists</a> for details.
         </div>
-        <div id="querymethod"><h3><li>Rating Method Control</h3>
-        </div>
-        <div id="queryrating"><h3><li>Rating Control</h3>
-        </div>
-        <div id="queryused"><h3><li>Crossword Use Control</h3>
-        </div>
-        <div id="queryresearch"><h3><li>Research Control</h3>
-        </div>
+      </div>
+      <div id="queryrating"><h3><li>Rating Control</h3>
+        <img src="./images/xdict07.png" alt="Rating Control"><p>
+        The Rating control allows you to select only entries that are at least, at most, or
+        equal to a particular rating value.  This is useful when looking for highly-rated
+        words that match a particular pattern, for instance.  When in the "Rating" mode,
+        it can be used to target words that are currently highly or poorly rated. The default
+        value for queries is "at least 1", which displays everything except "killed" (rating = 0)
+        words.
+      </div>
+      <div id="queryused"><h3><li>Crossword Use Control</h3>
+        <img src="./images/xdict08.png" alt="Crossword Use Control"><p>
+        The Crossword Use control allows you to select entries based on whether they have been
+        used in the New York Times crossword puzzle (UsedNYT) or other "major" crossword puzzles
+        (UsedAny).
+      </div>
+      <div id="queryresearch"><h3><li>Research Control</h3>
+      </div>
       </ol>
     </div>
     <div id="add"><h2><li>Adding and Modifying Words</h2>
     </div>
     <div id="rate"><h2><li>Rating Words</h2>
+      <div id="ratingoverview"><h3><li>Overview and Theory</h3>
+        A lot of thought has been put into how to rate words quickly, efficiently,
+        and intuitively.  Rating words is certainly not an exact science -- different
+        people have different ideas about what determines the quality of an entry.
+        Even one's own judgement may be inconsistent from day to day, based on mood
+        or interpretation of a given entry.  This is especially true if one is assigning
+        numerical scores.  As such, this software pushes the numerical values into the
+        background (after being preset through configuration), allowing the user (you)
+        to rate based entirely on your perception of the entry.  It does this by offering
+        seven possible ratings<sup>*</sup> for each word, as follows:<p>
+        <ul>
+          <li><b>Excellent:</b> These are marquee entries that you would go out of your way to use.
+          <li><b>Good:</b> These are solid words and phrases that you would be happy to use.
+          <li><b>OK:</b> These are common words and phrases that may lack pizzazz, but there's nothing wrong with them.
+          <li><b>Lame:</b> These are words and phrases that you know you'll need, but want to minimize. I include
+            most abbreviations, foreign words, and fill-in-the-blank partials in this category.
+          <li><b>Poor:</b> These are obscure entries that you would normally avoid, but could resort to in a pinch.
+          <li><b>Terrible:</b> These are actual words or phrases that you would probably never want to use.
+            I include super-scientific terms, obscure variations, and profanity in this category.
+          <li><b>Kill:</b> This is used for non-words.  Sometimes a sequence of letters shows up in a
+            word list from a rebus, a backwards entry, or some other quirky puzzle that was not filtered out.
+            Killing it gives it a 0 value.
+        </ul><p>
+        <sup>*</sup>The rating values can vary by word length; see below. You can also rate a word manually.
+        <p>
+          <b>My theory on word length:</b> <p>
+          I don't think it's a stretch to say that long entries carry a puzzle.  That is not to say that
+          shorter entries are unimportant; they certainly matter.  But the long entries are the ones
+          that your solvers (and editors) are going to notice.  Put another way, good long entries are
+          better than good short entries, and bad long entries are worse than bad short entries. There
+          is not a 3-letter entry in existence that is so good that it can make up for a bad long entry.
+          It is not a huge exaggeration to say that almost any 3-letter entry could be justified in a
+          pinch. To put it in mathematical terms, the standard deviation for long entries should, in my
+          opinion, be considerably larger than for short entries.<p>
+          This is why this software allows for the configuration of separate rating values for entries
+          that are 3, 4, 5, and 6 letters long.  You do not have to subscribe to this theory in full,
+          or at all, but you should think about what you want these values to be <i>before</i> you
+          start any serious manual rating.  Note that any config value that is left commented out
+          will default to the non-length-specific value.
+      </div>
+      <div id="ratingprocess"><h3><li>The Rating Process</h3>
+
+      </div>
       <div class="tip">Tip:<p>You can add a comment to a word during the rating process.
         Simply type the comment in the "Comments" field before selecting the appropriate
          rating button.

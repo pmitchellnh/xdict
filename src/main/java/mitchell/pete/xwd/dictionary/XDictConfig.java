@@ -10,7 +10,8 @@ public class XDictConfig {
 
     // The following parameters can be overridden by the config.txt file.
     public static boolean testMode = false;
-    public static String TEST_MODE_SUFFIX = "";
+    public static String DB_MODE_SUFFIX = "";
+    public static final String TEST_MODE_SUFFIX = "_TEST";
     public static String LOAD_FILE_DELIMITERS = ";:";
     public static String EXPORT_FILE_DELIMITER = ";";
 
@@ -138,9 +139,9 @@ public class XDictConfig {
 
         if (key.equals("TEST_MODE")) {
             testMode = true;
-            TEST_MODE_SUFFIX = "_TEST";
+            DB_MODE_SUFFIX = TEST_MODE_SUFFIX;
             System.out.println("Test mode enabled.");
-            System.out.println("TEST_MODE_SUFFIX: " + XDictConfig.TEST_MODE_SUFFIX);
+            System.out.println("DB_MODE_SUFFIX: " + XDictConfig.DB_MODE_SUFFIX);
         } else if (key.equals("LOAD_FILE_DELIMITERS")) {
             if (!value.isEmpty() && value.startsWith("[") && value.endsWith("]")) {
                 LOAD_FILE_DELIMITERS = value.substring(1, (value.length() - 1));

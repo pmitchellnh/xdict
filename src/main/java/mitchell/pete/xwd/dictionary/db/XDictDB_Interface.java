@@ -9,7 +9,7 @@ public interface XDictDB_Interface
 	enum LengthControl { ALL, EQUALS, ATLEAST, ATMOST };		// used to build queries
 	enum PatternControl { ALL, EQUALS, STARTSWITH, CONTAINS };	// used to build queries
 	enum RatingControl { ALL, ATLEAST, ATMOST, EQUALS };		// used to build queries
-	enum UsedControl { ALL, USED_ANY, USED_NYT, NOT_USED };		// used to build queries
+	enum UsedControl { ALL, ANY, NYT, OTHER, NOT_NYT, NOT_OTHER, NOT_USED, NONE };		// used to build queries
 	enum ResearchControl { ALL, NEEDS_RESEARCH, NO_RESEARCH };	// use to build queries
 	enum MethodControl { ALL, MANUAL, AUTOMATIC };				// used to build queries
 	enum WORD_STATUS { NEW, EXISTS, DUPLICATE, ERROR };			// used to distinguish adds from changes and no-ops

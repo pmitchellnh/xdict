@@ -16,8 +16,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	private String dbURL = "";
 	private String user = "xdict";
 	private String password = "xdict";
-	private String TABLE_WORDS = "WORDS" + XDictConfig.TEST_MODE_SUFFIX;
-	private String TABLE_COMMENTS = "COMMENTS" + XDictConfig.TEST_MODE_SUFFIX;
+	private String TABLE_WORDS = "WORDS" + XDictConfig.DB_MODE_SUFFIX;
+	private String TABLE_COMMENTS = "COMMENTS" + XDictConfig.DB_MODE_SUFFIX;
 
 	private Reconciler1 reconciler = new Reconciler1();
 
@@ -327,21 +327,52 @@ public class XDictDB_MySQL implements XDictDB_Interface {
                 firstWhere = false;
             }
 
-            if (useCtrl == UsedControl.USED_NYT) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_NYT > 0");
-                firstWhere = false;
-            } else if (useCtrl == UsedControl.USED_ANY) { // NYT => ANY, so don't need this if NYT set
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_ANY > 0");
-                firstWhere = false;
-            } else if (useCtrl == UsedControl.NOT_USED) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_ANY = 0");
-                firstWhere = false;
+            switch (useCtrl) {
+                case ANY:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_ANY > 0");
+                    firstWhere = false;
+                    break;
+                case NOT_OTHER:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT > 0 OR USED_ANY = 0)");
+                    firstWhere = false;
+                    break;
+                case NOT_NYT:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_NYT = 0");
+                    firstWhere = false;
+                    break;
+                case NYT:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_NYT > 0");
+                    firstWhere = false;
+                    break;
+                case OTHER:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT = 0 AND USED_ANY > 0)");
+                    firstWhere = false;
+                    break;
+                case NOT_USED:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_ANY = 0");
+                    firstWhere = false;
+                    break;
+                case NONE:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT = 0 AND USED_NYT > 0)");   // force a non-existent condition
+                    firstWhere = false;
+                    break;
+                case ALL:       // if ALL, then no constraints needed
+                default:
+                    break;
             }
 
             if (resCtrl == ResearchControl.NEEDS_RESEARCH) {
@@ -475,21 +506,52 @@ public class XDictDB_MySQL implements XDictDB_Interface {
                 firstWhere = false;
             }
 
-            if (useCtrl == UsedControl.USED_NYT) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_NYT > 0");
-                firstWhere = false;
-            } else if (useCtrl == UsedControl.USED_ANY) { // NYT => ANY, so don't need this if NYT set
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_ANY > 0");
-                firstWhere = false;
-            } else if (useCtrl == UsedControl.NOT_USED) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_ANY = 0");
-                firstWhere = false;
+            switch (useCtrl) {
+                case ANY:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_ANY > 0");
+                    firstWhere = false;
+                    break;
+                case NOT_OTHER:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT > 0 OR USED_ANY = 0)");
+                    firstWhere = false;
+                    break;
+                case NOT_NYT:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_NYT = 0");
+                    firstWhere = false;
+                    break;
+                case NYT:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_NYT > 0");
+                    firstWhere = false;
+                    break;
+                case OTHER:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT = 0 AND USED_ANY > 0)");
+                    firstWhere = false;
+                    break;
+                case NOT_USED:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_ANY = 0");
+                    firstWhere = false;
+                    break;
+                case NONE:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT = 0 AND USED_NYT > 0)");   // force a non-existent condition
+                    firstWhere = false;
+                    break;
+                case ALL:       // if ALL, then no constraints needed
+                default:
+                    break;
             }
 
             if (resCtrl == ResearchControl.NEEDS_RESEARCH) {
@@ -606,21 +668,52 @@ public class XDictDB_MySQL implements XDictDB_Interface {
             sb.append(maxRat);
             firstWhere = false;
 
-            if (useCtrl == UsedControl.USED_NYT) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_NYT > 0");
-                firstWhere = false;
-            } else if (useCtrl == UsedControl.USED_ANY) { // NYT => ANY, so don't need this if NYT set
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_ANY > 0");
-                firstWhere = false;
-            } else if (useCtrl == UsedControl.NOT_USED) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("USED_ANY = 0");
-                firstWhere = false;
+            switch (useCtrl) {
+                case ANY:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_ANY > 0");
+                    firstWhere = false;
+                    break;
+                case NOT_OTHER:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT > 0 OR USED_ANY = 0)");
+                    firstWhere = false;
+                    break;
+                case NOT_NYT:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_NYT = 0");
+                    firstWhere = false;
+                    break;
+                case NYT:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_NYT > 0");
+                    firstWhere = false;
+                    break;
+                case OTHER:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT = 0 AND USED_ANY > 0)");
+                    firstWhere = false;
+                    break;
+                case NOT_USED:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("USED_ANY = 0");
+                    firstWhere = false;
+                    break;
+                case NONE:
+                    if (firstWhere == false)
+                        sb.append(" AND ");
+                    sb.append("(USED_NYT = 0 AND USED_NYT > 0)");   // force a non-existent condition
+                    firstWhere = false;
+                    break;
+                case ALL:       // if ALL, then no constraints needed
+                default:
+                    break;
             }
 
             if (resCtrl == ResearchControl.NEEDS_RESEARCH) {
@@ -711,8 +804,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			return false;
 		}
 
-        TABLE_WORDS = "WORDS" + XDictConfig.TEST_MODE_SUFFIX;
-        TABLE_COMMENTS = "COMMENTS" + XDictConfig.TEST_MODE_SUFFIX;
+        TABLE_WORDS = "WORDS" + XDictConfig.DB_MODE_SUFFIX;
+        TABLE_COMMENTS = "COMMENTS" + XDictConfig.DB_MODE_SUFFIX;
 
         return true;
 	}
@@ -725,8 +818,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 
 	@Override
 	public void clear_YesIReallyMeanToDoThis() {
-		String query1 = "delete from WORDS" + XDictConfig.TEST_MODE_SUFFIX;
-        String query2 = "delete from COMMENTS" + XDictConfig.TEST_MODE_SUFFIX;
+		String query1 = "delete from WORDS" + XDictConfig.DB_MODE_SUFFIX;
+        String query2 = "delete from COMMENTS" + XDictConfig.DB_MODE_SUFFIX;
 		try {
 			stmt.executeUpdate(query1);
             stmt.executeUpdate(query2);
