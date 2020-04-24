@@ -148,7 +148,12 @@ public class XDictGui extends JFrame implements WindowListener
     		JSlider source = (JSlider)e.getSource();
     	    wordLengthLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
     	    nextButton.setEnabled(false);
-    	}
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+
+        }
     };
     ChangeListener ratingListener = new ChangeListener()
     {
@@ -157,6 +162,10 @@ public class XDictGui extends JFrame implements WindowListener
     		JSlider source = (JSlider)e.getSource();
     	    wordRatingLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
     	    nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
     	}
     };
     ChangeListener manualRatingListener = new ChangeListener()
@@ -189,8 +198,8 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
                 usedAny.addChangeListener(usedAnyListener);
-                getRootPane().setDefaultButton(queryButton);
     			resetQuery(false);
+                getRootPane().setDefaultButton(queryButton);
     		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
     			queryButton.setEnabled(false);
     			nextButton.setEnabled(false);
@@ -208,8 +217,8 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
                 usedAny.addChangeListener(usedAnyListenerAddOrLoad);
-                getRootPane().setDefaultButton(addButton);
                 resetAdd();
+                getRootPane().setDefaultButton(addButton);
 			} else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
 				queryButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -227,8 +236,8 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
                 usedAny.addChangeListener(usedAnyListenerAddOrLoad);
-                getRootPane().setDefaultButton(loadButton);
                 resetLoad();
+                getRootPane().setDefaultButton(loadButton);
 			} else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
 				queryButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -246,8 +255,8 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
                 usedAny.addChangeListener(usedAnyListener);
-                getRootPane().setDefaultButton(exportButton);
                 resetExport();
+                getRootPane().setDefaultButton(exportButton);
 			} else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
 				queryButton.setEnabled(false);
 				nextButton.setEnabled(false);
@@ -265,9 +274,8 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
                 usedAny.addChangeListener(usedAnyListener);
-                getRootPane().setDefaultButton(rateQueryButton);
-                getRootPane().setDefaultButton(rateQueryButton);
     			resetQuery(true);
+                getRootPane().setDefaultButton(rateQueryButton);
 			}
     	}
     };
@@ -276,6 +284,10 @@ public class XDictGui extends JFrame implements WindowListener
     	public void stateChanged(ChangeEvent e)
     	{
     	    nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
     	}
     };
     ChangeListener usedAnyListenerAddOrLoad = new ChangeListener()
@@ -288,7 +300,10 @@ public class XDictGui extends JFrame implements WindowListener
                 usedNYT.setSelected(false);
             }
             nextButton.setEnabled(false);
-
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
         }
     };
     ChangeListener usedNYTListener = new ChangeListener()
@@ -296,6 +311,10 @@ public class XDictGui extends JFrame implements WindowListener
     	public void stateChanged(ChangeEvent e)
     	{
     	    nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
     	}
     };
     ChangeListener usedNYTListenerAddOrLoad = new ChangeListener()
@@ -308,6 +327,10 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.setSelected(true);
             }
             nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
         }
     };
 
@@ -316,6 +339,10 @@ public class XDictGui extends JFrame implements WindowListener
         public void stateChanged(ChangeEvent e)
         {
             nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
         }
     };
 
@@ -324,6 +351,10 @@ public class XDictGui extends JFrame implements WindowListener
     	public void stateChanged(ChangeEvent e)
     	{
     	    nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
     	}
     };
 
@@ -1269,6 +1300,8 @@ public class XDictGui extends JFrame implements WindowListener
 		{
 			queryResultArea.setText(NO_RESULTS_FOUND);
 			nextButton.setEnabled(false);
+            getRootPane().setDefaultButton(queryButton);
+
 			wordComment.setText("");
 			return "0";
 		}
@@ -1277,8 +1310,10 @@ public class XDictGui extends JFrame implements WindowListener
 			if (resultSetSize > (queryStart + QUERY_LIMIT)) {	// More data left to display
 				((QueryAction)(nextButton.getAction())).setRating(false);	// set the right "next" action
 				nextButton.setEnabled(true);
-			} else {
+                getRootPane().setDefaultButton(nextButton);
+            } else {
 				nextButton.setEnabled(false);
+                getRootPane().setDefaultButton(queryButton);
 			}
 			for ( Word w : list ) {
 				queryResultArea.append(w.toStringQuery() + "\n");
@@ -1378,7 +1413,8 @@ public class XDictGui extends JFrame implements WindowListener
 		{
 			rateResultArea.setText(NO_RESULTS_FOUND);
 			nextButton.setEnabled(false);
-			wordComment.setText("");
+            getRootPane().setDefaultButton(rateQueryButton);
+            wordComment.setText("");
 			setRatingButtons(false);
 			return "0";
 		}
@@ -1387,12 +1423,14 @@ public class XDictGui extends JFrame implements WindowListener
 			if (resultSetSize > (queryStart + RATING_QUERY_LIMIT)) {	// More data left to display
 				((QueryAction)(nextButton.getAction())).setRating(true);	// set the right "next" action
 				nextButton.setEnabled(true);
+                getRootPane().setDefaultButton(nextButton);
 			} else {
 				nextButton.setEnabled(false);
+                getRootPane().setDefaultButton(rateQueryButton);
 			}
 			for ( Word w : listToRate ) {
 				if (w.equals(listToRate.get(0))) {
-					rateResultArea.append(w.toString());
+                    rateResultArea.append(w.toString());
 				} else {
 					rateResultArea.append("\n" + w.toString());
 				}
@@ -1445,7 +1483,6 @@ public class XDictGui extends JFrame implements WindowListener
         }
 
         listToRate.remove(0);	// Remove rated (or skipped) item from list
-        nextButton.setEnabled(false);	// Disable "next", as we now need to re-query since the rated word is no longer there
 
         rateResultArea.setText("");
         for ( Word w1 : listToRate ) {
