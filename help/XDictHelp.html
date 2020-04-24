@@ -38,9 +38,13 @@
           <li><a href="#queryrating">Rating Control</a>
           <li><a href="#queryused">Crossword Use Control</a>
           <li><a href="#queryresearch">Research Control</a>
-        </div>
+        </ol></div>
       <h4><li><a href="#add">Adding and Modifying Words</a></h4>
       <h4><li><a href="#rate">Rating Words</a></h4>
+        <div><ol type='A'>
+          <li><a href="#ratingoverview">Overview and Theory</a>
+          <li><a href="#ratingprocess">The Rating Process</a>
+        </ol></div>
       <h4><li><a href="#load">Loading Word Lists</a></h4>
         <div><ol type='A'>
           <li><a href="#unrankedwordlists">Unranked Word Lists</a>
@@ -181,14 +185,27 @@
       </div>
       <div id="results"><h3><li>Display Area</h3>
       <img src="./images/Results.png" alt="Display Area" width="700px"><p>
+        The display area is where query results and other messages are shown, and where the rating
+        takes place. It becomes a scrollable region when necessary.
       </div>
       <div id="statusbar"><h3><li>Status Bar</h3>
       <img src="./images/Status.png" alt="Status Bar" width="700px"><p>
+        The status bar shows the progress and status of actions.
       </div>
       </ol>
     </div>
     <div id="query"><h2><li>Querying the Database</h2>
-      The query tab provides a robust query interface to view your database.
+      <img src="./images/MainScreen.png" alt="Query Screen" width="700px"><p>
+      The query tab provides a robust query interface to view your database.  All of the metadata
+      parameters can be used to constrain the query, with the exception of "Comments".  There is no
+      current mechanism to query based on the contents of the Comments field.<p>
+      For large queries, be aware that the system only returns up to 1000 entries per request. For
+      queries that have more than 1000 entries in the result set, use the "Next" button (which will
+      become the default action) to view the next 1000 entries.  You can continue using the "Next"
+      action until the result set is empty. Note that your progress through the list is displayed
+      in the status bar.<p>
+      <img src="./images/QueryStatus1.png" alt="Query Status" width="500px"><p>
+      <img src="./images/QueryStatus2.png" alt="Query Status" width="480px"><p>
       <ol type='A'>
       <div id="queryentry"><h3><li>Entry Control</h3>
         <img src="./images/EntryControl.png" alt="Entry Control" width="500px"><p>
@@ -268,6 +285,7 @@
       </ol>
     </div>
     <div id="add"><h2><li>Adding and Modifying Words</h2>
+      <img src="./images/AddScreen.png" alt="Add Screen" width="700px"><p>
     </div>
     <div id="rate"><h2><li>Rating Words</h2>
       <ol type='A'>

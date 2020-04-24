@@ -104,7 +104,7 @@ public class Reconciler1 implements ReconcilerInterface
 	{
 		// Overwrite comments for manually-rated word.  Else keep what's there.
 		// Should never auto-generate comments.
-		if (w2.isManuallyRated()) {
+		if (w2.isManuallyRated() && !w1.getComment().equals(w2.getComment())) {
 			w1.setComment(w2.getComment());
 			return true;
 		}

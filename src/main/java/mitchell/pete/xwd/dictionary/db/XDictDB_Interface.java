@@ -12,7 +12,7 @@ public interface XDictDB_Interface
 	enum UsedControl { ALL, ANY, NYT, OTHER, NOT_NYT, NOT_OTHER, NOT_USED, NONE };		// used to build queries
 	enum ResearchControl { ALL, NEEDS_RESEARCH, NO_RESEARCH };	// use to build queries
 	enum MethodControl { ALL, MANUAL, AUTOMATIC };				// used to build queries
-	enum WORD_STATUS { NEW, EXISTS, DUPLICATE, ERROR };			// used to distinguish adds from changes and no-ops
+	enum WORD_STATUS { NEW, EXISTS, DUPLICATE, COMMENT, ERROR };	// used to distinguish adds from changes and no-ops
 
 
 	WORD_STATUS putWord( Word w );						// add or update word; return rating

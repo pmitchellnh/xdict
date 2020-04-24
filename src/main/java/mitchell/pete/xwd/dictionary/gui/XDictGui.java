@@ -47,9 +47,10 @@ public class XDictGui extends JFrame implements WindowListener
     private static final int RATING_QUERY_LIMIT = 20;
     private static int queryStart = 0;
     private static int LENGTH_DEFAULT = 3;
-    private static int RATING_DEFAULT = 1;
+    private static int ADD_RATING_DEFAULT = XDictConfig.OK;
+    private static int QUERY_RATING_DEFAULT = 1;
     private static int EXPORT_RATING_DEFAULT = 10;
-    private static int LOAD_RATING_DEFAULT = 50;
+    private static int LOAD_RATING_DEFAULT = XDictConfig.OK;
 
     // Use this list to drive the manual rating process.
 	private ArrayList<Word> listToRate = null;
@@ -82,6 +83,9 @@ public class XDictGui extends JFrame implements WindowListener
     private JScrollPane       exportScrollPane       = new JScrollPane();
     private StatusLine        statusLine             = new StatusLine(420);
     private JProgressBar      progressBar            = new JProgressBar();
+    private JComponent        entryMatch;
+    private JComponent        entryLength;
+    private JComponent        entryRating;
     
     //  Control components
     private JPanel controlPanel				= new JPanel();
@@ -104,10 +108,12 @@ public class XDictGui extends JFrame implements WindowListener
     private JLabel wordToRate           	= new JLabel();
     private JSlider wordLengthSlider        = new JSlider(3,25,LENGTH_DEFAULT);
     private JLabel wordLengthLabel          = new JLabel(String.valueOf(wordLengthSlider.getValue()));
-    private JSlider wordRatingSlider        = new JSlider(0,100,RATING_DEFAULT);
+    private JSlider wordRatingSlider        = new JSlider(0,100,QUERY_RATING_DEFAULT);
     private JLabel wordRatingLabel          = new JLabel(String.valueOf(wordRatingSlider.getValue()));
-    private JSlider manualRatingSlider		= new JSlider(0,100,RATING_DEFAULT);
+    private JSlider manualRatingSlider		= new JSlider(0,100,ADD_RATING_DEFAULT);
     private JLabel manualRatingLabel        = new JLabel(String.valueOf(manualRatingSlider.getValue()));
+    private JSlider manualRatingSlider2		= new JSlider(0,100,ADD_RATING_DEFAULT);
+    private JLabel manualRatingLabel2       = new JLabel(String.valueOf(manualRatingSlider2.getValue()));
     private JCheckBox usedAny               = new JCheckBox("Used Any");
     private JCheckBox usedNYT               = new JCheckBox("Used NYT");
     private JCheckBox notUsed               = new JCheckBox("Not Used");
@@ -134,6 +140,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JButton researchButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.RESEARCH));
     private JButton skipButton		    	= new JButton(new RateAction(this, XDictConfig.RATINGS.SKIP));
     private JButton manualButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.MANUAL));
+    private JButton manualButton2		    = new JButton(new RateAction(this, XDictConfig.RATINGS.MANUAL));
     private JTabbedPane resultPaneTabs 		= new JTabbedPane();
     
     private JTextField loadFile            = new JTextField(50);
@@ -176,6 +183,16 @@ public class XDictGui extends JFrame implements WindowListener
     	    manualRatingLabel.setText(PAD + String.valueOf(source.getValue()) + PAD);
     	}
     };
+
+    ChangeListener manualRatingListener2 = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JSlider source = (JSlider)e.getSource();
+            manualRatingLabel2.setText(PAD + String.valueOf(source.getValue()) + PAD);
+        }
+    };
+
     ChangeListener tabListener = new ChangeListener()
     {
     	public void stateChanged(ChangeEvent e)
@@ -498,7 +515,7 @@ public class XDictGui extends JFrame implements WindowListener
         c.weighty = 0;
         c.gridwidth = 6;
         JComponent b1 = buildRadioButton3(queryEntryEquals, queryEntryStarts, queryEntryContains, 1 );
-        JComponent entryMatch = buildGenericCombo2("Entry", b1, wordEntry);
+        entryMatch = buildGenericCombo2("Entry", b1, wordEntry);
         controlPanel.add(entryMatch);
         gbl.setConstraints(entryMatch, c);
         c.gridwidth = 1;	// reset
@@ -511,7 +528,7 @@ public class XDictGui extends JFrame implements WindowListener
         c.weightx = 0.5;
         c.weighty = 0;
         c.gridwidth = GridBagConstraints.REMAINDER;
-        Component entryLength = buildComboSlider("Length", buildLengthRadioButton(), wordLengthLabel, wordLengthSlider);
+        entryLength = buildComboSlider("Length", buildLengthRadioButton(), wordLengthLabel, wordLengthSlider);
         controlPanel.add(entryLength);
         gbl.setConstraints(entryLength, c);
         c.gridwidth = 1;
@@ -578,7 +595,7 @@ public class XDictGui extends JFrame implements WindowListener
         c.weighty = 0;
         c.gridwidth = GridBagConstraints.REMAINDER;
         JComponent b2 = buildRadioButton3(queryRatingAtLeast, queryRatingAtMost, queryRatingEquals, 1);
-        JComponent entryRating = buildComboSlider("Rating", b2, wordRatingLabel, wordRatingSlider);
+        entryRating = buildComboSlider("Rating", b2, wordRatingLabel, wordRatingSlider);
         controlPanel.add(entryRating);
         gbl.setConstraints(entryRating, c);
         c.gridwidth = 1;
@@ -801,6 +818,10 @@ public class XDictGui extends JFrame implements WindowListener
         result.add(okButton2);
         result.add(goodButton2);
         result.add(excellentButton2);
+        result.add(manualButton2);
+        JComponent entryRating = buildGenericCombo2("Manual Rating", manualRatingLabel2, manualRatingSlider2);
+        result.add(entryRating);
+
         setAddRatingButtons(true);
         return result;
     }
@@ -825,6 +846,7 @@ public class XDictGui extends JFrame implements WindowListener
         okButton2.setEnabled(state);
         goodButton2.setEnabled(state);
         excellentButton2.setEnabled(state);
+        manualButton.setEnabled(state);
     }
 
     private JComponent buildRateDisplayPanel()
@@ -1080,6 +1102,11 @@ public class XDictGui extends JFrame implements WindowListener
         manualRatingSlider.setMinorTickSpacing(2);
         manualRatingSlider.setPaintTicks(true);
         manualRatingSlider.setPaintLabels(true);
+
+        manualRatingSlider2.setMajorTickSpacing(10);
+        manualRatingSlider2.setMinorTickSpacing(2);
+        manualRatingSlider2.setPaintTicks(true);
+        manualRatingSlider2.setPaintLabels(true);
     }
 
     public void setupListeners()
@@ -1103,37 +1130,70 @@ public class XDictGui extends JFrame implements WindowListener
         queryMethodAuto.addChangeListener(queryChangedListener);
         resultPaneTabs.addChangeListener(tabListener);
         manualRatingSlider.addChangeListener(manualRatingListener);
+        manualRatingSlider2.addChangeListener(manualRatingListener2);
     }
 
 
     public void resetQuery(boolean rating) {
 //        wordEntry.setText("");
+//        wordComment.setText("");
+
+        wordEntry.setEnabled(true);
+        queryEntryEquals.setEnabled(true);
+        queryEntryContains.setEnabled(true);
+        queryEntryStarts.setEnabled(true);
+        queryMethodAuto.setEnabled(true);
+        queryMethodAll.setEnabled(true);
+        queryLengthEquals.setEnabled(true);
+        queryLengthAtLeast.setEnabled(true);
+        queryLengthAtMost.setEnabled(true);
+        wordLengthSlider.setEnabled(true);
+        queryRatingAtMost.setEnabled(true);
+        queryRatingEquals.setEnabled(true);
+        queryRatingAtLeast.setEnabled(true);
+
         wordLengthSlider.setValue(LENGTH_DEFAULT);
-        wordRatingSlider.setValue(RATING_DEFAULT);
-        manualRatingSlider.setValue(RATING_DEFAULT);
+        wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
+        manualRatingSlider.setValue(QUERY_RATING_DEFAULT);
         usedAny.setSelected(true);
         usedNYT.setSelected(true);
         notUsed.setSelected(true);
         research.setSelected(false);
+
         if (rating) {
             queryMethodAuto.setSelected(true);
             queryLengthAtLeast.setSelected(true);
+            wordComment.setEnabled(true);
         } else {
             queryMethodAll.setSelected(true);
             queryLengthAtLeast.setSelected(true);
+            wordComment.setEnabled(false);
         }
         queryEntryEquals.setSelected(true);
         queryRatingAtLeast.setSelected(true);
-        wordComment.setText("");
         queryResultArea.setText("");
 
     }
 
     public void resetExport() {
+        wordEntry.setEnabled(true);
+        wordComment.setEnabled(false);
+        queryEntryEquals.setEnabled(true);
+        queryEntryContains.setEnabled(true);
+        queryEntryStarts.setEnabled(true);
         wordEntry.setText("");
+        queryMethodAuto.setEnabled(true);
+        queryMethodAll.setEnabled(true);
+        queryLengthEquals.setEnabled(true);
+        queryLengthAtLeast.setEnabled(true);
+        queryLengthAtMost.setEnabled(true);
+        wordLengthSlider.setEnabled(true);
+        queryRatingAtMost.setEnabled(true);
+        queryRatingEquals.setEnabled(true);
+        queryRatingAtLeast.setEnabled(true);
+
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(EXPORT_RATING_DEFAULT);
-        manualRatingSlider.setValue(EXPORT_RATING_DEFAULT);
         usedAny.setSelected(true);
         usedNYT.setSelected(true);
         notUsed.setSelected(true);
@@ -1142,6 +1202,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryLengthAtLeast.setSelected(true);
         queryEntryEquals.setSelected(true);
         queryRatingAtLeast.setSelected(true);
+
         wordComment.setText("");
         exportResultArea.setText("");
 
@@ -1149,6 +1210,21 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void resetLoad() {
         wordEntry.setText("");
+        wordEntry.setEnabled(false);
+        wordComment.setEnabled(false);
+        queryEntryEquals.setEnabled(false);
+        queryEntryContains.setEnabled(false);
+        queryEntryStarts.setEnabled(false);
+        queryMethodAuto.setEnabled(true);
+        queryMethodAll.setEnabled(true);
+        queryLengthEquals.setEnabled(false);
+        queryLengthAtLeast.setEnabled(false);
+        queryLengthAtMost.setEnabled(false);
+        wordLengthSlider.setEnabled(false);
+        queryRatingAtMost.setEnabled(false);
+        queryRatingEquals.setEnabled(true);
+        queryRatingAtLeast.setEnabled(false);
+
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(LOAD_RATING_DEFAULT);
         usedAny.setSelected(false);
@@ -1159,24 +1235,44 @@ public class XDictGui extends JFrame implements WindowListener
         queryLengthAtLeast.setSelected(true);
         queryEntryEquals.setSelected(true);
         queryRatingEquals.setSelected(true);
+
+
         wordComment.setText("");
         loadFile.setText("");
         loadResultArea.setText("");
     }
 
     public void resetAdd() {
+        wordEntry.setEnabled(true);
+        wordComment.setEnabled(true);
+
+        queryEntryEquals.setEnabled(true);
+        queryEntryContains.setEnabled(false);
+        queryEntryStarts.setEnabled(false);
+
         wordLengthSlider.setValue(LENGTH_DEFAULT);
-        wordRatingSlider.setValue(RATING_DEFAULT);
-        manualRatingSlider.setValue(RATING_DEFAULT);
+        wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
+        manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
         usedAny.setSelected(false);
         usedNYT.setSelected(false);
         notUsed.setSelected(true);
         research.setSelected(false);
         queryMethodManual.setSelected(true);
-        queryLengthAtLeast.setSelected(true);
+        queryMethodAuto.setEnabled(false);
+        queryMethodAll.setEnabled(false);
         queryEntryEquals.setSelected(true);
+
+        queryLengthAtLeast.setSelected(true);
         queryRatingAtLeast.setSelected(true);
-        wordComment.setText("");
+
+        queryLengthEquals.setEnabled(false);
+        queryLengthAtLeast.setEnabled(false);
+        queryLengthAtMost.setEnabled(false);
+        wordLengthSlider.setEnabled(false);
+        queryRatingAtMost.setEnabled(false);
+        queryRatingEquals.setEnabled(false);
+        queryRatingAtLeast.setEnabled(false);
+
         addResultArea.setText("");
 
     }
@@ -1189,7 +1285,7 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	addResultArea.setText("");
     	String key = wordEntry.getText();
-    	int rat = wordRatingSlider.getValue();
+    	int rat = manualRatingSlider2.getValue();
     	UsedControl useCtrl = UsedControl.ALL;
     	ResearchControl resCtrl = ResearchControl.NO_RESEARCH;
     	WORD_STATUS status;
@@ -1203,9 +1299,9 @@ public class XDictGui extends JFrame implements WindowListener
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
     	
     	Word w = new Word.Builder(key).rating((byte)rat).usedAny(useCtrl == UsedControl.ANY).usedNYT(useCtrl == UsedControl.NYT).needsResearch(resCtrl == ResearchControl.NEEDS_RESEARCH).manuallyRated(true).build();
-    	if (!wordComment.getText().isEmpty()) {
-    		w.setComment(wordComment.getText());
-    	}
+//    	if (!wordComment.getText().isEmpty()) {
+    		w.setComment(wordComment.getText());    // Need to do this regardless, else cannot delete a comment!
+//    	}
     	if (w.length() < 3) {
     		status = WORD_STATUS.ERROR;
     		addResultArea.setText("Error: " + w.getEntry() + " is less than 3 characters.");
@@ -1514,7 +1610,7 @@ public class XDictGui extends JFrame implements WindowListener
 
         int rat = XDictConfig.getRating(r, w.length());
 
-        wordRatingSlider.setValue(rat);
+        manualRatingSlider2.setValue(rat);
 
     	return status;
     }

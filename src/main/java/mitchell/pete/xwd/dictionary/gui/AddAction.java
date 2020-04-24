@@ -1,11 +1,10 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import java.awt.event.*;
-import java.util.Date;
+import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
 
 import javax.swing.*;
-
-import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
+import java.awt.event.ActionEvent;
+import java.util.Date;
 
 public class AddAction extends AbstractAction implements Runnable
 {
@@ -38,6 +37,8 @@ public class AddAction extends AbstractAction implements Runnable
     			addStatus = "Added new word.";
     		} else if (status == WORD_STATUS.EXISTS) {
     			addStatus = "Existing word modified.";
+            } else if (status == WORD_STATUS.COMMENT) {
+                addStatus = "Change to comment only.";
     		} else {
     			addStatus = "Duplicate word. No changes.";
     		}

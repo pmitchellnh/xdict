@@ -71,11 +71,17 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		
 		if (oldWord == null || (!oldWord.hasComment() && w.hasComment())) {			// comment added
 			insertComment(w);
+            if (status == WORD_STATUS.DUPLICATE)        // if this is the only change, mark it as a comment change
+                status = WORD_STATUS.COMMENT;
 		} else if (reconciler.ReconcileComment(oldWord, w)) {	// something changed
 			if (!oldWord.hasComment()) {						// comment removed
 				deleteComment(w);
+                if (status == WORD_STATUS.DUPLICATE)        // if this is the only change, mark it as a comment change
+                    status = WORD_STATUS.COMMENT;
 			} else {											// comment updated
 				updateComment(w);
+                if (status == WORD_STATUS.DUPLICATE)        // if this is the only change, mark it as a comment change
+                    status = WORD_STATUS.COMMENT;
 			}
 		}
 		return status;
