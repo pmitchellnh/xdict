@@ -1,9 +1,8 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import java.awt.event.*;
-import java.util.Date;
-
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.util.Date;
 
 public class QueryAction extends AbstractAction implements Runnable
 {
@@ -22,7 +21,7 @@ public class QueryAction extends AbstractAction implements Runnable
 	        putValue(Action.NAME, "Next");
         } else if (rating) {
 	        putValue(Action.SHORT_DESCRIPTION, "Get words to rate that match current criteria");
-	        putValue(Action.NAME, "RQuery");
+	        putValue(Action.NAME, "Query");
         } else {
 	        putValue(Action.SHORT_DESCRIPTION, "Get words matching current criteria");
 	        putValue(Action.NAME, "Query");

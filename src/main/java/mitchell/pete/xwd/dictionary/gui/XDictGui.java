@@ -179,6 +179,12 @@ public class XDictGui extends JFrame implements WindowListener
     			loadButton.setEnabled(false);
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
+                queryButton.setVisible(true);
+                nextButton.setVisible(true);
+                addButton.setVisible(false);
+                loadButton.setVisible(false);
+                exportButton.setVisible(false);
+                rateQueryButton.setVisible(false);
                 usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
@@ -192,6 +198,12 @@ public class XDictGui extends JFrame implements WindowListener
     			loadButton.setEnabled(false);
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
+                queryButton.setVisible(false);
+                nextButton.setVisible(false);
+                addButton.setVisible(true);
+                loadButton.setVisible(false);
+                exportButton.setVisible(false);
+                rateQueryButton.setVisible(false);
                 usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
@@ -205,6 +217,12 @@ public class XDictGui extends JFrame implements WindowListener
 				loadButton.setEnabled(true);
     			exportButton.setEnabled(false);
     			rateQueryButton.setEnabled(false);
+                queryButton.setVisible(false);
+                nextButton.setVisible(false);
+                addButton.setVisible(false);
+                loadButton.setVisible(true);
+                exportButton.setVisible(false);
+                rateQueryButton.setVisible(false);
                 usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
@@ -218,6 +236,12 @@ public class XDictGui extends JFrame implements WindowListener
 				loadButton.setEnabled(false);
     			exportButton.setEnabled(true);
     			rateQueryButton.setEnabled(false);
+                queryButton.setVisible(false);
+                nextButton.setVisible(false);
+                addButton.setVisible(false);
+                loadButton.setVisible(false);
+                exportButton.setVisible(true);
+                rateQueryButton.setVisible(false);
                 usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
@@ -231,6 +255,12 @@ public class XDictGui extends JFrame implements WindowListener
 				loadButton.setEnabled(false);
 				exportButton.setEnabled(false);
 				rateQueryButton.setEnabled(true);
+                queryButton.setVisible(false);
+                nextButton.setVisible(true);
+                addButton.setVisible(false);
+                loadButton.setVisible(false);
+                exportButton.setVisible(false);
+                rateQueryButton.setVisible(true);
                 usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
@@ -299,7 +329,7 @@ public class XDictGui extends JFrame implements WindowListener
 
     public XDictGui() 
     {
-        this.setSize(new Dimension(1300, 800));
+        this.setSize(new Dimension(XDictConfig.APP_WIDTH, XDictConfig.APP_HEIGHT));
         this.setTitle("XDict");
         //this.setIconImage(new ImageIcon(getClass().getResource("icons/logoicon.gif")).getImage());
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -468,26 +498,26 @@ public class XDictGui extends JFrame implements WindowListener
         gbl.setConstraints(b3, c);
         c.gridwidth = 1;
 
-        // UsedAny Checkbox
+        // UsedNYT Checkbox
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.NONE;
         c.gridx = 0;
         c.gridy = 2;
         c.weightx = 0;
         c.weighty = 0;
-        controlPanel.add(usedAny);
-        gbl.setConstraints(usedAny, c);
-        
-        // UsedNYT Checkbox
+        controlPanel.add(usedNYT);
+        gbl.setConstraints(usedNYT, c);
+
+        // UsedAny Checkbox
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.NONE;
         c.gridx = 1;
         c.gridy = 2;
         c.weightx = 0;
         c.weighty = 0;
-        controlPanel.add(usedNYT);
-        gbl.setConstraints(usedNYT, c);
-
+        controlPanel.add(usedAny);
+        gbl.setConstraints(usedAny, c);
+        
         // NotUsed Checkbox
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.NONE;
@@ -522,83 +552,12 @@ public class XDictGui extends JFrame implements WindowListener
         gbl.setConstraints(entryRating, c);
         c.gridwidth = 1;
 
-        // Query Button
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 0;
-        c.gridy = 4;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridwidth = 1;
-        controlPanel.add(queryButton);
-        gbl.setConstraints(queryButton, c);
-       
-        // Rating Query Button
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 1;
-        c.gridy = 4;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridwidth = 1;
-        controlPanel.add(rateQueryButton);
-        gbl.setConstraints(rateQueryButton, c);
-        rateQueryButton.setEnabled(false);	// init to disabled
-
-        // Next Button
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 2;
-        c.gridy = 4;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridwidth = 1;
-        controlPanel.add(nextButton);
-        gbl.setConstraints(nextButton, c);
-        nextButton.setEnabled(false);
-
-        // Add Button
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 3;
-        c.gridy = 4;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridwidth = 1;
-        controlPanel.add(addButton);
-        gbl.setConstraints(addButton, c);
-        addButton.setEnabled(false);	// init to disabled
-
-        // Load Button
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 4;
-        c.gridy = 4;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridwidth = 1;
-        controlPanel.add(loadButton);
-        gbl.setConstraints(loadButton, c);
-        loadButton.setEnabled(false);	// init to disabled
-        
-        // Export Button
-        c.anchor = GridBagConstraints.WEST;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        c.gridx = 5;
-        c.gridy = 4;
-        c.weightx = 0;
-        c.weighty = 0;
-        c.gridwidth = 1;
-        controlPanel.add(exportButton);
-        gbl.setConstraints(exportButton, c);
-        exportButton.setEnabled(false);	// init to disabled
-        
         // Comment Label
         JLabel lab = new JLabel("Comment");
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 1;
-        c.gridy = 5;
+        c.gridy = 4;
         c.weightx = 0;
         c.weighty = 0;
         c.gridwidth = 1;
@@ -610,13 +569,88 @@ public class XDictGui extends JFrame implements WindowListener
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
         c.gridx = 2;
-        c.gridy = 5;
+        c.gridy = 4;
         c.weightx = 0;
         c.weighty = 0;
         c.gridwidth = 6;
         controlPanel.add(wordComment);
         gbl.setConstraints(wordComment, c);
         c.gridwidth = 1;
+
+        // Query Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 5;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        controlPanel.add(queryButton);
+        gbl.setConstraints(queryButton, c);
+       
+        // Rating Query Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 5;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        controlPanel.add(rateQueryButton);
+        gbl.setConstraints(rateQueryButton, c);
+        rateQueryButton.setEnabled(false);	// init to disabled
+        rateQueryButton.setVisible(false);
+
+        // Next Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 1;
+        c.gridy = 5;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        controlPanel.add(nextButton);
+        gbl.setConstraints(nextButton, c);
+        nextButton.setEnabled(false);
+
+        // Add Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 5;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        controlPanel.add(addButton);
+        gbl.setConstraints(addButton, c);
+        addButton.setEnabled(false);	// init to disabled
+        addButton.setVisible(false);
+
+        // Load Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 5;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        controlPanel.add(loadButton);
+        gbl.setConstraints(loadButton, c);
+        loadButton.setEnabled(false);	// init to disabled
+        loadButton.setVisible(false);
+        
+        // Export Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 0;
+        c.gridy = 5;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        controlPanel.add(exportButton);
+        gbl.setConstraints(exportButton, c);
+        exportButton.setEnabled(false);	// init to disabled
+        exportButton.setVisible(false);
 
         return controlPanel;
     }

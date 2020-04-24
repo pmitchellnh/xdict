@@ -12,6 +12,12 @@
 # the following line.
 TEST_MODE
 
+# Default App Size - Controls the window when it first opens.  If the default values
+# do not work well or look right on your screen resolution, change it here. Values
+# are in pixels.
+APP_WIDTH=1300
+APP_HEIGHT=850
+
 # LOAD_FILE_DELIMITERS are the single characters that are used to separate words and
 # ratings in a rated word list.  The default [:; ] means that any of the following
 # formats are handled:

@@ -14,6 +14,8 @@ public class XDictConfig {
     public static final String TEST_MODE_SUFFIX = "_TEST";
     public static String LOAD_FILE_DELIMITERS = ";:";
     public static String EXPORT_FILE_DELIMITER = ";";
+    public static int APP_WIDTH = 1300;     // value in pixels
+    public static int APP_HEIGHT = 850;     // value in pixels
 
     public static final int KILL = 0;       // kill means kill -- no reason to configure this
     public static int TERRIBLE = 5;
@@ -152,6 +154,12 @@ public class XDictConfig {
                 EXPORT_FILE_DELIMITER = value.substring(1, (value.length() - 1));
                 System.out.println("EXPORT_FILE_DELIMITER: [" + EXPORT_FILE_DELIMITER + "]");
             }
+        } else if (key.equals("APP_WIDTH")) {
+            APP_WIDTH = parsePixels(value);
+            System.out.println("App Width: " + APP_WIDTH);
+        } else if (key.equals("APP_HEIGHT")) {
+            APP_HEIGHT = parsePixels(value);
+            System.out.println("App Height: " + APP_HEIGHT);
         } else if (key.equals("TERRIBLE")) {
             TERRIBLE = parseRating(value);
             System.out.println("TERRIBLE: " + TERRIBLE);
@@ -257,6 +265,16 @@ public class XDictConfig {
             if (rat > 100) rat = 100;
         }
         return rat;
+    }
+
+    // Make sure pixel values are at least 100, so the app is visibile
+    private static int parsePixels(String s) {
+        int val = 100;
+        if (!s.isEmpty()) {
+            val = Integer.valueOf(s);
+            if (val < 100) val = 100;
+        }
+        return val;
     }
 
     public static String getRateButtonName(RATINGS r) {
