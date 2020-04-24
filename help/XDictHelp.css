@@ -15,6 +15,11 @@ A:hover { font: 14pt; color: red }
 .alert A:active { color: yellow }
 .alert A:hover { font: 14pt; color: yellow }
 
+.tip A:link { color: white }
+.tip A:visited { color: white }
+.tip A:active { color: yellow }
+.tip A:hover { font: 14pt; color: yellow }
+
 .alert {
   border-style: solid;
   border-color: black;

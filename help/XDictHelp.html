@@ -212,16 +212,43 @@
       <div id="queryused"><h3><li>Crossword Use Control</h3>
         <img src="./images/xdict08.png" alt="Crossword Use Control"><p>
         The Crossword Use control allows you to select entries based on whether they have been
-        used in the New York Times crossword puzzle (UsedNYT) or other "major" crossword puzzles
-        (UsedAny).
+        used in the New York Times crossword puzzle<sup>*</sup> (UsedNYT) or other "major" crossword puzzles<sup>*</sup>
+        (UsedAny). The possible combinations are as follows (though not all are necessarily useful):
+        <p>
+        <sup>*</sup>Assuming you have captured this data -- see "Tip" below!
+        <ul>
+          <li><img src="./images/All.png" alt="all" width="250px"> All entries.
+          <li><img src="./images/NotUsed.png" alt="not used" width="250px"> Entries not used in any puzzles.
+          <li><img src="./images/NYT.png" alt="nyt" width="250px"> Entries used in NY Times puzzles.
+          <li><img src="./images/Any.png" alt="any" width="250px"> Entries used in some puzzle, including the NY Times.
+          <li><img src="./images/NotNYT.png" alt="not nyt" width="250px"> Entries not used in a NY Times puzzle.
+          <li><img src="./images/Other.png" alt="other" width="250px"> Entries used in some puzzle, but not NY Times.
+          <li><img src="./images/NotOther.png" alt="not other" width="250px">Entries used in NY Times or not at all.
+          <li><img src="./images/None.png" alt="none" width="250px">No selections will return no data.
+        </ul>
+        <p>
+        <div class="tip">Tip: These fields are set when you add (manually) or load word lists, so
+          in order to use them effectively, you must make sure to set the "Used_NYT" field when importing
+          NY Times wordlists and the "Used_Any" field when importing other crossword puzzle lists.
+          See <a href="#load">Loading Word Lists</a> for details.
+        </div>
       </div>
       <div id="queryresearch"><h3><li>Research Control</h3>
+        <img src="./images/xdict09.png" alt="Research Control"><p>
+        This field is used to select entries that you flagged as "Research" during the rating process.
+        Note that this constraint is in addition to any other fields that are set, so to get a complete
+        list of entries that need to be researched, use the "Reset Query" action in the "View" menu
+        before selecting this field.
+        <p>
+        See <a href="#ratingprocess">The Rating Process</a> for more on
+        using the "Research" field.
       </div>
       </ol>
     </div>
     <div id="add"><h2><li>Adding and Modifying Words</h2>
     </div>
     <div id="rate"><h2><li>Rating Words</h2>
+      <ol type='A'>
       <div id="ratingoverview"><h3><li>Overview and Theory</h3>
         A lot of thought has been put into how to rate words quickly, efficiently,
         and intuitively.  Rating words is certainly not an exact science -- different
@@ -286,6 +313,7 @@
         fill process: rate words, export to file, import new dictionary, continue
         filling.
       </div>
+    </ol>
     </div>
     <div id="load"><h2><li>Loading Word Lists</h2>
       <div class="alert">IMPORTANT:<p>It is HIGHLY recommended that you backup your database before

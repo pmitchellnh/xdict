@@ -1600,7 +1600,10 @@ public class XDictGui extends JFrame implements WindowListener
     	exportResultArea.setText("");
     	FileWriter fw;
 
+
     	try {
+            File file = new File(filename);
+            file.getParentFile().mkdirs();
 			fw = new FileWriter(filename);
 		} catch (IOException e) {
 			exportResultArea.append("Error opening file: " + filename + ".\n");
