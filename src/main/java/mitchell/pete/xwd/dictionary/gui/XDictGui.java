@@ -108,10 +108,10 @@ public class XDictGui extends JFrame implements WindowListener
     private JLabel wordRatingLabel          = new JLabel(String.valueOf(wordRatingSlider.getValue()));
     private JSlider manualRatingSlider		= new JSlider(0,100,RATING_DEFAULT);
     private JLabel manualRatingLabel        = new JLabel(String.valueOf(manualRatingSlider.getValue()));
-    private JCheckBox usedAny               = new JCheckBox("Used Any: ");
-    private JCheckBox usedNYT               = new JCheckBox("Used NYT: ");
-    private JCheckBox notUsed               = new JCheckBox("Not Used: ");
-    private JCheckBox research              = new JCheckBox("Needs Research: ");
+    private JCheckBox usedAny               = new JCheckBox("Used Any");
+    private JCheckBox usedNYT               = new JCheckBox("Used NYT");
+    private JCheckBox notUsed               = new JCheckBox("Not Used");
+    private JCheckBox research              = new JCheckBox("Needs Research");
     private JButton queryButton				= new JButton(new QueryAction(this, false, false));
     private JButton nextButton				= new JButton(new QueryAction(this, true, false));
     private JButton rateQueryButton			= new JButton(new QueryAction(this, false, true));
@@ -732,7 +732,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JComponent buildAddDisplayPanel() 
     {
         JPanel result = new JPanel();
-        result.setBorder(BorderFactory.createTitledBorder("Results"));
+        result.setBorder(BorderFactory.createTitledBorder(""));
 
         addResultArea.setText("Add Result Area");
         result.add(addResultArea);
@@ -744,7 +744,7 @@ public class XDictGui extends JFrame implements WindowListener
     {
         JPanel result = new JPanel();
         result.setLayout(new BorderLayout());
-        result.setBorder(BorderFactory.createTitledBorder("Control"));
+        result.setBorder(BorderFactory.createTitledBorder("Rating"));
         result.add(buildAddControlButtons(), BorderLayout.CENTER);
         return result;
     }
@@ -766,7 +766,7 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	JPanel result = new JPanel();
     	result.setLayout(new BorderLayout());
-        result.setBorder(BorderFactory.createTitledBorder("Control"));
+        result.setBorder(BorderFactory.createTitledBorder("Rating"));
     	result.add(wordToRate, BorderLayout.NORTH);
     	wordToRate.setHorizontalAlignment(SwingConstants.CENTER);
     	result.add(buildRateControlButtons(), BorderLayout.CENTER);
@@ -830,7 +830,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JComponent buildRateDisplayPanel()
     {
     	JPanel result = new JPanel();
-        result.setBorder(BorderFactory.createTitledBorder("Results"));
+        result.setBorder(BorderFactory.createTitledBorder(""));
 
         rateResultArea.setText("");
         result.add(rateResultArea);
@@ -855,7 +855,7 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	JPanel result = new JPanel();
     	result.setLayout(new BorderLayout());
-        result.setBorder(BorderFactory.createTitledBorder("Control"));
+        result.setBorder(BorderFactory.createTitledBorder(""));
         result.add(new JLabel("File to Load:"), BorderLayout.WEST);
         result.add(loadFile, BorderLayout.CENTER);
         loadFile.setText("");
@@ -887,7 +887,7 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	JPanel result = new JPanel();
     	result.setLayout(new BorderLayout());
-        result.setBorder(BorderFactory.createTitledBorder("Control"));
+        result.setBorder(BorderFactory.createTitledBorder(""));
         result.add(new JLabel("File to Export:"), BorderLayout.WEST);
         result.add(exportFile, BorderLayout.CENTER);
         exportFile.setText("export/");

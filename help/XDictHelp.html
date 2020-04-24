@@ -21,10 +21,14 @@
           <li><a href="#config">Configuration</a>
           <li><a href="#runit">Running the Program</a>
         </ol></div>
-      <h4><li><a href="#screen">Understanding the User Interface</a></h4>
+      <h4><li><a href="#screen">A Tour of the User Interface</a></h4>
         <div><ol type='A'>
-          <li><a href="#menu">Menu Commands</a>
+          <li><a href="#menu">Menu Bar Commands</a>
+          <li><a href="#parameters">Parameter Settings</a>
+          <li><a href="#actions">Action Buttons</a>
           <li><a href="#modes">Action Mode Tabs</a>
+          <li><a href="#results">Display Area</a>
+          <li><a href="#statusbar">Status Bar</a>
         </ol></div>
       <h4><li><a href="#query">Querying the Database</a></h4>
         <div><ol type='A'>
@@ -71,7 +75,7 @@
         existing crossword construction tools (Crossword Compiler, Crossfire) or other
         non-crossword-specific applications (Word, Excel, text files).
         <p>
-        <img src="./images/xdict01.png" alt="XDict main screen">
+        <img src="./images/MainScreen.png" alt="XDict main screen" width="700px">
     </div>
     <div id="features"><h2><li>Features</h2>
       <ul>
@@ -139,10 +143,10 @@
       </div>
       </ol>
     </div>
-    <div id="screen"><h2><li>Understanding the User Interface</h2>
+    <div id="screen"><h2><li>A Tour of the User Interface</h2>
       <ol type='A'>
-      <div id="menu"><h3><li>Menu Commands</h3>
-      <img src="./images/xdict03.png" alt="Menu Commands"><p>
+      <div id="menu"><h3><li>Menu Bar Commands</h3>
+      <img src="./images/MenuBar.png" alt="Menu Bar" width="700px"><p>
       Certain actions can be done from the menu commands.  They are as follows:<p>
       <ul>
         <li><b>XDict Menu:</b> About this software.
@@ -151,25 +155,43 @@
         <li><a href="#databasemenu"><b>Database Menu:</b></a> View table info; backup, restore, and delete tables.
         <li><b>Help Menu:</b> View this documentation.
       </ul>
+      <div id="parameters"><h3><li>Metadata Parameter Settings</h3>
+      <img src="./images/Parameters.png" alt="Parameters" width="700px"><p>
+        These settings are used to query on or set various metadata parameters.  Not all parameters
+        are applicable in certain modes.  How each is used in each mode is discussed in detail in the
+        appropriate sections.
+      </div>
+      <div id="actions"><h3><li>Action Buttons</h3>
+      <img src="./images/Actions.png" alt="Action Buttons" width="700px"><p>
+        Each action mode has different action buttons associated with it.  The default action (which
+        occurs if you just hit the Enter key) at any given time is the button that is colored blue.
+      </div>
       <div id="modes"><h3><li>Action Mode Tabs</h3>
-      <img src="./images/xdict02.png" alt="Action Tabs"><p>
+      <img src="./images/ModeTabs.png" alt="Action Tabs" width="700px"><p>
       The Action Mode Tabs control the type of major action you are doing.  Each action will
-      enable and disable certain UI elements and will set certain default values.  See the sections
-      on each action for details. The major actions are:<p>
+      set certain default parameter values, based on how one is most likely to use that mode.
+      See the sections on each action for details. The action modes are:<p>
       <ul>
         <li><a href="#query"><b>Query:</b></a> Find entries in your database based on specific criteria.
-        <li><a href="#add"><b>Add:</b></a> Manually add and rate new entries to your database.
+        <li><a href="#add"><b>Add:</b></a> Manually add, modify, and/or rate single entries to your database.
         <li><a href="#rate"><b>Rate:</b></a> Rate lists of words quickly, using preset buttons.
         <li><a href="#load"><b>Load:</b></a> Load rated or unrated word lists into your database.
         <li><a href="#export"><b>Export:</b></a> Create dictionary files to use with your constructing software.
       </ul>
+      </div>
+      <div id="results"><h3><li>Display Area</h3>
+      <img src="./images/Results.png" alt="Display Area" width="700px"><p>
+      </div>
+      <div id="statusbar"><h3><li>Status Bar</h3>
+      <img src="./images/Status.png" alt="Status Bar" width="700px"><p>
+      </div>
       </ol>
     </div>
     <div id="query"><h2><li>Querying the Database</h2>
       The query tab provides a robust query interface to view your database.
       <ol type='A'>
       <div id="queryentry"><h3><li>Entry Control</h3>
-        <img src="./images/xdict04.png" alt="Entry Control"><p>
+        <img src="./images/EntryControl.png" alt="Entry Control" width="500px"><p>
         The Entry control allows you to constrain the result to match a particular pattern
         of letters. You can specify whether you want the pattern to exactly match (Equals),
         match the beginning of (Starts with), or match anywhere in (Contains) an entry in
@@ -182,7 +204,7 @@
         </div>
       </div>
       <div id="querylength"><h3><li>Length Control</h3>
-        <img src="./images/xdict05.png" alt="Length Control"><p>
+        <img src="./images/LengthControl.png" alt="Length Control" width="500px"><p>
         The Length control allows you to constrain the result to match a particular length,
         a minimum length, or a maximum length.  The default is "at least 3", which returns
         all lengths (since the database does not store entries less than 3-letters long).
@@ -190,41 +212,42 @@
         "Equals 7" would show only entries that are exactly 7-letters long.
       </div>
       <div id="querymethod"><h3><li>Rating Method Control</h3>
-        <img src="./images/xdict06.png" alt="Rating Method Control"><p>
+        <img src="./images/RatingMethod.png" alt="Rating Method Control" width="300px"><p>
         The Rating Method control allows you to select just manually-rated words, just
         auto-loaded words, or both.  Auto-loaded words are words that were loaded from a
         rated or unrated word list, while manually-rated words are words that were added
-        or rated via the XDict program<sup>*</sup>.<p>
-        <div class="note"><sup>*</sup>Note: You <i>can</i> designate a loading word list as
+        or rated via the XDict program. The default query setting is "All".<p>
+        <div class="tip">Tip: You <i>can</i> designate a loading word list as
           "manually-rated", for cases where you are loading an already manicured list.
           See <a href="#load">Loading Word Lists</a> for details.
         </div>
       </div>
       <div id="queryrating"><h3><li>Rating Control</h3>
-        <img src="./images/xdict07.png" alt="Rating Control"><p>
+        <img src="./images/RatingControl.png" alt="Rating Control" width="500px"><p>
         The Rating control allows you to select only entries that are at least, at most, or
         equal to a particular rating value.  This is useful when looking for highly-rated
         words that match a particular pattern, for instance.  When in the "Rating" mode,
         it can be used to target words that are currently highly or poorly rated. The default
-        value for queries is "at least 1", which displays everything except "killed" (rating = 0)
+        setting for queries is "at least 1", which displays everything except "killed" (rating = 0)
         words.
       </div>
       <div id="queryused"><h3><li>Crossword Use Control</h3>
-        <img src="./images/xdict08.png" alt="Crossword Use Control"><p>
+        <img src="./images/All.png" alt="Crossword Use Control" width="300px"><p>
         The Crossword Use control allows you to select entries based on whether they have been
-        used in the New York Times crossword puzzle<sup>*</sup> (UsedNYT) or other "major" crossword puzzles<sup>*</sup>
-        (UsedAny). The possible combinations are as follows (though not all are necessarily useful):
+        used in the New York Times crossword puzzle<sup>*</sup> (Used NYT) or other "major" crossword puzzles<sup>*</sup>
+        (Used Any). The default for queries is all entries. The possible combinations are as follows (though
+        not all are necessarily useful):
         <p>
         <sup>*</sup>Assuming you have captured this data -- see "Tip" below!
         <ul>
-          <li><img src="./images/All.png" alt="all" width="250px"> All entries.
-          <li><img src="./images/NotUsed.png" alt="not used" width="250px"> Entries not used in any puzzles.
-          <li><img src="./images/NYT.png" alt="nyt" width="250px"> Entries used in NY Times puzzles.
-          <li><img src="./images/Any.png" alt="any" width="250px"> Entries used in some puzzle, including the NY Times.
-          <li><img src="./images/NotNYT.png" alt="not nyt" width="250px"> Entries not used in a NY Times puzzle.
-          <li><img src="./images/Other.png" alt="other" width="250px"> Entries used in some puzzle, but not NY Times.
-          <li><img src="./images/NotOther.png" alt="not other" width="250px">Entries used in NY Times or not at all.
-          <li><img src="./images/None.png" alt="none" width="250px">No selections will return no data.
+          <li><img src="./images/All.png" alt="all" width="200px"> All entries.
+          <li><img src="./images/Any.png" alt="any" width="200px"> Entries used in any puzzle.
+          <li><img src="./images/NYT.png" alt="nyt" width="200px"> Entries used in NY Times puzzle.
+          <li><img src="./images/NotUsed.png" alt="not used" width="200px"> Entries not used in any puzzle.
+          <li><img src="./images/NotNYT.png" alt="not nyt" width="200px"> Entries not used in a NY Times puzzle.
+          <li><img src="./images/Other.png" alt="other" width="200px"> Entries not used in NY Times, but used in some puzzle.
+          <li><img src="./images/NotOther.png" alt="not other" width="200px">Entries used in NY Times or not at all.
+          <li><img src="./images/None.png" alt="none" width="200px">No entries.
         </ul>
         <p>
         <div class="tip">Tip: These fields are set when you add (manually) or load word lists, so
@@ -234,14 +257,13 @@
         </div>
       </div>
       <div id="queryresearch"><h3><li>Research Control</h3>
-        <img src="./images/xdict09.png" alt="Research Control"><p>
+        <img src="./images/Research.png" alt="Research Control"><p>
         This field is used to select entries that you flagged as "Research" during the rating process.
         Note that this constraint is in addition to any other fields that are set, so to get a complete
         list of entries that need to be researched, use the "Reset Query" action in the "View" menu
         before querying with this field.
         <p>
-        See <a href="#ratingprocess">The Rating Process</a> for more on
-        using the "Research" field.
+        See <a href="#ratingprocess">The Rating Process</a> for more on using the "Research" field.
       </div>
       </ol>
     </div>
