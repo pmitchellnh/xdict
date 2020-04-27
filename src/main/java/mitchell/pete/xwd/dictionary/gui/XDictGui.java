@@ -1688,7 +1688,6 @@ public class XDictGui extends JFrame implements WindowListener
     	String line;
     	int count = 0;
     	WORD_STATUS status;
-//		String statText = "";
 		byte rating = 0;
 
     	try {
@@ -1703,26 +1702,21 @@ public class XDictGui extends JFrame implements WindowListener
 		    	if (w.length() < 3) {
 		    		status = WORD_STATUS.ERROR;
 		    		loadResultArea.append(w.getEntry() + " is less than 3 characters. Skipped.\n");
-//					statText = " (Skipped)";
 					skipCount++;
 		    	} else if (w.length() > 25) {
 		    		status = WORD_STATUS.ERROR;
 		    		loadResultArea.append(w.getEntry() + " is more than 25 characters. Skipped.\n");
-//					statText = " (Skipped)";
 					skipCount++;
 		    	} else {
 					status = dict.putWord(w);
 					if (status == WORD_STATUS.NEW) {
-//						statText = " (New)";
 						newCount++;
 					} else if (status == WORD_STATUS.EXISTS) {
-//						statText = " (Modified)";
 						existCount++;
 					} else {
-//						statText = " (Duplicate)";
+				        loadResultArea.setText("Duplicate: " + w.getEntry() + "\n");
 						dupCount++;
 					}
-//				   loadResultArea.setText("Adding word: " + w.getEntry() + statText + "\n");
 				   count++;
 				   if (count % 1000 == 0) {
 					   getStatusLine().showInfo("Processing load..." + count + " records processed.");
@@ -1742,7 +1736,7 @@ public class XDictGui extends JFrame implements WindowListener
 		}
         loadResultArea.append("Loading complete.\n");
 
-        String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + "(" + skipCount + " skipped.)";
+        String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + " (" + skipCount + " skipped.)";
     	return retStatus;
     }
 

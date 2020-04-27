@@ -32,11 +32,13 @@ public class LoadAndExportUtilities {
             }
 			if (rating > 100) {
                 rating = 100;
-			} else if (rating < 0) {        // if not set, set to default
-                rating = defaultRating;
-            }
+			}
 		}
-        System.out.println(entry.toString() + ": " + rating);
+
+        if (rating < 0) {
+            rating = defaultRating;        // if not set, set to default
+        }
+//        System.out.println(entry.toString() + ": " + rating);
 		Word w = new Word.Builder(entry).rating(rating).build();
 	
 		return w;
