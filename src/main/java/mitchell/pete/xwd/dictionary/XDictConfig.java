@@ -340,7 +340,7 @@ public class XDictConfig {
                 desc = "Now that's what I'm talking about. (" + EXCELLENT_MIN + (EXCELLENT_MIN != EXCELLENT_MAX ? "-" + EXCELLENT_MAX : "") + ")";
                 break;
             case MANUAL:
-                desc = "Rate manually using slider value.";
+                desc = "Assign the rating value from the manual slider.";
                 break;
             case RESEARCH:
                 desc = "Flag it for later research.";

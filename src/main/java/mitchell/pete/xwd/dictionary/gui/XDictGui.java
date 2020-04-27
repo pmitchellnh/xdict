@@ -1144,6 +1144,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryEntryStarts.setEnabled(true);
         queryMethodAuto.setEnabled(true);
         queryMethodAll.setEnabled(true);
+        queryMethodManual.setEnabled(true);
         queryLengthEquals.setEnabled(true);
         queryLengthAtLeast.setEnabled(true);
         queryLengthAtMost.setEnabled(true);
@@ -1172,6 +1173,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryEntryEquals.setSelected(true);
         queryRatingAtLeast.setSelected(true);
         queryResultArea.setText("");
+        statusLine.setText("Ready.");
 
     }
 
@@ -1184,6 +1186,7 @@ public class XDictGui extends JFrame implements WindowListener
         wordEntry.setText("");
         queryMethodAuto.setEnabled(true);
         queryMethodAll.setEnabled(true);
+        queryMethodManual.setEnabled(true);
         queryLengthEquals.setEnabled(true);
         queryLengthAtLeast.setEnabled(true);
         queryLengthAtMost.setEnabled(true);
@@ -1205,6 +1208,7 @@ public class XDictGui extends JFrame implements WindowListener
 
         wordComment.setText("");
         exportResultArea.setText("");
+        statusLine.setText("Ready.");
 
     }
 
@@ -1216,7 +1220,8 @@ public class XDictGui extends JFrame implements WindowListener
         queryEntryContains.setEnabled(false);
         queryEntryStarts.setEnabled(false);
         queryMethodAuto.setEnabled(true);
-        queryMethodAll.setEnabled(true);
+        queryMethodAll.setEnabled(false);
+        queryMethodManual.setEnabled(true);
         queryLengthEquals.setEnabled(false);
         queryLengthAtLeast.setEnabled(false);
         queryLengthAtMost.setEnabled(false);
@@ -1240,6 +1245,7 @@ public class XDictGui extends JFrame implements WindowListener
         wordComment.setText("");
         loadFile.setText("");
         loadResultArea.setText("");
+        statusLine.setText("Ready.");
     }
 
     public void resetAdd() {
@@ -1252,12 +1258,30 @@ public class XDictGui extends JFrame implements WindowListener
 
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
-        manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
-        usedAny.setSelected(false);
-        usedNYT.setSelected(false);
-        notUsed.setSelected(true);
+        if (!wordEntry.getText().isEmpty()) {
+            Word w1 = dict.getWord(wordEntry.getText());
+            if (w1 != null) {
+                manualRatingSlider2.setValue(w1.getRating());
+                usedAny.setSelected(w1.isUsedAny());
+                usedNYT.setSelected(w1.isUsedNYT());
+                notUsed.setSelected(!(w1.isUsedAny() || w1.isUsedNYT()));
+            }
+            else {
+                manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
+                usedAny.setSelected(false);
+                usedNYT.setSelected(false);
+                notUsed.setSelected(true);
+            }
+
+        } else {
+            manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
+            usedAny.setSelected(false);
+            usedNYT.setSelected(false);
+            notUsed.setSelected(true);
+        }
         research.setSelected(false);
         queryMethodManual.setSelected(true);
+        queryMethodManual.setEnabled(true);
         queryMethodAuto.setEnabled(false);
         queryMethodAll.setEnabled(false);
         queryEntryEquals.setSelected(true);
@@ -1274,7 +1298,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtLeast.setEnabled(false);
 
         addResultArea.setText("");
-
+        statusLine.setText("Ready.");
     }
 
     /*
@@ -1643,12 +1667,9 @@ public class XDictGui extends JFrame implements WindowListener
 				if (line.length() < 3) {
 					continue;
 				}
-				Word wTmp = LoadAndExportUtilities.parseWordAndRating(line, XDictConfig.LOAD_FILE_DELIMITERS);
-				// If it has a rating, use it; else grab the rating setting from the UI.
-				rating = ((wTmp.getRating() > 0) ? wTmp.getRating() : (byte)wordRatingSlider.getValue());
-//				rating = LoadAndExportUtilities.normalizeRating(wTmp.getEntry(), rating);
+				Word wTmp = LoadAndExportUtilities.parseWordAndRating(line, XDictConfig.LOAD_FILE_DELIMITERS, (byte)wordRatingSlider.getValue());
 
-				Word w = new Word.Builder(wTmp.getEntry()).rating(rating).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).manuallyRated(queryMethodManual.isSelected()).build();
+				Word w = new Word.Builder(wTmp.getEntry()).rating(wTmp.getRating()).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).manuallyRated(queryMethodManual.isSelected()).build();
 
 		    	if (w.length() < 3) {
 		    		status = WORD_STATUS.ERROR;
@@ -1689,8 +1710,10 @@ public class XDictGui extends JFrame implements WindowListener
 		} catch (IOException e) {
 			loadResultArea.append("Error closing file.\n");
 			loadResultArea.append(e.toString());
-		}    	
-    	String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + "(" + skipCount + " skipped.)";
+		}
+        loadResultArea.append("Loading complete.\n");
+
+        String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + "(" + skipCount + " skipped.)";
     	return retStatus;
     }
 
@@ -1753,6 +1776,7 @@ public class XDictGui extends JFrame implements WindowListener
             loadResultArea.append("Error closing file.\n");
             loadResultArea.append(e.toString());
         }
+        loadResultArea.append("Restore complete.\n");
         String retStatus = "" + count + " words processed.";
         return retStatus;
     }
@@ -1864,8 +1888,9 @@ public class XDictGui extends JFrame implements WindowListener
 			exportResultArea.append(e.toString());
 			return "Error.";
 		}
-		
-		return (isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
+        exportResultArea.append("Export complete.\n");
+
+        return (isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
     }
 
     public void getDatabaseInfo() {
@@ -1919,6 +1944,7 @@ public class XDictGui extends JFrame implements WindowListener
         if (!wordComment.getText().contains(validation)) {
             queryResultArea.setText("You are requesting to clear all tables in your " + (XDictConfig.testMode ? "TEST MODE " : "") + "database!\n");
             queryResultArea.append("If you really mean to do this, you must enter \"YES I REALLY MEAN TO DO THIS\" in the Comment field and then retry.");
+            wordComment.setEnabled(true);
             return "Are you sure?";
         }
 

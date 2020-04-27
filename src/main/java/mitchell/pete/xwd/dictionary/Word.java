@@ -50,12 +50,12 @@ public class Word
 		// Builder Optional Parameter Setters
 		public Builder rating(byte val)	{
 			if (val < MIN_RATING) {
-				System.out.printf("Error: Trying to set rating [%d] less than 0. Setting to 0.\n", rating);
+				System.out.printf("Error: Trying to set rating [%d] less than 0. Setting to 0.\n", val);
 				val = MIN_RATING;
 			}
 			
 			if (val > MAX_RATING) {
-				System.out.printf("Error: Trying to set rating [%d] greater than 100. Setting to 100.\n", rating);
+				System.out.printf("Error: Trying to set rating [%d] greater than 100. Setting to 100.\n", val);
 				val = MAX_RATING;
 			}
 				
@@ -252,7 +252,7 @@ public class Word
 		String s = new String ( entry + "(" + entry.length() + "), "
 				+ rating
 				+ ( usedAny ? ", any " : "" )
-				+ ( usedNYT ? ", nyt, " : "" )
+				+ ( usedNYT ? ", nyt " : "" )
 				+ ( needsResearch ? ", research " : "" )
 				+ ( manuallyRated ? ", manual " : "" )
 				+ ( (comment == null || comment.isEmpty()) ? "" : " (" + comment + ")") );

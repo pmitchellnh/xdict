@@ -37,13 +37,17 @@
           <li><a href="#querymethod">Rating Method Control</a>
           <li><a href="#queryrating">Rating Control</a>
           <li><a href="#queryused">Crossword Use Control</a>
-          <li><a href="#queryresearch">Research Control</a>
+          <li><a href="#queryresearch">Needs Research Control</a>
+          <li><a href="#querycomment">Comment Control</a>
+          <li><a href="#querybutton">Query and Next Buttons</a>
+          <li><a href="#queryoutput">Query Output Display</a>
         </ol></div>
       <h4><li><a href="#add">Adding and Modifying Words</a></h4>
       <h4><li><a href="#rate">Rating Words</a></h4>
         <div><ol type='A'>
           <li><a href="#ratingoverview">Overview and Theory</a>
           <li><a href="#ratingprocess">The Rating Process</a>
+          <li><a href="#research">Research and Skip</a>
         </ol></div>
       <h4><li><a href="#load">Loading Word Lists</a></h4>
         <div><ol type='A'>
@@ -68,6 +72,12 @@
           <li><a href="#restore">Restore</a>
           <li><a href="#clear">Clear Tables</a>
         </ol></div>
+      <h4><li><a href="#databaseschema">Database Schema</a></h4>
+        <div><ol type='A'>
+          <li><a href="#wordstable">Words Table</a>
+          <li><a href="#commentstable">Comments Table</a>
+          <li><a href="#createstatements">Create Statements</a>
+        </ol></div>
       </ol>
     </div>
     <ol type='I'>
@@ -87,16 +97,16 @@
         <li>Full-featured query, including "wildcard" letters
         <li>Quick-and-easy method of manually rating
         <li>Adjusted rating algorithm based on word length<sup>1</sup>
+        <li>Load rated or unrated word lists
+        <li>Reconcile logic handles "smart" merging of new lists into existing database
         <li>Track which words have been manually rated
         <li>Track words that have been used in NY Times (and other publications)<sup>2</sup>
         <li>Add comments, for clarifications, notes, or clue suggestions
-        <li>Load rated or unrated word lists
-        <li>Reconcile logic handles "smart" merging of new lists into existing Database
         <li>Export word lists appropriate for Crossword Compiler or Crossfire
         <li>Backup/restore the database to/from file
         <li>View rating statistics, broken down by word length
-        <li>"Test" mode allows you to experiment using a test DB without affecting your production DB
-        <li>Configuration file allows you to customize certain behaviors
+        <li>"Test" mode allows you to experiment using a test database without affecting your production dictionary
+        <li>Configuration file allows you to customize certain key behaviors
       </ul>
       <p>
       <sup>1</sup>Based on my own personal rating theory. See <a href="#rate">Rating Words</a> for more details.<br>
@@ -135,11 +145,18 @@
         Parameters in the config.txt file can be used to customize certain parameters, as follows:
         <ul>
           <li>TEST_MODE: allows you to experiment with test tables without affecting your actual DB
-          <li>LOAD_FILE_DELIMTERS: allows you to specify the format of rated word lists you import
+          <li>APP_WIDTH and APP_HEIGHT: allows you to tweak the default size of the app when it starts
+            (this can be useful if the resolution of your screen causes the UI to look suboptimal)
+          <li>LOAD_FILE_DELIMITERS: allows you to specify the format of rated word lists you import
           <li>EXPORT_FILE_DELIMITER: allows you to specify the format of your exported word list/dictionary
           <li>Rating values, optionally broken down by 3, 4, 5, 6, and 7+ letter words. See <a href="#rate">Rating Words</a> for more details.
         </ul>
         See comments in config.txt for more details.
+        <p>
+        <div class="alert">Important:<p>
+          The config.txt file is read only once, when the program starts. Changes to the config.txt file
+          will not take effect unless the program is restarted.
+        </div>
       </div>
       <div id="runit"><h3><li>Running the Program</h3>
         <div class="todo">TODO:<p>Need detailed instructions here.
@@ -196,7 +213,7 @@
     </div>
     <div id="query"><h2><li>Querying the Database</h2>
       <img src="./images/MainScreen.png" alt="Query Screen" width="700px"><p>
-      The query tab provides a robust query interface to view your database.  All of the metadata
+      The Query tab provides a robust query interface to view your database.  All of the metadata
       parameters can be used to constrain the query, with the exception of "Comments".  There is no
       current mechanism to query based on the contents of the Comments field.<p>
       For large queries, be aware that the system only returns up to 1000 entries per request. For
@@ -218,6 +235,12 @@
         <div class="tip">Tip:<p>
           The entry field will accept '?' or '_' characters as single-character wildcards.
           For example, an Equals query on  "a?t?d" (or "a_t_d") might match ACTED, ANTED, or APTED.
+        </div><p>
+        <div class="tip">Tip:<p>
+          Any query for an exact entry string (an "Equals" search of at least one character with no wildcards)
+          will search for that string <i>ignoring any other parameters that may be set</i>. This is
+          because when you just want to know whether a word is or is not in your database, you don't
+          want to have to guess what the other parameters might or might not be.
         </div>
       </div>
       <div id="querylength"><h3><li>Length Control</h3>
@@ -273,8 +296,8 @@
           See <a href="#load">Loading Word Lists</a> for details.
         </div>
       </div>
-      <div id="queryresearch"><h3><li>Research Control</h3>
-        <img src="./images/Research.png" alt="Research Control"><p>
+      <div id="queryresearch"><h3><li>Needs Research Control</h3>
+        <img src="./images/Research.png" alt="Research Control" width="200px"><p>
         This field is used to select entries that you flagged as "Research" during the rating process.
         Note that this constraint is in addition to any other fields that are set, so to get a complete
         list of entries that need to be researched, use the "Reset Query" action in the "View" menu
@@ -282,10 +305,73 @@
         <p>
         See <a href="#ratingprocess">The Rating Process</a> for more on using the "Research" field.
       </div>
+      <div id="querycomment"><h3><li>Comment Control</h3>
+        <img src="./images/Comment.png" alt="Comment Control" width="700px"><p>
+        This field is not used as a selection criteria.  However, any query that results in a single
+        entry will display that entry's comment in this field (if there is one).
+      </div>
+      <div id="querybutton"><h3><li>Query and Next Buttons</h3>
+        Pressing the "Query" button (or hitting enter when the button is blue) executes a query based
+        on the metadata parameters set, as described above. <p>
+        <img src="./images/Query1.png" alt="Query and Next Buttons" width="200px"><p>
+        For queries that result in more than 1000
+        entries, only the first 1000 will be returned, after which the "Next" button (which will now
+        become enabled and also become the default action) will fetch the next 1000, and so on until there
+        are no more entries that satisfy the criteria.<p>
+        <img src="./images/Query2.png" alt="Query and Next Buttons" width="200px"><p>
+        Note that any time the "Query" button is used, the
+        query will start again from scratch.  Also, changing <i>any</i> of the metadata criteria will
+        disable the "Next" button and only allow a fresh query using the new parameters.
+        <p>
+        See <a href="#ratingprocess">The Rating Process</a> for more on using the "Research" field.
+      </div>
+      <div id="queryoutput"><h3><li>Query Output Display</h3>
+        The query output displays the results of the query (up to 1000 entries at a time, scrollable).
+        The format for each entry is as follows:
+        <p>
+        WORD(LENGTH), RATING [, any] [, nyt] [, research] [,manual] [(COMMENT)]
+        <p>
+          where the fields in [] only appear if set.  For example, a "bare minimum" auto-loaded entry would
+          display as follows (just WORD(LENGTH), RATING):
+        <p>
+          <img src="./images/QueryResult2.png" alt="Sample Query Result" width="400px"><p>
+          whereas, an entry with all possible fields set would display like this:
+          <p>
+            <img src="./images/QueryResult1.png" alt="Sample Query Result" width="400px"><p>
+          indicating that the entry is flagged as having been used in puzzles, including the NY Times,
+          that it is flagged as needing research, that it has been manually rated, and that it has a
+          comment, which is displayed in parentheses.  Note that this example is for clarity only -- it
+          would be unusual for both "research" and "manual" to be set on the same word, though it could
+          happen if you chose to revisit a previously rated entry.
+      </div>
       </ol>
     </div>
     <div id="add"><h2><li>Adding and Modifying Words</h2>
-      <img src="./images/AddScreen.png" alt="Add Screen" width="700px"><p>
+      <img src="./images/AddScreen1.png" alt="Add Screen" width="700px"><p>
+      The Add tab allow you to quickly add or modify (and rate) single entries in your database. When
+      adding a new word manually, you have no choice but to mark it "Hand-rated".  Likewise, you cannot
+      specify the length, as that will be calculated after the word is cleared of all non-alphanumeric
+      characters and converted to uppercase.  The default value for the Crossword Use control is "Not Used",
+      as typically that is the case when adding new words manually, but you can change these values, add
+      a comment, and select or designate a rating value (default preset is "OK"), by setting them on the
+      screen before pressing the "Add" button.
+      <p>
+      Note that, unlike in the Rating process, pressing a rating button will <i>not</i> immediately cause
+      the word to be added.  The rating buttons are a convenience to set the Manual Slider based on
+      your rating scale.  No action to the database will occur until you press the "Add" button. Once the
+      word is added, it will display the formatted word and rating in the Display Area.
+      <p>
+      <img src="./images/AddScreen2.png" alt="Add Screen" width="700px"><p>
+      Adding an entry that already exists will not fail; it will modify the existing word with the parameters
+      specified.  See "Important Tip" below.
+      <div class="alert">Important Tip: <p>
+      It is a <b>very good</b> idea to first query directly for the entry to see if already exists.  Doing so and
+      then switching <i>directly</i> to the Add screen will
+      preserve the Entry and Comment fields, as well as preload the appropriate Crossword
+      Use fields. It will also preset the current rating into the Manual Rating slider of the Add screen.<p>
+      If you go to the add field directly and the entry already exists, you risk overwriting existing
+      information when the record is modified.
+    </div><p>
     </div>
     <div id="rate"><h2><li>Rating Words</h2>
       <ol type='A'>
@@ -312,7 +398,8 @@
             word list from a rebus, a backwards entry, or some other quirky puzzle that was not filtered out.
             Killing it gives it a 0 value.
         </ul><p>
-        <sup>*</sup>The rating values can vary by word length; see below. You can also rate a word manually.
+        <sup>*</sup>The rating values can vary by word length; see below. You can also rate a word manually,
+        if you need more granularity for a given word.
         <p>
           <b>My theory on word length:</b> <p>
           I don't think it's a stretch to say that long entries carry a puzzle.  That is not to say that
@@ -330,42 +417,107 @@
           will default to the non-length-specific value.
       </div>
       <div id="ratingprocess"><h3><li>The Rating Process</h3>
-
+        <img src="./images/RateScreen1.png" alt="Rating Screen" width="700px"><p>
+        The query parameters for the Rate action work <i>exactly</i> the same as with the
+        Query action, with the exception that the default value for the Rating Method is
+        "Auto-loaded".  This is because you are typically wanting to rate entries that have
+        not yet been manually rated.
+        <p>
+        <img src="./images/RatingMethod1.png" alt="Rating Method Control" width="300px"><p>
+        Also, whereas a regular query returns up to 1000 entries at a time, a rating query is
+        limited to 20 entries per request.  This is because rating 1000 entries at once would be a
+        bit overwhelming, so breaking it into 20-entry "chunks" is more conducive to rating several
+        of those chunks in a single sitting.  Also, 20 entries are easily displayed without the need
+        to scroll.
+        <div class="tip">Tip:<p>Manually rating all your words can seem
+          like an impossible task.  My advice, as a constructor, is to start
+          small (literally).  3-letter words are the most common, so start there.
+          Then do 4-letter words.  This can be a task that you can perform whenever
+          you have a little free time.  Got 5 minutes?  Rate 100 words.
+        </div>
+        <p>
+        <p>
+        When a rate query has returned (up to) 20 results, they will be displayed
+        in the Display Area (along with their current, auto-loaded rating).  At this point, you can
+        rate them one by one using the rating buttons.  As you rate each one, it will disappear from
+        the top of the list and the next entry will move up.  This allows very quick rating, as you
+        need only hit a single button per word.
+        <div class="tip">Tip:<p>You can add a comment to a word during the rating process.
+          Simply type the comment in the "Comments" field before selecting the appropriate
+           rating button.
+        </div>
+        <p>
+        <p>
+        The following screen shot is a sample result of a rating query for unrated
+        words that have been in a NY Times puzzle and start with the string "TEST".  Note in the
+        status bar that the query has returned the first 20 of a total of 52 entries that meet
+        this criteria.
+        <p>
+        <img src="./images/RateScreen2.png" alt="Rating Screen" width="700px"><p>
+        If, for whatever reason, you feel like you need more granularity than the rating buttons are
+        providing, you can set any value (from 0 to 100) using the Manual Rating slider and
+        assign it with the "Manual" button.
       </div>
-      <div class="tip">Tip:<p>You can add a comment to a word during the rating process.
-        Simply type the comment in the "Comments" field before selecting the appropriate
-         rating button.
-      </div>
-      <p>
-      <div class="tip">Tip:<p>Manually rating all your words can seem
-        like an impossible task.  My advice, as a constructor, is to start
-        small (literally).  3-letter words are the most common, so start there.
-        Then do 4-letter words.  This can be a task that you can perform whenever
-        you have a little free time.  Got 5 minutes?  Rate 100 words.
-      </div>
-      <p>
       <div class="tip">Tip:<p>Here's another tip. When you're filling a themed
         puzzle, there will be many spots where the fill choice is constrained by the
-        theme entries.  Use the pattern-matching feature to manually rate those
+        theme entries (typically, down entries crossing the long theme entries).
+        Use the pattern-matching feature to manually rate those
         patterns before trying to fill the grid.  In this way, your rating activity
-        is specifically targeted to the puzzle(s) you are working on, so get
+        is specifically targeted to the puzzle(s) you are working on, so you get
         immediate benefit.<p>I typically do this multiple times throughout my
         fill process: rate words, export to file, import new dictionary, continue
-        filling.
+        filling. Rinse and repeat.
+      </div>
+      <div id="research"><h3><li>Research and Skip</h3>
+        For any entry during the rating process, you can choose to skip it for now.  In this
+        case, you just move on to the next word while making no changes to the skipped word.
+        Both the "Skip" and "Research" buttons skip the current word; the difference between the
+        two is that the "Research" button also flags the entry as needing research.  This can be
+        especially useful if you are rating offline (like on an airplane) or are just focusing on
+        quick and easy ratings and want to come back to certain words when you have more time and
+        opportunity to look them up.
+        <p>
+        Words that are flagged for research will be cleared of that flag once they are manually
+        rated.
       </div>
     </ol>
     </div>
     <div id="load"><h2><li>Loading Word Lists</h2>
+      One of the great features of this program is that is can load word lists into your dictionary
+      without overwriting words and data that you have already curated.  See <a href=#reconciler>
+      Understand the Reconciler</a> for details about how this works.<p>
       <div class="alert">IMPORTANT:<p>It is HIGHLY recommended that you backup your database before
-        loading loading a wordlist.
+        loading a wordlist.
         By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
         for example) you can <a href="#clear">clear the tables</a>, <a href="#restore">restore
         to your backup file</a>, and try again.
       </div>
-      <div class="todo">Tip:<p>There are several online resources for ranked and unranked word lists.
-        <p>
-        ==> INCLUDE MORE INFO HERE
-      </div>
+      <p>
+      The default Rating Method value for the Load screen is "Auto-loaded", as you are loading a
+      file of (typically) uncurated words.  You <i>can</i> change this to "Hand-rated" if you are
+      loading an already manicured and rated list, but be certain that's what you want to do before
+      proceeding as all the words in the list will be flagged as "Hand-rated" and treated as such
+      during the merge (see <a href=#reconciler>Understand the Reconciler</a> for more about this).
+      <p>
+      The default value for Crossword Use is "Not Used".  If you are loading a NY Times puzzle wordlist,
+      then select "Used NYT" so all incoming words will be flagged appropriately.  Similarly, if you are
+      loading a multi-puzzle wordlist, select "Used Any" to flag incoming entries as being used in some
+      puzzle.<p>
+      Note: Selecting "Used NYT" <i>implies</i> "Used Any", since the NY Times is a subset of all puzzles,
+      so selecting "Used NYT" forces "Used Any" to also be selected.  Conversely, deselecting "UsedAny" will
+      also deselect "Used NYT", since again you cannot specify "NYT" without also specifying "Any".
+      <div class="tip">Tip:<p>
+        It is up to you how you want to flag your wordlists. The web site
+        <a href="https://www.cruciverb.com" target="_blank">
+          Cruciverb.com</a> is a fantastic resource for constructors and includes, as part of its "Gold"
+          membership, access to the puzzle database and two current wordlists: "nyt.txt" (NY Times Puzzles)
+          and "all.txt" (NY Times and other major puzzles, including LA Times, Washington Post, Boston Globe,
+          Wall Street Journal, CrosSynergy Syndicate, etc.).  I use "Used NYT" when loading nyt.txt and
+          "Used Any" when loading "all.txt".
+      </div><p>
+      The Rating slider is used to specify the default rating of any unrated words that are being loaded.
+      This applies to all words if the list is unrated, but also applies to any unrated words found while
+      processing a rated word list.
       <p>
       <div class="tip">Tip:<p>Just because a word has been used in the New York Times or other
         puzzle, does not necessarily make it a good word or desirable.  Many times a puzzle is
@@ -373,11 +525,46 @@
         that good but is let slide.<p>Similarly, just because a word or phrase has NOT appeared in
         a puzzle, doesn't mean it isn't desirable.  Part of making good crosswords is finding
         those quality words and phrases that <i>haven't</i> been used yet.
-      </div>
+      </div><p>
+      To load a word list, specify the path and file name of the word list (relative to where the XDict
+      program is running), make sure the parameters are set the way you want them (including the default
+      rating value) and press the "Load" action button.
+      <p>
+      <img src="./images/LoadScreen1.png" alt="Load Screen" width="700px"><p>
       <ol type='A'>
         <div id="unrankedwordlists"><h3><li>Unranked Word Lists</h3>
+          Unranked word lists are simply lists of words and phrases, one entry per line. It
+          makes no difference whether the lists are in upper-, lower-, or mixed-case, nor whether
+          they include punctuation marks (see Important Note, below).  All entries, when loaded, will be stripped
+          of non-alphanumeric characters and converted to all uppercase.
+          <p> New entries (those that do
+          not already exist in your database at the time of loading the wordlist) will be assigned the
+          value set in the Rating slider on the Load screen.  Duplicate entries will be merged based on
+          the rules described in the <a href="#reconciler">Understanding the Reconciler</a> section.
+          <p>
+          <div class="alert">Important Note:<p>
+            Alphanumeric characters include the letters A to Z and the numerals 0 to 9. Please note
+            that the load process will <b>not</b> attempt to convert accented or otherwise diacritically
+            marked letters to their stripped form. These characters, and any other Unicode or non-ASCII
+            alphanumerics, will be considered punctuation and stripped out. If you intend to load a word list
+            that has these characters, you will need to make any letter conversions manually before you load
+            the list.
+          </div>
         </div>
         <div id="rankwordlists"><h3><li>Ranked Word Lists</h3>
+          Ranked word lists are lists of words and values, with the word and value separated (typically)
+          by a ":" or ";". Note that you can add or change separator values using the LOAD_FILE_DELIMITERS
+          in the config.txt file. See <a href="#config">Configuration</a> (or the comments in the
+          config.txt file itself) for details.
+          <p>
+          As with unranked word lists, all entries, when loaded, will be stripped
+          of non-alphanumeric characters and converted to all uppercase. Again, see "Important Note"
+          in <a href="#unrankedwordlists">Unranked Word Lists</a>, above.
+          <p> New entries (those that do
+          not already exist in your database at the time of loading the wordlist) will be assigned the
+          value set in the word list (if it exists) else it will default to the value of the Rating slider on the
+          Load screen.  Duplicate entries will be merged based on
+          the rules described in the <a href="#reconciler">Understanding the Reconciler</a> section.
         </div>
         <div id="reconciler"><h3><li>Understanding the Reconciler</h3>
         </div>
@@ -456,6 +643,14 @@
           </div>
         </div>
       </ol>
+    </div>
+    <div id="databaseschema"><h2><li>Database Schema</h2>
+      <div id="wordstable"><h3><li>Words Table</h3>
+      </div>
+      <div id="commentstable"><h3><li>Comments Table</h3>
+      </div>
+      <div id="createstatements"><h3><li>Create Statements</h3>
+      </div>
     </div>
   </ol>
 </body>
