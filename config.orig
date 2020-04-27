@@ -36,6 +36,17 @@ LOAD_FILE_DELIMITERS=[:; ]
 # parameter has been parsed.  As such, '=', '[' and ']' cannot be used as a value.
 EXPORT_FILE_DELIMITER=[;]
 
+# LOAD_FILE_DEFAULT_DIR is the default directory from which to load word lists. It
+# is not necessary to enter this, but doing so will preload the directory name in the
+# Load screen.  Even if set, this can be overwritten manually.  It is merely a convenience.
+LOAD_FILE_DEFAULT_DIR=wordlists/
+
+# EXPORT_FILE_DEFAULT_DIR is the default location to export dictionary files. It
+# is not necessary to enter this, but doing so will preload the directory name in the
+# Export screen.  Even if set, this can be overwritten manually.  It is merely a convenience.
+EXPORT_FILE_DEFAULT_DIR=export/
+
+
 # The following values are assigned to the rating buttons.
 # Values can be from 0 to 100.
 # It is possible, though not necessary, to assign different values to

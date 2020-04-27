@@ -149,6 +149,8 @@
             (this can be useful if the resolution of your screen causes the UI to look suboptimal)
           <li>LOAD_FILE_DELIMITERS: allows you to specify the format of rated word lists you import
           <li>EXPORT_FILE_DELIMITER: allows you to specify the format of your exported word list/dictionary
+          <li>LOAD_FILE_DEFAULT_DIR: specifies a directory (and/or file) string to preload in the "Load File" field
+          <li>EXPORT_FILE_DEFAULT_DIR: specifies a directory (and/or file) string to preload in the "Export File" field
           <li>Rating values, optionally broken down by 3, 4, 5, 6, and 7+ letter words. See <a href="#rate">Rating Words</a> for more details.
         </ul>
         See comments in config.txt for more details.
@@ -352,8 +354,8 @@
       adding a new word manually, you have no choice but to mark it "Hand-rated".  Likewise, you cannot
       specify the length, as that will be calculated after the word is cleared of all non-alphanumeric
       characters and converted to uppercase.  The default value for the Crossword Use control is "Not Used",
-      as typically that is the case when adding new words manually, but you can change these values, add
-      a comment, and select or designate a rating value (default preset is "OK"), by setting them on the
+      as typically that is the case when adding new words manually, but you can change this value, add
+      a comment, or select or designate a rating value (default preset is "OK"), by setting them on the
       screen before pressing the "Add" button.
       <p>
       Note that, unlike in the Rating process, pressing a rating button will <i>not</i> immediately cause
@@ -565,6 +567,14 @@
           value set in the word list (if it exists) else it will default to the value of the Rating slider on the
           Load screen.  Duplicate entries will be merged based on
           the rules described in the <a href="#reconciler">Understanding the Reconciler</a> section.
+          <p>
+          <div class="alert">Important note:<p>
+            Importing a ranked word list assumes values in the range of 0 to 100.  Any value over
+            100 will be changed to 100.  Also, any value of 0 <i>will be preserved</i>, so that if
+            you are importing a hand-curated list, entries that you have "killed" (assigned 0 to) will
+            remain so.  This is very different than an entry in the list having <i>no value</i> (or no
+            valid non-negative numeric value), in which case the entry will receive the default value for the load.<p>
+          </div>
         </div>
         <div id="reconciler"><h3><li>Understanding the Reconciler</h3>
         </div>

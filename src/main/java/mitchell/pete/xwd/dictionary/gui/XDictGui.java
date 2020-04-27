@@ -215,6 +215,7 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
                 usedAny.addChangeListener(usedAnyListener);
+                notUsed.addChangeListener(notUsedListener);
     			resetQuery(false);
                 getRootPane().setDefaultButton(queryButton);
     		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
@@ -234,6 +235,7 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
                 usedAny.addChangeListener(usedAnyListenerAddOrLoad);
+                notUsed.addChangeListener(notUsedListenerAddorLoad);
                 resetAdd();
                 getRootPane().setDefaultButton(addButton);
 			} else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
@@ -253,6 +255,7 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
                 usedAny.addChangeListener(usedAnyListenerAddOrLoad);
+                notUsed.addChangeListener(notUsedListenerAddorLoad);
                 resetLoad();
                 getRootPane().setDefaultButton(loadButton);
 			} else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
@@ -272,6 +275,7 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
                 usedAny.addChangeListener(usedAnyListener);
+                notUsed.addChangeListener(notUsedListener);
                 resetExport();
                 getRootPane().setDefaultButton(exportButton);
 			} else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
@@ -291,6 +295,7 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
                 usedNYT.addChangeListener(usedNYTListener);
                 usedAny.addChangeListener(usedAnyListener);
+                notUsed.addChangeListener(notUsedListener);
     			resetQuery(true);
                 getRootPane().setDefaultButton(rateQueryButton);
 			}
@@ -312,9 +317,11 @@ public class XDictGui extends JFrame implements WindowListener
         public void stateChanged(ChangeEvent e)
         {
             JCheckBox source = (JCheckBox)e.getSource();
-            // If not selected, then NYT cannot be selected
             if (!source.isSelected()) {
-                usedNYT.setSelected(false);
+                usedNYT.setSelected(false);             // If not selected, then NYT cannot be selected
+                notUsed.setSelected(true);              // If not any, then must be "Not Used"
+            } else {
+                notUsed.setSelected(false);             // If selected, Not Used cannot be selected
             }
             nextButton.setEnabled(false);
             if (queryButton.isEnabled())
@@ -327,7 +334,7 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	public void stateChanged(ChangeEvent e)
     	{
-    	    nextButton.setEnabled(false);
+            nextButton.setEnabled(false);
             if (queryButton.isEnabled())
                 getRootPane().setDefaultButton(queryButton);
             else if (rateQueryButton.isEnabled())
@@ -339,10 +346,11 @@ public class XDictGui extends JFrame implements WindowListener
         public void stateChanged(ChangeEvent e)
         {
             JCheckBox source = (JCheckBox)e.getSource();
-            // If selected, then "Any" must also be selected
             if (source.isSelected()) {
-                usedAny.setSelected(true);
+                usedAny.setSelected(true);              // If selected, then "Any" must also be selected
+                notUsed.setSelected(false);             // If selected, "Not Used" cannot be selected
             }
+
             nextButton.setEnabled(false);
             if (queryButton.isEnabled())
                 getRootPane().setDefaultButton(queryButton);
@@ -355,6 +363,26 @@ public class XDictGui extends JFrame implements WindowListener
     {
         public void stateChanged(ChangeEvent e)
         {
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+
+    ChangeListener notUsedListenerAddorLoad = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JCheckBox source = (JCheckBox)e.getSource();
+            if (source.isSelected()) {
+                usedAny.setSelected(false);             // If selected, then "Used Any" and "Used NYT" cannot be
+                usedNYT.setSelected(false);
+            } else {
+                usedAny.setSelected(true);              // If delselected, assume "Used Any"
+            }
+
             nextButton.setEnabled(false);
             if (queryButton.isEnabled())
                 getRootPane().setDefaultButton(queryButton);
@@ -1207,6 +1235,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtLeast.setSelected(true);
 
         wordComment.setText("");
+        exportFile.setText(XDictConfig.EXPORT_FILE_DEFAULT_DIR);
         exportResultArea.setText("");
         statusLine.setText("Ready.");
 
@@ -1243,7 +1272,7 @@ public class XDictGui extends JFrame implements WindowListener
 
 
         wordComment.setText("");
-        loadFile.setText("");
+        loadFile.setText(XDictConfig.LOAD_FILE_DEFAULT_DIR);
         loadResultArea.setText("");
         statusLine.setText("Ready.");
     }
@@ -1673,12 +1702,12 @@ public class XDictGui extends JFrame implements WindowListener
 
 		    	if (w.length() < 3) {
 		    		status = WORD_STATUS.ERROR;
-		    		loadResultArea.append(w.getEntry() + " is less than 3 characters.\n");
+		    		loadResultArea.append(w.getEntry() + " is less than 3 characters. Skipped.\n");
 //					statText = " (Skipped)";
 					skipCount++;
 		    	} else if (w.length() > 25) {
 		    		status = WORD_STATUS.ERROR;
-		    		loadResultArea.append(w.getEntry() + " is more than 25 characters.\n");
+		    		loadResultArea.append(w.getEntry() + " is more than 25 characters. Skipped.\n");
 //					statText = " (Skipped)";
 					skipCount++;
 		    	} else {

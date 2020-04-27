@@ -14,6 +14,8 @@ public class XDictConfig {
     public static final String TEST_MODE_SUFFIX = "_TEST";
     public static String LOAD_FILE_DELIMITERS = ";:";
     public static String EXPORT_FILE_DELIMITER = ";";
+    public static String LOAD_FILE_DEFAULT_DIR = "";
+    public static String EXPORT_FILE_DEFAULT_DIR = "";
     public static int APP_WIDTH = 1300;     // value in pixels
     public static int APP_HEIGHT = 850;     // value in pixels
 
@@ -153,6 +155,16 @@ public class XDictConfig {
             if (!value.isEmpty() && value.startsWith("[") && value.endsWith("]")) {
                 EXPORT_FILE_DELIMITER = value.substring(1, (value.length() - 1));
                 System.out.println("EXPORT_FILE_DELIMITER: [" + EXPORT_FILE_DELIMITER + "]");
+            }
+        } else if (key.equals("LOAD_FILE_DEFAULT_DIR")) {
+            if (!value.isEmpty()) {
+                LOAD_FILE_DEFAULT_DIR = value;
+                System.out.println("LOAD_FILE_DEFAULT_DIR: " + LOAD_FILE_DEFAULT_DIR);
+            }
+        } else if (key.equals("EXPORT_FILE_DEFAULT_DIR")) {
+            if (!value.isEmpty()) {
+                EXPORT_FILE_DEFAULT_DIR = value;
+                System.out.println("EXPORT_FILE_DEFAULT_DIR: " + EXPORT_FILE_DEFAULT_DIR);
             }
         } else if (key.equals("APP_WIDTH")) {
             APP_WIDTH = parsePixels(value);
