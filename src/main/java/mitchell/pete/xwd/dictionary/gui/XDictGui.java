@@ -199,109 +199,15 @@ public class XDictGui extends JFrame implements WindowListener
     	{
     		JTabbedPane source = (JTabbedPane)e.getSource();
     		if (source.getSelectedIndex() == USE_MODE.QUERY.ordinal()) {
-                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
-                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
-                notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
-                usedNYT.addChangeListener(usedNYTListener);
-                usedAny.addChangeListener(usedAnyListener);
-                notUsed.addChangeListener(notUsedListener);
-    			queryButton.setEnabled(true);
-                nextButton.setEnabled(false);
-    			addButton.setEnabled(false);
-    			loadButton.setEnabled(false);
-    			exportButton.setEnabled(false);
-    			rateQueryButton.setEnabled(false);
-                queryButton.setVisible(true);
-                nextButton.setVisible(true);
-                addButton.setVisible(false);
-                loadButton.setVisible(false);
-                exportButton.setVisible(false);
-                rateQueryButton.setVisible(false);
     			resetQuery(false);
-                getRootPane().setDefaultButton(queryButton);
     		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
-                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
-                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
-                notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
-                usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
-                usedAny.addChangeListener(usedAnyListenerAddOrLoad);
-                notUsed.addChangeListener(notUsedListenerAddorLoad);
-                queryButton.setEnabled(false);
-    			nextButton.setEnabled(false);
-    			addButton.setEnabled(true);
-    			loadButton.setEnabled(false);
-    			exportButton.setEnabled(false);
-    			rateQueryButton.setEnabled(false);
-                queryButton.setVisible(false);
-                nextButton.setVisible(false);
-                addButton.setVisible(true);
-                loadButton.setVisible(false);
-                exportButton.setVisible(false);
-                rateQueryButton.setVisible(false);
                 resetAdd();
-                getRootPane().setDefaultButton(addButton);
 			} else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
-                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
-                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
-                notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
-                usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
-                usedAny.addChangeListener(usedAnyListenerAddOrLoad);
-                notUsed.addChangeListener(notUsedListenerAddorLoad);
-                queryButton.setEnabled(false);
-				nextButton.setEnabled(false);
-				addButton.setEnabled(false);
-				loadButton.setEnabled(true);
-    			exportButton.setEnabled(false);
-    			rateQueryButton.setEnabled(false);
-                queryButton.setVisible(false);
-                nextButton.setVisible(false);
-                addButton.setVisible(false);
-                loadButton.setVisible(true);
-                exportButton.setVisible(false);
-                rateQueryButton.setVisible(false);
                 resetLoad();
-                getRootPane().setDefaultButton(loadButton);
 			} else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
-                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
-                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
-                usedNYT.addChangeListener(usedNYTListener);
-                usedAny.addChangeListener(usedAnyListener);
-                notUsed.addChangeListener(notUsedListener);
-				queryButton.setEnabled(false);
-				nextButton.setEnabled(false);
-                addButton.setEnabled(false);
-				loadButton.setEnabled(false);
-    			exportButton.setEnabled(true);
-    			rateQueryButton.setEnabled(false);
-                queryButton.setVisible(false);
-                nextButton.setVisible(false);
-                addButton.setVisible(false);
-                loadButton.setVisible(false);
-                exportButton.setVisible(true);
-                rateQueryButton.setVisible(false);
                 resetExport();
-                getRootPane().setDefaultButton(exportButton);
 			} else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
-                usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
-                usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
-                notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
-                usedNYT.addChangeListener(usedNYTListener);
-                usedAny.addChangeListener(usedAnyListener);
-                notUsed.addChangeListener(notUsedListener);
-				queryButton.setEnabled(false);
-				nextButton.setEnabled(false);
-                addButton.setEnabled(false);
-				loadButton.setEnabled(false);
-				exportButton.setEnabled(false);
-				rateQueryButton.setEnabled(true);
-                queryButton.setVisible(false);
-                nextButton.setVisible(true);
-                addButton.setVisible(false);
-                loadButton.setVisible(false);
-                exportButton.setVisible(false);
-                rateQueryButton.setVisible(true);
     			resetQuery(true);
-                getRootPane().setDefaultButton(rateQueryButton);
 			}
     	}
     };
@@ -1167,9 +1073,33 @@ public class XDictGui extends JFrame implements WindowListener
 
 
     public void resetQuery(boolean rating) {
-//        wordEntry.setText("");
-//        wordComment.setText("");
 
+        setChangeListenersToQueryMode();
+
+        // Enable and show appropriate actions buttons
+        if (rating) {
+            queryButton.setEnabled(false);
+            queryButton.setVisible(false);
+            rateQueryButton.setEnabled(true);
+            rateQueryButton.setVisible(true);
+            getRootPane().setDefaultButton(rateQueryButton);
+        } else {
+            queryButton.setEnabled(true);
+            queryButton.setVisible(true);
+            rateQueryButton.setEnabled(false);
+            rateQueryButton.setVisible(false);
+            getRootPane().setDefaultButton(queryButton);
+        }
+        nextButton.setEnabled(false);
+        nextButton.setVisible(true);
+        addButton.setEnabled(false);
+        addButton.setVisible(false);
+        loadButton.setEnabled(false);
+        loadButton.setVisible(false);
+        exportButton.setEnabled(false);
+        exportButton.setVisible(false);
+
+        // Enable appropriate parameter controls
         wordEntry.setEnabled(true);
         queryEntryEquals.setEnabled(true);
         queryEntryContains.setEnabled(true);
@@ -1184,39 +1114,63 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtMost.setEnabled(true);
         queryRatingEquals.setEnabled(true);
         queryRatingAtLeast.setEnabled(true);
+        if (rating) {
+            wordComment.setEnabled(true);
+        } else {
+            wordComment.setEnabled(false);
+        }
 
+        // Set default values for parameters
+        queryEntryEquals.setSelected(true);
+        queryLengthAtLeast.setSelected(true);
         wordLengthSlider.setValue(LENGTH_DEFAULT);
+        queryRatingAtLeast.setSelected(true);
         wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
-        manualRatingSlider.setValue(QUERY_RATING_DEFAULT);
         usedAny.setSelected(true);
         usedNYT.setSelected(true);
         notUsed.setSelected(true);
         research.setSelected(false);
-
         if (rating) {
             queryMethodAuto.setSelected(true);
-            queryLengthAtLeast.setSelected(true);
-            wordComment.setEnabled(true);
+            manualRatingSlider.setValue(QUERY_RATING_DEFAULT);
         } else {
             queryMethodAll.setSelected(true);
-            queryLengthAtLeast.setSelected(true);
-            wordComment.setEnabled(false);
         }
-        queryEntryEquals.setSelected(true);
-        queryRatingAtLeast.setSelected(true);
+
+        // Initialize result area and status line
         queryResultArea.setText("");
         queryResultArea.setEnabled(false);
+        queryResultArea.setDisabledTextColor(Color.BLACK);
         statusLine.setText("Ready.");
 
     }
 
     public void resetExport() {
+
+        setChangeListenersToQueryMode();
+
+        // Enable and show appropriate actions buttons
+        queryButton.setEnabled(false);
+        queryButton.setVisible(false);
+        nextButton.setEnabled(false);
+        nextButton.setVisible(false);
+        addButton.setEnabled(false);
+        addButton.setVisible(false);
+        loadButton.setEnabled(false);
+        loadButton.setVisible(false);
+        exportButton.setEnabled(true);
+        exportButton.setVisible(true);
+        rateQueryButton.setEnabled(false);
+        rateQueryButton.setVisible(false);
+        getRootPane().setDefaultButton(exportButton);
+
+
+        // Enable appropriate parameter controls
         wordEntry.setEnabled(true);
         wordComment.setEnabled(false);
         queryEntryEquals.setEnabled(true);
         queryEntryContains.setEnabled(true);
         queryEntryStarts.setEnabled(true);
-        wordEntry.setText("");
         queryMethodAuto.setEnabled(true);
         queryMethodAll.setEnabled(true);
         queryMethodManual.setEnabled(true);
@@ -1228,26 +1182,48 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingEquals.setEnabled(true);
         queryRatingAtLeast.setEnabled(true);
 
+        // Set default values for parameters
+        queryEntryEquals.setSelected(true);
+        wordEntry.setText("");
+        queryLengthAtLeast.setSelected(true);
         wordLengthSlider.setValue(LENGTH_DEFAULT);
+        queryRatingAtLeast.setSelected(true);
         wordRatingSlider.setValue(EXPORT_RATING_DEFAULT);
         usedAny.setSelected(true);
         usedNYT.setSelected(true);
         notUsed.setSelected(true);
         research.setSelected(false);
         queryMethodAll.setSelected(true);
-        queryLengthAtLeast.setSelected(true);
-        queryEntryEquals.setSelected(true);
-        queryRatingAtLeast.setSelected(true);
-
         wordComment.setText("");
         exportFile.setText(XDictConfig.EXPORT_FILE_DEFAULT_DIR);
-        exportResultArea.setText("");
-        statusLine.setText("Ready.");
 
+        // Initialize result area and status line
+        exportResultArea.setText("");
+        exportResultArea.setEnabled(false);
+        exportResultArea.setDisabledTextColor(Color.BLACK);
+        statusLine.setText("Ready.");
     }
 
     public void resetLoad() {
-        wordEntry.setText("");
+
+        setChangeListenersToAddMode();
+
+        // Enable and show appropriate actions buttons
+        queryButton.setEnabled(false);
+        queryButton.setVisible(false);
+        nextButton.setEnabled(false);
+        nextButton.setVisible(false);
+        addButton.setEnabled(false);
+        addButton.setVisible(false);
+        loadButton.setEnabled(true);
+        loadButton.setVisible(true);
+        exportButton.setEnabled(false);
+        exportButton.setVisible(false);
+        rateQueryButton.setEnabled(false);
+        rateQueryButton.setVisible(false);
+        getRootPane().setDefaultButton(loadButton);
+
+        // Enable appropriate parameter controls
         wordEntry.setEnabled(false);
         wordComment.setEnabled(false);
         queryEntryEquals.setEnabled(false);
@@ -1264,34 +1240,67 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingEquals.setEnabled(true);
         queryRatingAtLeast.setEnabled(false);
 
+        // Set default values for parameters
+        queryEntryEquals.setSelected(true);
+        wordEntry.setText("");
+        queryLengthAtLeast.setSelected(true);
         wordLengthSlider.setValue(LENGTH_DEFAULT);
+        queryRatingEquals.setSelected(true);
         wordRatingSlider.setValue(LOAD_RATING_DEFAULT);
         usedAny.setSelected(false);
         usedNYT.setSelected(false);
         notUsed.setSelected(true);
         research.setSelected(false);
         queryMethodAuto.setSelected(true);
-        queryLengthAtLeast.setSelected(true);
-        queryEntryEquals.setSelected(true);
-        queryRatingEquals.setSelected(true);
-
-
         wordComment.setText("");
         loadFile.setText(XDictConfig.LOAD_FILE_DEFAULT_DIR);
+
+
+        // Initialize result area and status line
         loadResultArea.setText("");
+        loadResultArea.setEnabled(false);
+        loadResultArea.setDisabledTextColor(Color.BLACK);
         statusLine.setText("Ready.");
     }
 
     public void resetAdd() {
+
+        setChangeListenersToAddMode();
+
+        // Enable and show appropriate actions buttons
+        queryButton.setEnabled(false);
+        queryButton.setVisible(false);
+        nextButton.setEnabled(false);
+        nextButton.setVisible(false);
+        addButton.setEnabled(true);
+        addButton.setVisible(true);
+        loadButton.setEnabled(false);
+        loadButton.setVisible(false);
+        exportButton.setEnabled(false);
+        exportButton.setVisible(false);
+        rateQueryButton.setEnabled(false);
+        rateQueryButton.setVisible(false);
+        getRootPane().setDefaultButton(addButton);
+
+        // Enable appropriate parameter controls
         wordEntry.setEnabled(true);
         wordComment.setEnabled(true);
-
         queryEntryEquals.setEnabled(true);
         queryEntryContains.setEnabled(false);
         queryEntryStarts.setEnabled(false);
+        queryMethodManual.setEnabled(true);
+        queryMethodAuto.setEnabled(false);
+        queryMethodAll.setEnabled(false);
+        queryLengthEquals.setEnabled(false);
+        queryLengthAtLeast.setEnabled(false);
+        queryLengthAtMost.setEnabled(false);
+        wordLengthSlider.setEnabled(false);
+        queryRatingAtMost.setEnabled(false);
+        queryRatingEquals.setEnabled(false);
+        queryRatingAtLeast.setEnabled(false);
 
-        wordLengthSlider.setValue(LENGTH_DEFAULT);
-        wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
+        // Set default values for parameters
+        queryEntryEquals.setSelected(true);
         if (!wordEntry.getText().isEmpty()) {
             Word w1 = dict.getWord(wordEntry.getText());
             if (w1 != null) {
@@ -1315,24 +1324,42 @@ public class XDictGui extends JFrame implements WindowListener
         }
         research.setSelected(false);
         queryMethodManual.setSelected(true);
-        queryMethodManual.setEnabled(true);
-        queryMethodAuto.setEnabled(false);
-        queryMethodAll.setEnabled(false);
-        queryEntryEquals.setSelected(true);
 
+        // These are disabled, so just set them to default vals
         queryLengthAtLeast.setSelected(true);
+        wordLengthSlider.setValue(LENGTH_DEFAULT);
         queryRatingAtLeast.setSelected(true);
+        wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
 
-        queryLengthEquals.setEnabled(false);
-        queryLengthAtLeast.setEnabled(false);
-        queryLengthAtMost.setEnabled(false);
-        wordLengthSlider.setEnabled(false);
-        queryRatingAtMost.setEnabled(false);
-        queryRatingEquals.setEnabled(false);
-        queryRatingAtLeast.setEnabled(false);
-
+        // Initialize result area and status line
         addResultArea.setText("");
         statusLine.setText("Ready.");
+    }
+
+    private void setChangeListenersToQueryMode()
+    {
+        // First remove existing listener, so don't double-set...
+        usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+        usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+        notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
+
+        // Now set listeners as desired
+        usedNYT.addChangeListener(usedNYTListener);
+        usedAny.addChangeListener(usedAnyListener);
+        notUsed.addChangeListener(notUsedListener);
+    }
+
+    private void setChangeListenersToAddMode()
+    {
+        // First remove existing listener, so don't double-set...
+        usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+        usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+        notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
+
+        // Now set listeners as desired
+        usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
+        usedAny.addChangeListener(usedAnyListenerAddOrLoad);
+        notUsed.addChangeListener(notUsedListenerAddorLoad);
     }
 
     /*
@@ -1695,6 +1722,8 @@ public class XDictGui extends JFrame implements WindowListener
     	WORD_STATUS status;
 		byte rating = 0;
 
+        loadResultArea.append("PLEASE WAIT...\n");
+        this.setEnabled(false);     // disable gui during load process
     	try {
 			while ((line = br.readLine()) != null) {
 				if (line.length() < 3) {
@@ -1740,6 +1769,7 @@ public class XDictGui extends JFrame implements WindowListener
 			loadResultArea.append(e.toString());
 		}
         loadResultArea.append("Loading complete.\n");
+        this.setEnabled(true);
 
         String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + " (" + skipCount + " skipped.)";
     	return retStatus;
@@ -1748,7 +1778,7 @@ public class XDictGui extends JFrame implements WindowListener
     public String doRestore()
     {
         resultPaneTabs.setSelectedIndex(3);     // set to load result pane to display results
-        if (loadFile.getText().isEmpty())       // if blank, preset with directory, but don't override what's there
+        if (!loadFile.getText().startsWith("backups/"))
             loadFile.setText("backups/");
 
         String filename = loadFile.getText();
@@ -1777,7 +1807,9 @@ public class XDictGui extends JFrame implements WindowListener
         String line;
         int count = 0;
         WORD_STATUS status;
-//		String statText = "";
+
+        loadResultArea.append("PLEASE WAIT...\n");
+        this.setEnabled(false);     // disable GUI during processing
 
         try {
             while ((line = br.readLine()) != null) {
@@ -1805,6 +1837,8 @@ public class XDictGui extends JFrame implements WindowListener
             loadResultArea.append(e.toString());
         }
         loadResultArea.append("Restore complete.\n");
+        this.setEnabled(true);      // re-enable GUI
+
         String retStatus = "" + count + " words processed.";
         return retStatus;
     }
@@ -1889,6 +1923,9 @@ public class XDictGui extends JFrame implements WindowListener
 	    	}
     	}
     	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
+
+        exportResultArea.append("PLEASE WAIT...\n");
+        this.setEnabled(false);
     	
     	for (int start = 0; start < resultSetSize; start += QUERY_LIMIT) {
 			getStatusLine().showInfo("Processing " + (isBackup ? "backup..." : "export...") + start + " records processed.");
@@ -1917,6 +1954,7 @@ public class XDictGui extends JFrame implements WindowListener
 			return "Error.";
 		}
         exportResultArea.append("Export complete.\n");
+        this.setEnabled(true);
 
         return (isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
     }
@@ -1973,6 +2011,7 @@ public class XDictGui extends JFrame implements WindowListener
             queryResultArea.setText("You are requesting to clear all tables in your " + (XDictConfig.testMode ? "TEST MODE " : "") + "database!\n");
             queryResultArea.append("If you really mean to do this, you must enter \"YES I REALLY MEAN TO DO THIS\" in the Comment field and then retry.");
             wordComment.setEnabled(true);
+            queryResultArea.setEnabled(true);   // enable text area to allow cut-and-paste
             return "Are you sure?";
         }
 
@@ -1980,6 +2019,7 @@ public class XDictGui extends JFrame implements WindowListener
 
         queryResultArea.setText("Tables cleared.");
         wordComment.setText("");        // clear the validation field
+        queryResultArea.setEnabled(false);   // re-disable text area
 
         return "Tables cleared.";
     }

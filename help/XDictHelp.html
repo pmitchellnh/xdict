@@ -294,7 +294,7 @@
         <p>
         <div class="tip">Tip: These fields are set when you add (manually) or load word lists, so
           in order to use them effectively, you must make sure to set the "Used_NYT" field when importing
-          NY Times wordlists and the "Used_Any" field when importing other crossword puzzle lists.
+          NY Times word lists and the "Used_Any" field when importing other crossword puzzle lists.
           See <a href="#load">Loading Word Lists</a> for details.
         </div>
       </div>
@@ -489,7 +489,7 @@
       without overwriting words and data that you have already curated.  See <a href=#reconciler>
       Understand the Reconciler</a> for details about how this works.<p>
       <div class="alert">IMPORTANT:<p>It is HIGHLY recommended that you backup your database before
-        loading a wordlist.
+        loading a word list.
         By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
         for example) you can <a href="#clear">clear the tables</a>, <a href="#restore">restore
         to your backup file</a>, and try again.
@@ -501,9 +501,9 @@
       proceeding as all the words in the list will be flagged as "Hand-rated" and treated as such
       during the merge (see <a href=#reconciler>Understand the Reconciler</a> for more about this).
       <p>
-      The default value for Crossword Use is "Not Used".  If you are loading a NY Times puzzle wordlist,
+      The default value for Crossword Use is "Not Used".  If you are loading a NY Times puzzle word list,
       then select "Used NYT" so all incoming words will be flagged appropriately.  Similarly, if you are
-      loading a multi-puzzle wordlist, select "Used Any" to flag incoming entries as being used in some
+      loading a multi-puzzle word list, select "Used Any" to flag incoming entries as being used in some
       puzzle.<p>
       Note: Selecting "Used NYT" <i>implies</i> "Used Any", since the NY Times is a subset of all puzzles,
       so selecting "Used NYT" forces "Used Any" to also be selected.  Conversely, deselecting "UsedAny" will
@@ -511,10 +511,10 @@
       "Used Any" will also force "Not Used" to be selected (and vice versa), since entries either are or
       are not used -- they cannot be both nor can they be neither.
       <div class="tip">Tip:<p>
-        It is up to you how you want to flag your wordlists. The web site
+        It is up to you how you want to flag your word lists. The web site
         <a href="https://www.cruciverb.com" target="_blank">
           Cruciverb.com</a> is a fantastic resource for constructors and includes, as part of its "Gold"
-          membership, access to the puzzle database and two current wordlists: "nyt.txt" (NY Times Puzzles)
+          membership, access to the puzzle database and two current word lists: "nyt.txt" (NY Times Puzzles)
           and "all.txt" (NY Times and other major puzzles, including LA Times, Washington Post, Boston Globe,
           Wall Street Journal, CrosSynergy Syndicate, etc.).  I use "Used NYT" when loading nyt.txt and
           "Used Any" when loading "all.txt".
@@ -542,7 +542,7 @@
           they include punctuation marks (see Important Note, below).  All entries, when loaded, will be stripped
           of non-alphanumeric characters and converted to all uppercase.
           <p> New entries (those that do
-          not already exist in your database at the time of loading the wordlist) will be assigned the
+          not already exist in your database at the time of loading the word list) will be assigned the
           value set in the Rating slider on the Load screen.  Duplicate entries will be merged based on
           the rules described in the <a href="#reconciler">Understanding the Reconciler</a> section.
           <p>
@@ -565,7 +565,7 @@
           of non-alphanumeric characters and converted to all uppercase. Again, see "Important Note"
           in <a href="#unrankedwordlists">Unranked Word Lists</a>, above.
           <p> New entries (those that do
-          not already exist in your database at the time of loading the wordlist) will be assigned the
+          not already exist in your database at the time of loading the word list) will be assigned the
           value set in the word list (if it exists) else it will default to the value of the Rating slider on the
           Load screen.  Duplicate entries will be merged based on
           the rules described in the <a href="#reconciler">Understanding the Reconciler</a> section.
@@ -579,6 +579,40 @@
           </div>
         </div>
         <div id="reconciler"><h3><li>Understanding the Reconciler</h3>
+          The reconciler is the heart of what allows you to import new lists without adversely affecting
+          your existing dictionary.  It kicks in whenever a word loading from an "Auto-loaded" word list
+          already exists in your database.
+          <p>
+          Database fields reconcile as follows:<p>
+          <dl>
+            <dt><b>Rating:</b>
+              <dd>A hand-rated word's rating overrides an existing word's rating.
+              <dd>An auto-loaded word's rating will <i>never</i> override a manually-rated rating.
+              <dd>If neither the incoming nor the existing word have been hand-rated, the higher rating will prevail.
+            <dt><b>Rating Method:</b>
+              <dd>Once a word is manually-rated, it will remain that way. The only way to clear a
+                manually-rated flag is to purge the database and reload data from scratch. (Why would you
+                want to do that? Trust me, you wouldn't.)
+            <dt><b>Crossword Use (NYT or Any)</b>
+              <dd>A hand-rated word's setting overrides an existing word's setting.
+              <dd>Otherwise, if <i>either</i> the existing <i>or</i> incoming word has either flag set, it will be
+                (or remain) set.
+            <dt><b>Needs Research:</b>
+              <dd>A hand-rated word's setting overrides an existing word's setting.
+              <dd>Otherwise, if <i>either</i> the existing <i>or</i> incoming word has the research flag set, it will be
+                (or remain) set.
+            <dt><b>Comments:</b>
+              <dd>Comments are never auto-loaded. Hand-rated comments override (or erase, if empty) existing comments.
+          </dl>
+          <p>
+          <div class="alert">Important Note:<p>
+            When manually adding words, from the Add screen, or loading with the "Hand-rated" flag set,
+            the metadata settings that you select <i>will override any existing metadata</i>. This
+            is because "Hand-rated" is essentially a manual override and enforcing any other logic would
+            make it so you could never add or clear certain flags.  Manual changes will <i>always</i> take
+            precedence over any data currently in the database.  This is also why loading word lists with
+            the "Hand-rated" flag can be so dangerous, as it essentially bypasses <i>all</i> reconciling
+            and treats each entry as a manual add.
         </div>
       </ol>
     </div>
@@ -613,7 +647,7 @@
           where "yyyy-mm-dd hh:mm:ss.sss" is the timestamp when the backup was done.
           <div class="alert">It is HIGHLY recommended that you backup your database periodically,
             and especially before any major changes, such as <a href="#load">loading a
-            wordlist</a>.
+            word list</a>.
             By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
             for example) you can <a href="#clear">clear the tables</a> and <a href="#restore">restore
               to your backup file</a>.
