@@ -3,6 +3,7 @@ package mitchell.pete.xwd.dictionary.gui;
 import mitchell.pete.xwd.dictionary.LoadAndExportUtilities;
 import mitchell.pete.xwd.dictionary.Word;
 import mitchell.pete.xwd.dictionary.XDictConfig;
+import mitchell.pete.xwd.dictionary.XDictConfig.RATINGS;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.LengthControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.MethodControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.PatternControl;
@@ -11,12 +12,13 @@ import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.ResearchControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.UsedControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
 import mitchell.pete.xwd.dictionary.db.XDictDB_MySQL;
-import mitchell.pete.xwd.dictionary.XDictConfig.RATINGS;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -145,6 +147,8 @@ public class XDictGui extends JFrame implements WindowListener
     
     private JTextField loadFile            = new JTextField(50);
     private JTextField exportFile            = new JTextField(50);
+
+    private DocumentListener currentWordEntryListener;
 
 
     public XDictGui()
@@ -906,6 +910,8 @@ public class XDictGui extends JFrame implements WindowListener
         resultPaneTabs.addChangeListener(tabListener);
         manualRatingSlider.addChangeListener(manualRatingListener);
         manualRatingSlider2.addChangeListener(manualRatingListener2);
+        wordEntry.getDocument().addDocumentListener(wordEntryListener);
+        currentWordEntryListener = wordEntryListener;
     }
 
     ChangeListener lengthListener = new ChangeListener()
@@ -959,14 +965,19 @@ public class XDictGui extends JFrame implements WindowListener
         {
             JTabbedPane source = (JTabbedPane)e.getSource();
             if (source.getSelectedIndex() == USE_MODE.QUERY.ordinal()) {
+                setChangeListenersToQueryMode();
                 resetQuery(false);
             } else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
+                setChangeListenersToAddMode();
                 resetAdd();
             } else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
+                setChangeListenersToLoadMode();
                 resetLoad();
             } else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
+                setChangeListenersToQueryMode();
                 resetExport();
             } else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
+                setChangeListenersToQueryMode();
                 resetQuery(true);
             }
         }
@@ -1029,6 +1040,39 @@ public class XDictGui extends JFrame implements WindowListener
         }
     };
 
+    DocumentListener wordEntryListener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            // do nothing -- just set this so SOMETHING is always set. simplifies logic
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            // do nothing -- just set this so SOMETHING is always set. simplifies logic
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            // do nothing -- just set this so SOMETHING is always set. simplifies logic
+        }
+    };
+
+    DocumentListener wordEntryListenerAdd = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            resetAdd();
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            resetAdd();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+        }
+    };
+
     ChangeListener notUsedListener = new ChangeListener()
     {
         public void stateChanged(ChangeEvent e)
@@ -1075,8 +1119,6 @@ public class XDictGui extends JFrame implements WindowListener
 
 
     public void resetQuery(boolean rating) {
-
-        setChangeListenersToQueryMode();
 
         // Enable and show appropriate actions buttons
         if (rating) {
@@ -1149,8 +1191,6 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void resetExport() {
 
-        setChangeListenersToQueryMode();
-
         // Enable and show appropriate actions buttons
         queryButton.setEnabled(false);
         queryButton.setVisible(false);
@@ -1207,8 +1247,6 @@ public class XDictGui extends JFrame implements WindowListener
     }
 
     public void resetLoad() {
-
-        setChangeListenersToAddMode();
 
         // Enable and show appropriate actions buttons
         queryButton.setEnabled(false);
@@ -1267,8 +1305,6 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void resetAdd() {
 
-        setChangeListenersToAddMode();
-
         // Enable and show appropriate actions buttons
         queryButton.setEnabled(false);
         queryButton.setVisible(false);
@@ -1310,12 +1346,16 @@ public class XDictGui extends JFrame implements WindowListener
                 usedAny.setSelected(w1.isUsedAny());
                 usedNYT.setSelected(w1.isUsedNYT());
                 notUsed.setSelected(!(w1.isUsedAny() || w1.isUsedNYT()));
+                wordComment.setText(w1.getComment());
+                addButton.setText("Modify");
             }
             else {
                 manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
                 usedAny.setSelected(false);
                 usedNYT.setSelected(false);
                 notUsed.setSelected(true);
+                wordComment.setText("");
+                addButton.setText("Add");
             }
 
         } else {
@@ -1323,6 +1363,8 @@ public class XDictGui extends JFrame implements WindowListener
             usedAny.setSelected(false);
             usedNYT.setSelected(false);
             notUsed.setSelected(true);
+            wordComment.setText("");
+            addButton.setText("Add");
         }
         research.setSelected(false);
         queryMethodManual.setSelected(true);
@@ -1344,11 +1386,14 @@ public class XDictGui extends JFrame implements WindowListener
         usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
         usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
         notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
+        wordEntry.getDocument().removeDocumentListener(currentWordEntryListener);
 
         // Now set listeners as desired
         usedNYT.addChangeListener(usedNYTListener);
         usedAny.addChangeListener(usedAnyListener);
         notUsed.addChangeListener(notUsedListener);
+        wordEntry.getDocument().addDocumentListener(wordEntryListener);
+        currentWordEntryListener = wordEntryListener;
     }
 
     private void setChangeListenersToAddMode()
@@ -1357,11 +1402,30 @@ public class XDictGui extends JFrame implements WindowListener
         usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
         usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
         notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
+        wordEntry.getDocument().removeDocumentListener(currentWordEntryListener);
 
         // Now set listeners as desired
         usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
         usedAny.addChangeListener(usedAnyListenerAddOrLoad);
         notUsed.addChangeListener(notUsedListenerAddorLoad);
+        wordEntry.getDocument().addDocumentListener(wordEntryListenerAdd);
+        currentWordEntryListener = wordEntryListenerAdd;
+    }
+
+    private void setChangeListenersToLoadMode()
+    {
+        // First remove existing listener, so don't double-set...
+        usedNYT.removeChangeListener(usedNYT.getChangeListeners()[0]);
+        usedAny.removeChangeListener(usedAny.getChangeListeners()[0]);
+        notUsed.removeChangeListener(notUsed.getChangeListeners()[0]);
+        wordEntry.getDocument().removeDocumentListener(currentWordEntryListener);
+
+        // Now set listeners as desired
+        usedNYT.addChangeListener(usedNYTListenerAddOrLoad);
+        usedAny.addChangeListener(usedAnyListenerAddOrLoad);
+        notUsed.addChangeListener(notUsedListenerAddorLoad);
+        wordEntry.getDocument().addDocumentListener(wordEntryListener);
+        currentWordEntryListener = wordEntryListener;
     }
 
     /*
@@ -1373,14 +1437,14 @@ public class XDictGui extends JFrame implements WindowListener
     	addResultArea.setText("");
     	String key = wordEntry.getText();
     	int rat = manualRatingSlider2.getValue();
-    	UsedControl useCtrl = UsedControl.ALL;
+    	UsedControl useCtrl = UsedControl.NOT_USED;
     	ResearchControl resCtrl = ResearchControl.NO_RESEARCH;
     	WORD_STATUS status;
 
     	if ( usedNYT.isSelected() )
     		useCtrl = UsedControl.NYT;
     	else if ( usedAny.isSelected() )
-        		useCtrl = UsedControl.ANY;
+        	useCtrl = UsedControl.ANY;
     	
     	if ( research.isSelected() )
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
