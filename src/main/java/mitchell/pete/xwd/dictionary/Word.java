@@ -224,7 +224,30 @@ public class Word
 		return c;
 	}
 
-	public boolean setComment(String comment) 
+/*
+ * Get comment, formatted for SQL query (i.e. handling bad characters).
+ */
+    public String getSQLComment()
+    {
+        String c = (comment == null ? "" : comment);
+        StringBuilder clean = new StringBuilder();
+
+        for ( int i = 0; i < c.length(); ++i )
+        {
+            switch (c.charAt(i)) {
+                case '\'':
+                    clean.append("\\'");
+                    break;
+                default:
+                    clean.append(c.charAt(i));
+            }
+        }
+        return clean.toString();
+    }
+
+
+
+    public boolean setComment(String comment)
 	{
 		if (this.comment != null && this.comment.equals(comment))		// No change
 			return false;
@@ -307,7 +330,7 @@ public class Word
 		return sb.toString();
 	}
 
-	/*
+    /*
 	 * Check character for valid crossword entry (alphanumeric only)
 	 */
 	private static boolean isValid( char c, boolean wildOk )

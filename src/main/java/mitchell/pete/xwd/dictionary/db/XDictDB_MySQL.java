@@ -138,7 +138,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		String query = "insert into " + TABLE_COMMENTS 
 			+ " (ENTRY, COMMENT) values('"
 			+ w.getEntry() + "','"
-			+ w.getComment() + "')";
+			+ w.getSQLComment() + "')";
 		
 		try {
 			stmt.executeUpdate(query);
@@ -152,7 +152,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
         if (w.getComment().isEmpty())
             return;
 		String query = "update " + TABLE_COMMENTS + " set "
-				+ "COMMENT='" + w.getComment() + "' "
+				+ "COMMENT='" + w.getSQLComment() + "' "
 				+ "where ENTRY='" + w.getEntry() + "'";
 			
 			try {

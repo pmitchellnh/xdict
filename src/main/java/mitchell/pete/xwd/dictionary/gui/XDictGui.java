@@ -142,7 +142,6 @@ public class XDictGui extends JFrame implements WindowListener
     private JButton researchButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.RESEARCH));
     private JButton skipButton		    	= new JButton(new RateAction(this, XDictConfig.RATINGS.SKIP));
     private JButton manualButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.MANUAL));
-    private JButton manualButton2		    = new JButton(new RateAction(this, XDictConfig.RATINGS.MANUAL));
     private JTabbedPane resultPaneTabs 		= new JTabbedPane();
     
     private JTextField loadFile            = new JTextField(50);
@@ -594,7 +593,7 @@ public class XDictGui extends JFrame implements WindowListener
         result.add(okButton2);
         result.add(goodButton2);
         result.add(excellentButton2);
-        result.add(manualButton2);
+//        result.add(manualButton2);
         JComponent entryRating = buildGenericCombo2("Manual Rating", manualRatingLabel2, manualRatingSlider2);
         result.add(entryRating);
 
@@ -622,7 +621,7 @@ public class XDictGui extends JFrame implements WindowListener
         okButton2.setEnabled(state);
         goodButton2.setEnabled(state);
         excellentButton2.setEnabled(state);
-        manualButton.setEnabled(state);
+//        manualButton2.setEnabled(state);
     }
 
     private JComponent buildRateDisplayPanel()
@@ -1158,6 +1157,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtMost.setEnabled(true);
         queryRatingEquals.setEnabled(true);
         queryRatingAtLeast.setEnabled(true);
+        wordRatingSlider.setEnabled(true);
         if (rating) {
             wordComment.setEnabled(true);
         } else {
@@ -1223,6 +1223,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtMost.setEnabled(true);
         queryRatingEquals.setEnabled(true);
         queryRatingAtLeast.setEnabled(true);
+        wordRatingSlider.setEnabled(true);
 
         // Set default values for parameters
         queryEntryEquals.setSelected(true);
@@ -1279,6 +1280,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtMost.setEnabled(false);
         queryRatingEquals.setEnabled(true);
         queryRatingAtLeast.setEnabled(false);
+        wordRatingSlider.setEnabled(true);
 
         // Set default values for parameters
         queryEntryEquals.setSelected(true);
@@ -1336,6 +1338,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtMost.setEnabled(false);
         queryRatingEquals.setEnabled(false);
         queryRatingAtLeast.setEnabled(false);
+        wordRatingSlider.setEnabled(false);
 
         // Set default values for parameters
         queryEntryEquals.setSelected(true);
@@ -1348,6 +1351,12 @@ public class XDictGui extends JFrame implements WindowListener
                 notUsed.setSelected(!(w1.isUsedAny() || w1.isUsedNYT()));
                 wordComment.setText(w1.getComment());
                 addButton.setText("Modify");
+                // These are disabled, so just set them to display current values
+                queryLengthEquals.setSelected(true);
+                wordLengthSlider.setValue(w1.length());
+                queryRatingEquals.setSelected(true);
+                wordRatingSlider.setValue(w1.getRating());
+                research.setSelected(w1.needsResearch());
             }
             else {
                 manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
@@ -1356,6 +1365,12 @@ public class XDictGui extends JFrame implements WindowListener
                 notUsed.setSelected(true);
                 wordComment.setText("");
                 addButton.setText("Add");
+                // These are disabled, so just set them to default vals
+                queryLengthAtLeast.setSelected(true);
+                wordLengthSlider.setValue(LENGTH_DEFAULT);
+                queryRatingAtLeast.setSelected(true);
+                wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
+                research.setSelected(false);
             }
 
         } else {
@@ -1365,15 +1380,14 @@ public class XDictGui extends JFrame implements WindowListener
             notUsed.setSelected(true);
             wordComment.setText("");
             addButton.setText("Add");
+            // These are disabled, so just set them to default vals
+            queryLengthAtLeast.setSelected(true);
+            wordLengthSlider.setValue(LENGTH_DEFAULT);
+            queryRatingAtLeast.setSelected(true);
+            wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
+            research.setSelected(false);
         }
-        research.setSelected(false);
         queryMethodManual.setSelected(true);
-
-        // These are disabled, so just set them to default vals
-        queryLengthAtLeast.setSelected(true);
-        wordLengthSlider.setValue(LENGTH_DEFAULT);
-        queryRatingAtLeast.setSelected(true);
-        wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
 
         // Initialize result area and status line
         addResultArea.setText("");
@@ -1450,9 +1464,8 @@ public class XDictGui extends JFrame implements WindowListener
     		resCtrl = ResearchControl.NEEDS_RESEARCH;
     	
     	Word w = new Word.Builder(key).rating((byte)rat).usedAny(useCtrl == UsedControl.ANY).usedNYT(useCtrl == UsedControl.NYT).needsResearch(resCtrl == ResearchControl.NEEDS_RESEARCH).manuallyRated(true).build();
-//    	if (!wordComment.getText().isEmpty()) {
-    		w.setComment(wordComment.getText());    // Need to do this regardless, else cannot delete a comment!
-//    	}
+    	w.setComment(wordComment.getText());    // Need to do this regardless, else cannot delete a comment!
+
     	if (w.length() < 3) {
     		status = WORD_STATUS.ERROR;
     		addResultArea.setText("Error: " + w.getEntry() + " is less than 3 characters.");
@@ -1762,6 +1775,7 @@ public class XDictGui extends JFrame implements WindowListener
         int rat = XDictConfig.getRating(r, w.length());
 
         manualRatingSlider2.setValue(rat);
+        research.setSelected(false);        // clear any "research" flag when selecting a rating
 
     	return status;
     }

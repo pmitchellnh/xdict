@@ -355,7 +355,7 @@
       specify the length, as that will be calculated after the word is cleared of all non-alphanumeric
       characters and converted to uppercase.  The default value for the Crossword Use control is "Not Used",
       as typically that is the case when adding new words manually, but you can change this value, add
-      a comment, or select or designate a rating value (default preset is "OK"), by setting them on the
+      a comment, or select or designate a rating value (default preset is "OK" value), by setting them on the
       screen before pressing the "Add" button.
       <p>
       Note that, unlike in the Rating process, pressing a rating button will <i>not</i> immediately cause
@@ -365,15 +365,20 @@
       <p>
       <img src="./images/AddScreen2.png" alt="Add Screen" width="700px"><p>
       Adding an entry that already exists will not fail; it will modify the existing word with the parameters
-      specified.  See "Important Tip" below.
-      <div class="alert">Important Tip: <p>
-      It is a <b>very good</b> idea to first query directly for the entry to see if already exists.  Doing so and
-      then switching <i>directly</i> to the Add screen will
-      preserve the Entry and Comment fields, as well as preload the appropriate Crossword
-      Use fields. It will also preset the current rating into the Manual Rating slider of the Add screen.<p>
-      If you go to the add field directly and the entry already exists, you risk overwriting existing
-      information when the record is modified.
-    </div><p>
+      specified.  In fact, as you are typing a word on the Add screen the software will query and update
+      the existing parameters if that word (or those letters as they are currently typed) alreadty exists.
+      It also changes the "Add" button text to "Modify".  This is done to prevent accidentally overwriting
+      and erasing metadata from words that already exist without having to do a manual query first -- if
+      the word exists, then the data on the screen matches what is there.  Of course, you can then change
+      any of this data and press the "modify" button to override it<sup>*</sup>.
+      <p>
+      <img src="./images/AddScreen3.png" alt="Add Screen" width="700px"><p>
+      <sup>*</sup>Obviously you cannot change length, as that is inherent to the word. Also, the Rating
+      field in the upper section displays the existing rating -- changes to the rating are made with
+      the rating buttons or Manual Rating slider.  This way, the existing rating will continue to
+      be displayed, even while hitting rating buttons, until you have pressed the Modify button (or
+      have left or changed the screen).
+      <p>
     </div>
     <div id="rate"><h2><li>Rating Words</h2>
       <ol type='A'>
