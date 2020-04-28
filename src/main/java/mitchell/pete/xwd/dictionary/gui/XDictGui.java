@@ -147,173 +147,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JTextField exportFile            = new JTextField(50);
 
 
-
-    ChangeListener lengthListener = new ChangeListener()
-    {
-    	public void stateChanged(ChangeEvent e)
-    	{
-    		JSlider source = (JSlider)e.getSource();
-    	    wordLengthLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
-    	    nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-
-        }
-    };
-    ChangeListener ratingListener = new ChangeListener()
-    {
-    	public void stateChanged(ChangeEvent e)
-    	{
-    		JSlider source = (JSlider)e.getSource();
-    	    wordRatingLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
-    	    nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-    	}
-    };
-    ChangeListener manualRatingListener = new ChangeListener()
-    {
-    	public void stateChanged(ChangeEvent e)
-    	{
-    		JSlider source = (JSlider)e.getSource();
-    	    manualRatingLabel.setText(PAD + String.valueOf(source.getValue()) + PAD);
-    	}
-    };
-
-    ChangeListener manualRatingListener2 = new ChangeListener()
-    {
-        public void stateChanged(ChangeEvent e)
-        {
-            JSlider source = (JSlider)e.getSource();
-            manualRatingLabel2.setText(PAD + String.valueOf(source.getValue()) + PAD);
-        }
-    };
-
-    ChangeListener tabListener = new ChangeListener()
-    {
-    	public void stateChanged(ChangeEvent e)
-    	{
-    		JTabbedPane source = (JTabbedPane)e.getSource();
-    		if (source.getSelectedIndex() == USE_MODE.QUERY.ordinal()) {
-    			resetQuery(false);
-    		} else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
-                resetAdd();
-			} else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
-                resetLoad();
-			} else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
-                resetExport();
-			} else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
-    			resetQuery(true);
-			}
-    	}
-    };
-    ChangeListener usedAnyListener = new ChangeListener()
-    {
-    	public void stateChanged(ChangeEvent e)
-    	{
-    	    nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-    	}
-    };
-    ChangeListener usedAnyListenerAddOrLoad = new ChangeListener()
-    {
-        public void stateChanged(ChangeEvent e)
-        {
-            JCheckBox source = (JCheckBox)e.getSource();
-            if (!source.isSelected()) {
-                usedNYT.setSelected(false);             // If not selected, then NYT cannot be selected
-                notUsed.setSelected(true);              // If not any, then must be "Not Used"
-            } else {
-                notUsed.setSelected(false);             // If selected, Not Used cannot be selected
-            }
-            nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-        }
-    };
-    ChangeListener usedNYTListener = new ChangeListener()
-    {
-    	public void stateChanged(ChangeEvent e)
-    	{
-            nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-    	}
-    };
-    ChangeListener usedNYTListenerAddOrLoad = new ChangeListener()
-    {
-        public void stateChanged(ChangeEvent e)
-        {
-            JCheckBox source = (JCheckBox)e.getSource();
-            if (source.isSelected()) {
-                usedAny.setSelected(true);              // If selected, then "Any" must also be selected
-                notUsed.setSelected(false);             // If selected, "Not Used" cannot be selected
-            }
-
-            nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-        }
-    };
-
-    ChangeListener notUsedListener = new ChangeListener()
-    {
-        public void stateChanged(ChangeEvent e)
-        {
-            nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-        }
-    };
-
-    ChangeListener notUsedListenerAddorLoad = new ChangeListener()
-    {
-        public void stateChanged(ChangeEvent e)
-        {
-            JCheckBox source = (JCheckBox)e.getSource();
-            if (source.isSelected()) {
-                usedAny.setSelected(false);             // If selected, then "Used Any" and "Used NYT" cannot be
-                usedNYT.setSelected(false);
-            } else {
-                usedAny.setSelected(true);              // If delselected, assume "Used Any"
-            }
-
-            nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-        }
-    };
-
-    ChangeListener queryChangedListener = new ChangeListener()
-    {
-    	public void stateChanged(ChangeEvent e)
-    	{
-    	    nextButton.setEnabled(false);
-            if (queryButton.isEnabled())
-                getRootPane().setDefaultButton(queryButton);
-            else if (rateQueryButton.isEnabled())
-                getRootPane().setDefaultButton(rateQueryButton);
-    	}
-    };
-
-    public XDictGui() 
+    public XDictGui()
     {
         this.setSize(new Dimension(XDictConfig.APP_WIDTH, XDictConfig.APP_HEIGHT));
         this.setTitle("XDict");
@@ -1047,6 +881,9 @@ public class XDictGui extends JFrame implements WindowListener
         manualRatingSlider2.setPaintLabels(true);
     }
 
+    /*
+     ************  GUI CONTROL CHANGE LISTENERS ************
+     */
     public void setupListeners()
     {
         wordLengthSlider.addChangeListener(lengthListener);
@@ -1070,6 +907,171 @@ public class XDictGui extends JFrame implements WindowListener
         manualRatingSlider.addChangeListener(manualRatingListener);
         manualRatingSlider2.addChangeListener(manualRatingListener2);
     }
+
+    ChangeListener lengthListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JSlider source = (JSlider)e.getSource();
+            wordLengthLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+
+        }
+    };
+    ChangeListener ratingListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JSlider source = (JSlider)e.getSource();
+            wordRatingLabel.setText( PAD + String.valueOf(source.getValue()) + PAD);
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+    ChangeListener manualRatingListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JSlider source = (JSlider)e.getSource();
+            manualRatingLabel.setText(PAD + String.valueOf(source.getValue()) + PAD);
+        }
+    };
+
+    ChangeListener manualRatingListener2 = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JSlider source = (JSlider)e.getSource();
+            manualRatingLabel2.setText(PAD + String.valueOf(source.getValue()) + PAD);
+        }
+    };
+
+    ChangeListener tabListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JTabbedPane source = (JTabbedPane)e.getSource();
+            if (source.getSelectedIndex() == USE_MODE.QUERY.ordinal()) {
+                resetQuery(false);
+            } else if (source.getSelectedIndex() == USE_MODE.ADD.ordinal()) {
+                resetAdd();
+            } else if (source.getSelectedIndex() == USE_MODE.LOAD.ordinal()) {
+                resetLoad();
+            } else if (source.getSelectedIndex() == USE_MODE.EXPORT.ordinal()) {
+                resetExport();
+            } else if (source.getSelectedIndex() == USE_MODE.RATE.ordinal()) {
+                resetQuery(true);
+            }
+        }
+    };
+    ChangeListener usedAnyListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+    ChangeListener usedAnyListenerAddOrLoad = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JCheckBox source = (JCheckBox)e.getSource();
+            if (!source.isSelected()) {
+                usedNYT.setSelected(false);             // If not selected, then NYT cannot be selected
+                notUsed.setSelected(true);              // If not any, then must be "Not Used"
+            } else {
+                notUsed.setSelected(false);             // If selected, Not Used cannot be selected
+            }
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+    ChangeListener usedNYTListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+    ChangeListener usedNYTListenerAddOrLoad = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JCheckBox source = (JCheckBox)e.getSource();
+            if (source.isSelected()) {
+                usedAny.setSelected(true);              // If selected, then "Any" must also be selected
+                notUsed.setSelected(false);             // If selected, "Not Used" cannot be selected
+            }
+
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+
+    ChangeListener notUsedListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+
+    ChangeListener notUsedListenerAddorLoad = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            JCheckBox source = (JCheckBox)e.getSource();
+            if (source.isSelected()) {
+                usedAny.setSelected(false);             // If selected, then "Used Any" and "Used NYT" cannot be
+                usedNYT.setSelected(false);
+            } else {
+                usedAny.setSelected(true);              // If delselected, assume "Used Any"
+            }
+
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
+
+    ChangeListener queryChangedListener = new ChangeListener()
+    {
+        public void stateChanged(ChangeEvent e)
+        {
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
+        }
+    };
 
 
     public void resetQuery(boolean rating) {
