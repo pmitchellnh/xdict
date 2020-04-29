@@ -2,7 +2,7 @@ package mitchell.pete.xwd.dictionary.db;
 
 import mitchell.pete.xwd.dictionary.Word;
 import mitchell.pete.xwd.dictionary.XDictConfig;
-import mitchell.pete.xwd.dictionary.reconciler.Reconciler1;
+import mitchell.pete.xwd.dictionary.reconciler.Reconciler;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,7 +19,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	private String TABLE_WORDS = "WORDS" + XDictConfig.DB_MODE_SUFFIX;
 	private String TABLE_COMMENTS = "COMMENTS" + XDictConfig.DB_MODE_SUFFIX;
 
-	private Reconciler1 reconciler = new Reconciler1();
+	private Reconciler reconciler = new Reconciler();
 
 	// jdbc connection
 	private Connection conn = null;

@@ -5,7 +5,7 @@ import mitchell.pete.xwd.dictionary.Word;
 
 public class Reconciler1Test extends TestCase 
 {
-	public Reconciler1 r = new Reconciler1();
+	public Reconciler r = new Reconciler();
 	
 	public static Word w1 = new Word.Builder("Foo")
 									.rating((byte)50)

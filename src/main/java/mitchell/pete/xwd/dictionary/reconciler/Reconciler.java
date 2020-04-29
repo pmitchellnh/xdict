@@ -2,7 +2,7 @@ package mitchell.pete.xwd.dictionary.reconciler;
 
 import mitchell.pete.xwd.dictionary.Word;
 
-public class Reconciler1 implements ReconcilerInterface
+public class Reconciler implements ReconcilerInterface
 {
 	
 	/**
