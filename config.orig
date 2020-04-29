@@ -36,6 +36,15 @@ LOAD_FILE_DELIMITERS=[:; ]
 # parameter has been parsed.  As such, '=', '[' and ']' cannot be used as a value.
 EXPORT_FILE_DELIMITER=[;]
 
+# EXPORT_DEFAULT_MINUMUM_RATING is the default minimum rating in the Export screen. This is
+# set whenever you navigate to the Export tab or execute the "View | Reset Query" command
+# while on the Export screen. This value can be changed manually before actually exporting,
+# but is set to your preferred default as a convenience.  Typically, you want to set this at
+# a value below which you would NEVER want to use a word in your puzzles.  Setting this at 0
+# will export your entire database (assuming no other parameter contraints), however bogging down your
+# dictionary with words you will never use just makes the fill process slower and more cumbersome.
+EXPORT_DEFAULT_MINIMUM_RATING=10
+
 # LOAD_FILE_DEFAULT_DIR is the default directory from which to load word lists. It
 # is not necessary to enter this, but doing so will preload the directory name in the
 # Load screen.  Even if set, this can be overwritten manually.  It is merely a convenience.

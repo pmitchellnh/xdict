@@ -2,7 +2,6 @@ package mitchell.pete.xwd.dictionary.gui;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.Date;
 
 public class RestoreAction extends AbstractAction implements Runnable
 {
@@ -26,13 +25,12 @@ public class RestoreAction extends AbstractAction implements Runnable
     {
         try
         {
-            gui.getStatusLine().showInfo("Processing restore...");
-            Date start = new Date();
+            new Thread() {
+                public void run() {
+                    gui.doRestore();
+                }
+            }.start();
 
-            String status = gui.doRestore();
-
-            Date stop = new Date();
-            gui.getStatusLine().showInfo( status + " (" + ((stop.getTime() - start.getTime()) / (double) 1000) + " secs)." );
         } catch (Exception e) {
             JOptionPane.showMessageDialog(gui, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
         }

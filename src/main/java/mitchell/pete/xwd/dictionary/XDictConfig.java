@@ -16,6 +16,7 @@ public class XDictConfig {
     public static String EXPORT_FILE_DELIMITER = ";";
     public static String LOAD_FILE_DEFAULT_DIR = "";
     public static String EXPORT_FILE_DEFAULT_DIR = "";
+    public static int EXPORT_DEFAULT_MINIMUM_RATING = 0;
     public static int APP_WIDTH = 1300;     // value in pixels
     public static int APP_HEIGHT = 850;     // value in pixels
 
@@ -108,6 +109,9 @@ public class XDictConfig {
             System.out.println("Error reading file.");
             System.out.println(e.toString());
             return false;
+        } catch (NumberFormatException e) {
+            System.out.println(e.toString());
+            return false;
         }
         try {
             br.close();
@@ -124,7 +128,7 @@ public class XDictConfig {
         return true;
     }
 
-    private static void parseConfigLine(String line, String delims)
+    private static void parseConfigLine(String line, String delims) throws NumberFormatException
     {
         StringTokenizer st = new StringTokenizer(line, delims, false);
         String key = "";
@@ -166,102 +170,138 @@ public class XDictConfig {
                 EXPORT_FILE_DEFAULT_DIR = value;
                 System.out.println("EXPORT_FILE_DEFAULT_DIR: " + EXPORT_FILE_DEFAULT_DIR);
             }
+        } else if (key.equals("EXPORT_DEFAULT_MINIMUM_RATING")) {
+            System.out.print("EXPORT_DEFAULT_MINIMUM_RATING: ");
+            EXPORT_DEFAULT_MINIMUM_RATING = parseRating(value);
+            System.out.println(EXPORT_DEFAULT_MINIMUM_RATING);
         } else if (key.equals("APP_WIDTH")) {
+            System.out.print("App Width: ");
             APP_WIDTH = parsePixels(value);
-            System.out.println("App Width: " + APP_WIDTH);
+            System.out.println(APP_WIDTH);
         } else if (key.equals("APP_HEIGHT")) {
+            System.out.print("App Height: ");
             APP_HEIGHT = parsePixels(value);
-            System.out.println("App Height: " + APP_HEIGHT);
+            System.out.println(APP_HEIGHT);
         } else if (key.equals("TERRIBLE")) {
+            System.out.print("TERRIBLE: ");
             TERRIBLE = parseRating(value);
-            System.out.println("TERRIBLE: " + TERRIBLE);
+            System.out.println(TERRIBLE);
         } else if (key.equals("TERRIBLE_3")) {
+            System.out.print("TERRIBLE_3: ");
             TERRIBLE_3 = parseRating(value);
-            System.out.println("TERRIBLE_3: " + TERRIBLE_3);
+            System.out.println(TERRIBLE_3);
         } else if (key.equals("TERRIBLE_4")) {
+            System.out.print("TERRIBLE_4: ");
             TERRIBLE_4 = parseRating(value);
-            System.out.println("TERRIBLE_4: " + TERRIBLE_4);
+            System.out.println(TERRIBLE_4);
         } else if (key.equals("TERRIBLE_5")) {
+            System.out.print("TERRIBLE_5: ");
             TERRIBLE_5 = parseRating(value);
-            System.out.println("TERRIBLE_5: " + TERRIBLE_5);
+            System.out.println(TERRIBLE_5);
         } else if (key.equals("TERRIBLE_6")) {
+            System.out.print("TERRIBLE_6: ");
             TERRIBLE_6 = parseRating(value);
-            System.out.println("TERRIBLE_6: " + TERRIBLE_6);
+            System.out.println(TERRIBLE_6);
         } else if (key.equals("POOR")) {
+            System.out.print("POOR: ");
             POOR = parseRating(value);
-            System.out.println("POOR: " + POOR);
+            System.out.println(POOR);
         } else if (key.equals("POOR_3")) {
+            System.out.print("POOR_3: ");
             POOR_3 = parseRating(value);
-            System.out.println("POOR_3: " + POOR_3);
+            System.out.println(POOR_3);
         } else if (key.equals("POOR_4")) {
+            System.out.print("POOR_4: ");
             POOR_4 = parseRating(value);
-            System.out.println("POOR_4: " + POOR_4);
+            System.out.println(POOR_4);
         } else if (key.equals("POOR_5")) {
+            System.out.print("POOR_5: ");
             POOR_5 = parseRating(value);
-            System.out.println("POOR_5: " + POOR_5);
+            System.out.println(POOR_5);
         } else if (key.equals("POOR_6")) {
+            System.out.print("POOR_6: ");
             POOR_6 = parseRating(value);
-            System.out.println("POOR_6: " + POOR_6);
+            System.out.println(POOR_6);
         } else if (key.equals("LAME")) {
+            System.out.print("LAME: ");
             LAME = parseRating(value);
-            System.out.println("LAME: " + LAME);
+            System.out.println(LAME);
         } else if (key.equals("LAME_3")) {
+            System.out.print("LAME_3: ");
             LAME_3 = parseRating(value);
-            System.out.println("LAME_3: " + LAME_3);
+            System.out.println(LAME_3);
         } else if (key.equals("LAME_4")) {
+            System.out.print("LAME_4: ");
             LAME_4 = parseRating(value);
-            System.out.println("LAME_4: " + LAME_4);
+            System.out.println(LAME_4);
         } else if (key.equals("LAME_5")) {
+            System.out.print("LAME_5: ");
             LAME_5 = parseRating(value);
-            System.out.println("LAME_5: " + LAME_5);
+            System.out.println(LAME_5);
         } else if (key.equals("LAME_6")) {
+            System.out.print("LAME_6: ");
             LAME_6 = parseRating(value);
-            System.out.println("LAME_6: " + LAME_6);
+            System.out.println(LAME_6);
         } else if (key.equals("OK")) {
+            System.out.print("OK: ");
             OK = parseRating(value);
-            System.out.println("OK: " + OK);
+            System.out.println(OK);
         } else if (key.equals("OK_3")) {
+            System.out.print("OK_3: ");
             OK_3 = parseRating(value);
-            System.out.println("OK_3: " + OK_3);
+            System.out.println(OK_3);
         } else if (key.equals("OK_4")) {
+            System.out.print("OK_4: ");
             OK_4 = parseRating(value);
-            System.out.println("OK_4: " + OK_4);
+            System.out.println(OK_4);
         } else if (key.equals("OK_5")) {
+            System.out.print("OK_5: ");
             OK_5 = parseRating(value);
-            System.out.println("OK_5: " + OK_5);
+            System.out.println(OK_5);
         } else if (key.equals("OK_6")) {
+            System.out.print("OK_6: ");
             OK_6 = parseRating(value);
-            System.out.println("OK_6: " + OK_6);
+            System.out.println(OK_6);
         } else if (key.equals("GOOD")) {
+            System.out.print("GOOD: ");
             GOOD = parseRating(value);
-            System.out.println("GOOD: " + GOOD);
+            System.out.println(GOOD);
         } else if (key.equals("GOOD_3")) {
+            System.out.print("GOOD_3: ");
             GOOD_3 = parseRating(value);
-            System.out.println("GOOD_3: " + GOOD_3);
+            System.out.println(GOOD_3);
         } else if (key.equals("GOOD_4")) {
+            System.out.print("GOOD_4: ");
             GOOD_4 = parseRating(value);
-            System.out.println("GOOD_4: " + GOOD_4);
+            System.out.println(GOOD_4);
         } else if (key.equals("GOOD_5")) {
+            System.out.print("GOOD_5: ");
             GOOD_5 = parseRating(value);
-            System.out.println("GOOD_5: " + GOOD_5);
+            System.out.println(GOOD_5);
         } else if (key.equals("GOOD_6")) {
+            System.out.print("GOOD_6: ");
             GOOD_6 = parseRating(value);
-            System.out.println("GOOD_6: " + GOOD_6);
+            System.out.println(GOOD_6);
         } else if (key.equals("EXCELLENT")) {
+            System.out.print("EXCELLENT: ");
             EXCELLENT = parseRating(value);
-            System.out.println("EXCELLENT: " + EXCELLENT);
+            System.out.println(EXCELLENT);
         } else if (key.equals("EXCELLENT_3")) {
+            System.out.print("EXCELLENT_3: ");
             EXCELLENT_3 = parseRating(value);
-            System.out.println("EXCELLENT_3: " + EXCELLENT_3);
+            System.out.println(EXCELLENT_3);
         } else if (key.equals("EXCELLENT_4")) {
+            System.out.print("EXCELLENT_4: ");
             EXCELLENT_4 = parseRating(value);
-            System.out.println("EXCELLENT_4: " + EXCELLENT_4);
+            System.out.println(EXCELLENT_4);
         } else if (key.equals("EXCELLENT_5")) {
+            System.out.print("EXCELLENT_5: ");
             EXCELLENT_5 = parseRating(value);
-            System.out.println("EXCELLENT_5: " + EXCELLENT_5);
+            System.out.println(EXCELLENT_5);
         } else if (key.equals("EXCELLENT_6")) {
+            System.out.print("EXCELLENT_6: ");
             EXCELLENT_6 = parseRating(value);
-            System.out.println("EXCELLENT_6: " + EXCELLENT_6);
+            System.out.println(EXCELLENT_6);
         } else {
             System.out.println("Unhandled parameter: " + key + "=" + value);
         }
@@ -269,7 +309,8 @@ public class XDictConfig {
         return;
     }
 
-    private static int parseRating(String s) {
+    private static int parseRating(String s) throws NumberFormatException
+    {
         int rat = 0;
         if (!s.isEmpty()) {
             rat = Integer.valueOf(s);
@@ -280,7 +321,8 @@ public class XDictConfig {
     }
 
     // Make sure pixel values are at least 100, so the app is visibile
-    private static int parsePixels(String s) {
+    private static int parsePixels(String s) throws NumberFormatException
+    {
         int val = 100;
         if (!s.isEmpty()) {
             val = Integer.valueOf(s);

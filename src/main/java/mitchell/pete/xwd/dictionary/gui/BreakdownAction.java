@@ -20,7 +20,11 @@ public class BreakdownAction extends AbstractAction
     {
         if ( gui != null )
         {
-            gui.getRatingBreakdown();
+            new Thread() {
+                public void run() {
+                    gui.getRatingBreakdown();
+                }
+            }.start();
         }
     }
 }

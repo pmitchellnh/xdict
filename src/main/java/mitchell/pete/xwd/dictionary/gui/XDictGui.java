@@ -51,7 +51,6 @@ public class XDictGui extends JFrame implements WindowListener
     private static int LENGTH_DEFAULT = 3;
     private static int ADD_RATING_DEFAULT = XDictConfig.OK;
     private static int QUERY_RATING_DEFAULT = 1;
-    private static int EXPORT_RATING_DEFAULT = 10;
     private static int LOAD_RATING_DEFAULT = XDictConfig.OK;
 
     // Use this list to drive the manual rating process.
@@ -1231,7 +1230,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryLengthAtLeast.setSelected(true);
         wordLengthSlider.setValue(LENGTH_DEFAULT);
         queryRatingAtLeast.setSelected(true);
-        wordRatingSlider.setValue(EXPORT_RATING_DEFAULT);
+        wordRatingSlider.setValue(XDictConfig.EXPORT_DEFAULT_MINIMUM_RATING);
         usedAny.setSelected(true);
         usedNYT.setSelected(true);
         notUsed.setSelected(true);
@@ -1780,7 +1779,7 @@ public class XDictGui extends JFrame implements WindowListener
     	return status;
     }
     
-    public String doLoad()
+    public void doLoad()
     {
     	String filename = loadFile.getText();
     	loadResultArea.setText("Loading from file: " + filename + "\n");
@@ -1795,7 +1794,7 @@ public class XDictGui extends JFrame implements WindowListener
 		} catch (FileNotFoundException e) {
 			loadResultArea.append("File not found.\n");
 			loadResultArea.append(e.toString());
-			return "Error.";
+			return;
 		}
     	String line;
     	int count = 0;
@@ -1804,7 +1803,9 @@ public class XDictGui extends JFrame implements WindowListener
 
         loadResultArea.append("PLEASE WAIT...\n");
         this.setEnabled(false);     // disable gui during load process
-    	try {
+        Date startTime = new Date();
+
+        try {
 			while ((line = br.readLine()) != null) {
 				if (line.length() < 3) {
 					continue;
@@ -1849,13 +1850,16 @@ public class XDictGui extends JFrame implements WindowListener
 			loadResultArea.append(e.toString());
 		}
         loadResultArea.append("Loading complete.\n");
+        Date stopTime = new Date();
+
+        loadResultArea.append(count + " words processed. \nNew: " + newCount + "\nModified: " + existCount + "\nDuplicate: " + dupCount + "\nSkipped: " + skipCount + "\n");
+        getStatusLine().showInfo("Load complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
         this.setEnabled(true);
 
-        String retStatus = "" + count + " words processed. New: " + newCount + ", Modified: " + existCount + ", Duplicate: " + dupCount + " (" + skipCount + " skipped.)";
-    	return retStatus;
+    	return;
     }
 
-    public String doRestore()
+    public void doRestore()
     {
         resultPaneTabs.setSelectedIndex(3);     // set to load result pane to display results
         if (!loadFile.getText().startsWith("backups/"))
@@ -1866,13 +1870,13 @@ public class XDictGui extends JFrame implements WindowListener
             loadResultArea.setText("Can only restore files starting with \"backups/bkup\"; Filename: [" + filename + "]\n");
             loadResultArea.append("Enter the backup file name in the File to Load field and then retry the Restore action.\n");
             loadResultArea.append("WARNING: Do NOT restore with the LOAD button, as any non-rating data will not be restored!\n");
-            return "Error.";
+            return;
         }
         if (filename.contains(XDictConfig.TEST_MODE_SUFFIX) && !XDictConfig.testMode) {
             loadResultArea.setText("WARNING: You are trying to restore a TEST MODE database but are NOT in TEST MODE!!!\n");
             loadResultArea.append("If you really mean to do this, you must rename the backup file to remove the " + XDictConfig.TEST_MODE_SUFFIX + "from the name.\n");
             loadResultArea.append("This is for your own safety.\n");
-            return "Error.";
+            return;
         }
         loadResultArea.setText("Restoring from file: " + filename + "\n");
         BufferedReader br;
@@ -1882,7 +1886,7 @@ public class XDictGui extends JFrame implements WindowListener
         } catch (FileNotFoundException e) {
             loadResultArea.append("File not found.\n");
             loadResultArea.append(e.toString());
-            return "Error.";
+            return;
         }
         String line;
         int count = 0;
@@ -1890,6 +1894,7 @@ public class XDictGui extends JFrame implements WindowListener
 
         loadResultArea.append("PLEASE WAIT...\n");
         this.setEnabled(false);     // disable GUI during processing
+        Date startTime = new Date();
 
         try {
             while ((line = br.readLine()) != null) {
@@ -1916,15 +1921,19 @@ public class XDictGui extends JFrame implements WindowListener
             loadResultArea.append("Error closing file.\n");
             loadResultArea.append(e.toString());
         }
-        loadResultArea.append("Restore complete.\n");
+        loadResultArea.append("Restore complete: "  + count + " words processed.\n");
+
+        Date stopTime = new Date();
+        getStatusLine().showInfo("Restore complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
         this.setEnabled(true);      // re-enable GUI
 
-        String retStatus = "" + count + " words processed.";
-        return retStatus;
+        return;
     }
 
-    public String doExport(boolean isBackup)
+    public void doExport(boolean isBackup)
     {
+        resultPaneTabs.setSelectedIndex(4);     // set to query result pane to display results
+
     	String filename = exportFile.getText();
     	if (isBackup) {
     		Timestamp t = new Timestamp(new Date().getTime());
@@ -1941,10 +1950,13 @@ public class XDictGui extends JFrame implements WindowListener
 		} catch (IOException e) {
 			exportResultArea.append("Error opening file: " + filename + ".\n");
 			exportResultArea.append(e.toString());
-			return "Error.";
+			return;
 		}
 
-    	ArrayList<Word> list = null;
+        exportResultArea.setText((isBackup ? "Backing up to file: " : "Exporting to file: ") + filename + "\n");
+
+
+        ArrayList<Word> list = null;
     	int resultSetSize = 0;
     	
     	String key = (isBackup ? "" : wordEntry.getText());
@@ -2006,8 +2018,10 @@ public class XDictGui extends JFrame implements WindowListener
 
         exportResultArea.append("PLEASE WAIT...\n");
         this.setEnabled(false);
-    	
-    	for (int start = 0; start < resultSetSize; start += QUERY_LIMIT) {
+        Date startTime = new Date();
+
+
+        for (int start = 0; start < resultSetSize; start += QUERY_LIMIT) {
 			getStatusLine().showInfo("Processing " + (isBackup ? "backup..." : "export...") + start + " records processed.");
 
         	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, start, QUERY_LIMIT, false);
@@ -2022,7 +2036,7 @@ public class XDictGui extends JFrame implements WindowListener
 				} catch (IOException e) {
 					exportResultArea.append("Error writing to file: " + filename + ".\n");
 					exportResultArea.append(e.toString());
-					return "Error.";
+					return;
 				}
 			}
     	}
@@ -2031,12 +2045,14 @@ public class XDictGui extends JFrame implements WindowListener
 		} catch (IOException e) {
 			exportResultArea.append("Error closing file: " + filename + ".\n");
 			exportResultArea.append(e.toString());
-			return "Error.";
+			return;
 		}
-        exportResultArea.append("Export complete.\n");
+        exportResultArea.append((isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries.\n"));
+        Date stopTime = new Date();
+        getStatusLine().showInfo((isBackup ? "Backup " : "Export ") + " complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
         this.setEnabled(true);
 
-        return (isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries");
+        return;
     }
 
     public void getDatabaseInfo() {
@@ -2106,7 +2122,8 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void getRatingProgress() {
         resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
-        queryResultArea.setText("Rating Progress:" + "\n");
+
+        this.setEnabled(false);     // disable UI during processing
 
         int totalRated = 0;
         int totalUnrated = 0;
@@ -2122,6 +2139,8 @@ public class XDictGui extends JFrame implements WindowListener
             patCtrl = PatternControl.STARTSWITH;
         else if ( queryEntryContains.isSelected() )
             patCtrl = PatternControl.CONTAINS;
+
+        queryResultArea.setText("Rating Progress:" + "\n");
 
         for ( int length = 3; length < 26; length++ ) {
 
@@ -2146,12 +2165,16 @@ public class XDictGui extends JFrame implements WindowListener
         String formattedPercent = df.format(percent);
         queryResultArea.append("TOTAL:   Total: " + (totalRated + totalUnrated) + "  Rated: " + totalRated + "  Unrated: " + totalUnrated + "  Percent: " + formattedPercent + "\n");
 
+        this.setEnabled(true);      // re-enable UI
+
         return;
     }
 
     public void getRatingBreakdown() {
         resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
-        queryResultArea.setText("Rating Breakdown:" + "\n");
+
+        this.setEnabled(false);     // disable UI during processing
+
 
         int totalHorrible = 0;   // 0 to 25
         int totalBad = 0;        // 26 to 50
@@ -2170,6 +2193,8 @@ public class XDictGui extends JFrame implements WindowListener
             patCtrl = PatternControl.STARTSWITH;
         else if ( queryEntryContains.isSelected() )
             patCtrl = PatternControl.CONTAINS;
+
+        queryResultArea.setText("Rating Breakdown:" + "\n");
 
         for ( int length = 3; length < 26; length++ ) {
 
@@ -2228,6 +2253,7 @@ public class XDictGui extends JFrame implements WindowListener
                 "  (61-80): " + totalGood + " (" + formattedGoodPercent + ") " +
                 "  (81-100): " + totalGreat + " (" + formattedGreatPercent + ")\n");
 
+        this.setEnabled(true);      // re-enable UI
         return;
     }
 
@@ -2279,7 +2305,7 @@ public class XDictGui extends JFrame implements WindowListener
 	@Override
 	public void windowOpened(WindowEvent e) {
 	}
-    
+
     /*
      ************  MAIN ************
      */

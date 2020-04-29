@@ -1,9 +1,7 @@
 package mitchell.pete.xwd.dictionary.gui;
 
-import java.awt.event.*;
-import java.util.Date;
-
 import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 public class LoadAction extends AbstractAction implements Runnable
 {
@@ -27,13 +25,12 @@ public class LoadAction extends AbstractAction implements Runnable
     {
     	try
     	{
-    		gui.getStatusLine().showInfo("Processing load...");
-    		Date start = new Date();
-    		
-    		String status = gui.doLoad();
-    		
-    		Date stop = new Date();
-    		gui.getStatusLine().showInfo( status + " (" + ((stop.getTime() - start.getTime()) / (double) 1000) + " secs)." );
+            new Thread() {
+                public void run() {
+                    gui.doLoad();
+                }
+            }.start();
+
     	} catch (Exception e) {
     		JOptionPane.showMessageDialog(gui, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE );
     	}

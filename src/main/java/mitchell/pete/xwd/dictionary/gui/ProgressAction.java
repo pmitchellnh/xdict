@@ -20,7 +20,11 @@ public class ProgressAction extends AbstractAction
     {
         if ( gui != null )
         {
-            gui.getRatingProgress();
+            new Thread() {
+                public void run() {
+                    gui.getRatingProgress();
+                }
+            }.start();
         }
     }
 }

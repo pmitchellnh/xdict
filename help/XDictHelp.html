@@ -9,7 +9,7 @@
     <ol type='I'>
       <h4><li><a href="#overview">Overview</a></h4>
       <h4><li><a href="#features">Features</a></h4>
-      <h4><li><a href="#prequisites">Prerequisites</a></h4>
+      <h4><li><a href="#prerequisites">Prerequisites</a></h4>
         <div><ol type='A'>
           <li><a href="#mysqldb">Install MySQL Database</a>
           <li><a href="#javaruntime">Install Java Runtime</a>
@@ -24,7 +24,7 @@
       <h4><li><a href="#screen">A Tour of the User Interface</a></h4>
         <div><ol type='A'>
           <li><a href="#menu">Menu Bar Commands</a>
-          <li><a href="#parameters">Parameter Settings</a>
+          <li><a href="#parameters">Metadata Parameter Settings</a>
           <li><a href="#actions">Action Buttons</a>
           <li><a href="#modes">Action Mode Tabs</a>
           <li><a href="#results">Display Area</a>
@@ -45,7 +45,7 @@
       <h4><li><a href="#add">Adding and Modifying Words</a></h4>
       <h4><li><a href="#rate">Rating Words</a></h4>
         <div><ol type='A'>
-          <li><a href="#ratingoverview">Overview and Theory</a>
+          <li><a href="#ratingoverview">Rating Overview and Theory</a>
           <li><a href="#ratingprocess">The Rating Process</a>
           <li><a href="#research">Research and Skip</a>
         </ol></div>
@@ -143,17 +143,49 @@
         Before you start, copy (or rename, if you don't care to save the original) the "config.orig"
         file to "config.txt". Then modify the config.txt file as desired.<p>
         Parameters in the config.txt file can be used to customize certain parameters, as follows:
-        <ul>
-          <li>TEST_MODE: allows you to experiment with test tables without affecting your actual DB
-          <li>APP_WIDTH and APP_HEIGHT: allows you to tweak the default size of the app when it starts
+        <dl>
+          <dt>TEST_MODE:
+            <dd>allows you to experiment with test tables without affecting your actual DB
+          <dt>APP_WIDTH and APP_HEIGHT:
+            <dd>allows you to tweak the default size of the app when it starts
             (this can be useful if the resolution of your screen causes the UI to look suboptimal)
-          <li>LOAD_FILE_DELIMITERS: allows you to specify the format of rated word lists you import
-          <li>EXPORT_FILE_DELIMITER: allows you to specify the format of your exported word list/dictionary
-          <li>LOAD_FILE_DEFAULT_DIR: specifies a directory (and/or file) string to preload in the "Load File" field
-          <li>EXPORT_FILE_DEFAULT_DIR: specifies a directory (and/or file) string to preload in the "Export File" field
-          <li>Rating values, optionally broken down by 3, 4, 5, 6, and 7+ letter words. See <a href="#rate">Rating Words</a> for more details.
-        </ul>
-        See comments in config.txt for more details.
+          <dt>LOAD_FILE_DELIMITERS:
+            <dd>allows you to specify the format of rated word lists you import
+          <dt>EXPORT_FILE_DELIMITER:
+            <dd>allows you to specify the format of your exported word list/dictionary
+          <dt>LOAD_FILE_DEFAULT_DIR:
+            <dd>specifies a directory (and/or file) string to preload in the "Load File" field
+          <dt>EXPORT_FILE_DEFAULT_DIR:
+            <dd>specifies a directory (and/or file) string to preload in the "Export File" field
+          <dt>EXPORT_DEFAULT_MINIMUM_RATING:
+            <dd>specifies the default minumum rating value required to export a word to a dictionary file
+          <dt>EXCELLENT:
+            <dd>rating value to assign a word that you consider "excellent", unless overridden as below
+          <dt>EXCELLENT_3, EXCELLENT_4, EXCELLENT_5, EXCELLENT_6:
+            <dd>optional override values for "excellent" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
+          <dt>GOOD:
+            <dd>rating value to assign a word that you consider "good", unless overridden as below
+          <dt>GOOD_3, GOOD_4, GOOD_5, GOOD_6:
+            <dd>optional override values for "good" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
+          <dt>OK:
+            <dd>rating value to assign a word that you consider "ok", unless overridden as below
+          <dt>OK_3, OK_4, OK_5, OK_6:
+            <dd>optional override values for "ok" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
+          <dt>LAME:
+            <dd>rating value to assign a word that you consider "lame", unless overridden as below
+          <dt>LAME_3, LAME_4, LAME_5, LAME_6:
+            <dd>optional override values for "lame" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
+          <dt>POOR:
+            <dd>rating value to assign a word that you consider "poor", unless overridden as below
+          <dt>POOR_3, POOR_4, POOR_5, POOR_6:
+            <dd>optional override values for "poor" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
+          <dt>TERRIBLE:
+            <dd>rating value to assign a word that you consider "terrible", unless overridden as below
+          <dt>TERRIBLE_3, TERRIBLE_4, TERRIBLE_5, TERRIBLE_6:
+            <dd>optional override values for "terrible" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
+        </dl>
+        <p>
+        See comments in config.txt for more details on certain config parameters.
         <p>
         <div class="alert">Important:<p>
           The config.txt file is read only once, when the program starts. Changes to the config.txt file
@@ -382,7 +414,7 @@
     </div>
     <div id="rate"><h2><li>Rating Words</h2>
       <ol type='A'>
-      <div id="ratingoverview"><h3><li>Overview and Theory</h3>
+      <div id="ratingoverview"><h3><li>Rating Overview and Theory</h3>
         A lot of thought has been put into how to rate words quickly, efficiently,
         and intuitively.  Rating words is certainly not an exact science -- different
         people have different ideas about what determines the quality of an entry.
@@ -607,7 +639,7 @@
               <dd>Otherwise, if <i>either</i> the existing <i>or</i> incoming word has the research flag set, it will be
                 (or remain) set.
             <dt><b>Comments:</b>
-              <dd>Comments are never auto-loaded. Hand-rated comments override (or erase, if empty) existing comments.
+              <dd>Comments are never auto-loaded. Hand-rated comments override (or erase, if deleted) existing comments.
           </dl>
           <p>
           <div class="alert">Important Note:<p>
@@ -622,10 +654,47 @@
       </ol>
     </div>
     <div id="export"><h2><li>Exporting Word Lists</h2>
+      Exporting is how you use your database to create dictionary files to be used with crossword
+      construction software (e.g. Crossword Compiler or CrossFire).
+      <p>
+      <img src="./images/ExportScreen1.png" alt="Export Screen" width="700px"><p>
+      The default parameters on this screen are to export <i>everything</i> in the database that
+      has at least the minimum-specified rating. Here I use 10 as the cut-off, as anything below that
+      is way too bad to even consider. Of course, your mileage may vary, as may your rating ranges.
+      This default value is set as EXPORT_DEFAULT_MINIMUM_RATING in the config.txt file.
+      <p>
+      Enter the name of the file you want to create in the "File to Export" field. By default, this
+      file will be created in the "export" directory, but this path can be manually edited (and the
+      default path can be overridden in the config.txt file using the EXPORT_FILE_DEFAULT_DIR parameter).
+      See <a href="#config">Configuration</a> or the comments in the config.txt file itself for more
+      details.
+      <p>
+      <div class="tip">Tip:<p>
+      CrossFire dictionaries can reside anywhere, so I export my files with names in the form
+      dictYYYYMMDD.dict (where YYYYMMDD is today's date, e.g., dict20200101.dict) and then select them
+      using the "browse" feature in CrossFire to load them directly in.  This way I can easily make
+      rating changes and reload a new dictionary with relative ease. If I'm doing multiple iterations,
+      I'll add an 'a', 'b', 'c', etc. to the file name to keep them unique (e.g., dict20200101a.dict).
+      </div><p>
+      Exported files contain one entry per line, in the format: WORD;RATING (see note,
+      below), for example:
+      <p>
+        ANT;60<br>
+        BEAR;70<br>
+        ...<br>
+      <p>
+      <div class="note">Note:<p>
+         If necessary, the delimiter between WORD and RATING can be changed by setting
+      EXPORT_FILE_DELIMITER in the config.txt file.  See <a href="#config">Configuration</a> or the
+      comments in the config.txt file for more details.
+      </div>
     </div>
     <div id="viewmenu"><h2><li>View Menu</h2>
       <ol type='A'>
         <div id="resetquery"><h3><li>Reset Query</h3>
+          The "Reset Query" command simply resets the current screen parameters to their default
+          values.  This is similar to switching tabs and coming back. Default values differ, depending
+          on which action tab you are in.  See details of each action in above sections for specifics.
         </div>
       </ol>
     </div>
@@ -637,6 +706,9 @@
           gives you a nice view into what you've accomplished and still need to.
         </div>
         <div id="breakdownreport"><h3><li>Rating Breakdown Report</h3>
+          The Rating Breakdown Report shows you how many entries are in each rating stratum.
+          This gives you an overall view of the quality of your entries, broken down by
+          word length.
         </div>
       </ol>
     </div>
