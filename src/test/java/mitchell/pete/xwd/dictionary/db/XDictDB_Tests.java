@@ -85,6 +85,57 @@ public class XDictDB_Tests extends TestCase
             fail(e.toString());
         }
 	}
+
+    public static void doTestCommentLengths(XDictDB_Interface dict)
+    {
+        String commentString98 = "00000000011111111112222222222333333333344444444445555555555666666666677777777778888888888999999999";
+        String commentString99 = "000000000111111111122222222223333333333444444444455555555556666666666777777777788888888889999999999";
+        String commentString100 = "0000000001111111111222222222233333333334444444444555555555566666666667777777777888888888899999999990";
+        String commentString101 = "00000000011111111112222222222333333333344444444445555555555666666666677777777778888888888999999999900";
+        String commentString110 = "00000000011111111112222222222333333333344444444445555555555666666666677777777778888888888999999999900000000001";
+
+        assertEquals("Expected length of 98", 98, commentString98.length());
+        assertEquals("Expected length of 99", 99, commentString99.length());
+        assertEquals("Expected length of 100", 100, commentString100.length());
+        assertEquals("Expected length of 101", 101, commentString101.length());
+        assertEquals("Expected length of 110", 110, commentString110.length());
+
+        try {
+            Word w1 = new Word.Builder("foo").manuallyRated(true).build();
+            w1.setComment(commentString98);
+            dict.putWord(w1);
+            Word w2 = dict.getWord("foo");
+            assertEquals("Expected length of 98", commentString98.length(), w1.getComment().length());
+            assertEquals("Expected length of 98", w1.getComment().length(), w2.getComment().length());
+
+            w1.setComment(commentString99);
+            dict.putWord(w1);
+            w2 = dict.getWord("foo");
+            assertEquals("Expected length of 99", commentString99.length(), w1.getComment().length());
+            assertEquals("Expected length of 99", w1.getComment().length(), w2.getComment().length());
+
+            w1.setComment(commentString100);
+            dict.putWord(w1);
+            w2 = dict.getWord("foo");
+            assertEquals("Expected length of 100", commentString100.length(), w1.getComment().length());
+            assertEquals("Expected length of 100", w1.getComment().length(), w2.getComment().length());
+
+            w1.setComment(commentString101);
+            dict.putWord(w1);
+            w2 = dict.getWord("foo");
+            assertEquals("Expected length of 101", commentString101.length(), w1.getComment().length());
+            assertEquals("Expected length of 100", commentString100.length(), w2.getComment().length());
+
+            w1.setComment(commentString110);
+            dict.putWord(w1);
+            w2 = dict.getWord("foo");
+            assertEquals("Expected length of 110", commentString110.length(), w1.getComment().length());
+            assertEquals("Expected length of 100", commentString100.length(), w2.getComment().length());
+
+        } catch (XDictSQLException e) {
+            fail(e.toString());
+        }
+    }
 	
 	public static void doTestDelete(XDictDB_Interface dict)
 	{

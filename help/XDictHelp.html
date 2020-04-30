@@ -20,6 +20,7 @@
           <li><a href="#install">Installing the Software</a>
           <li><a href="#config">Configuration</a>
           <li><a href="#runit">Running the Program</a>
+          <li><a href="#testmode">Test Mode</a>
         </ol></div>
       <h4><li><a href="#screen">A Tour of the User Interface</a></h4>
         <div><ol type='A'>
@@ -74,8 +75,8 @@
         </ol></div>
       <h4><li><a href="#databaseschema">Database Schema</a></h4>
         <div><ol type='A'>
-          <li><a href="#wordstable">Words Table</a>
-          <li><a href="#commentstable">Comments Table</a>
+          <li><a href="#wordstable">WORDS Table</a>
+          <li><a href="#commentstable">COMMENTS Table</a>
           <li><a href="#createstatements">Create Statements</a>
         </ol></div>
       </ol>
@@ -101,11 +102,11 @@
         <li>Reconcile logic handles "smart" merging of new lists into existing database
         <li>Track which words have been manually rated
         <li>Track words that have been used in NY Times (and other publications)<sup>2</sup>
-        <li>Add comments, for clarifications, notes, or clue suggestions
+        <li>Add comments of up to 100 characters, for clarifications, notes, or clue suggestions
         <li>Export word lists appropriate for Crossword Compiler or Crossfire
         <li>Backup/restore the database to/from file
         <li>View rating statistics, broken down by word length
-        <li>"Test" mode allows you to experiment using a test database without affecting your production dictionary
+        <li>"Test" mode allows you to experiment using a temporary database without affecting your production dictionary
         <li>Configuration file allows you to customize certain key behaviors
       </ul>
       <p>
@@ -134,6 +135,11 @@
         Datase URL: jdbc:mysql://localhost:3306/xdict <br>
         Database User: xdict <br>
         Database Password: xdict <br>
+        <p>
+        <div class="note">Note: <p>
+          Database tables will be created, if necessary, on startup. It is not necessary to
+          create the tables beforehand.
+        </div>
       </div>
       <div id="install"><h3><li>Installing the Software</h3>
         <div class="todo">TODO:<p>How are we going to do this? WAR file?
@@ -142,6 +148,10 @@
       <div id="config"><h3><li>Configuration</h3>
         Before you start, copy (or rename, if you don't care to save the original) the "config.orig"
         file to "config.txt". Then modify the config.txt file as desired.<p>
+        <div class="note">Note:<p>
+          If config.txt is not found, config.orig will be used.  If neither is found, the program
+          will abort.
+        </div><p>
         Parameters in the config.txt file can be used to customize certain parameters, as follows:
         <dl>
           <dt>TEST_MODE:
@@ -194,6 +204,27 @@
       </div>
       <div id="runit"><h3><li>Running the Program</h3>
         <div class="todo">TODO:<p>Need detailed instructions here, based on how we deploy...
+        </div>
+        <p>
+      <div id="testmode"><h3><li>Test Mode</h3>
+        Test Mode provides all the functionality of "production" mode, but uses <i>temporary tables</i>,
+        so <i>no data is preserved when you exit the program</i>. This allows you to fully experiment with
+        all of the features of the program without worrying about accuracy or corruption of "real" data.
+        <p>
+        <div class="note">
+          Note that the program starts in TEST_MODE by default after installation.
+          See <a href="#config">Configuration</a>, above, for details on disabling Test Mode.
+        </div><p>
+        <div class="tip">Tip:<p>
+          I <i>highly</i> recommend playing around in Test Mode to get a feel for how things word before
+          starting to load and modify your production data.  Even after you enter production mode, you can
+          always restart the program in Test Mode to try something that you are unsure of.
+        </div><p>
+        <div class="tip">Tip:<p>
+          Even though Test Mode uses temporary tables, you can still run a backup of the Test Mode
+          database and restore it in another Test Mode session. There is a mechanism built in to prevent
+          the accidental restoring of a Test Mode database into the production system.  See
+          <a href="#restore">Restore</a> for details.
         </div>
       </div>
       </ol>
@@ -347,7 +378,8 @@
         <img src="./images/Comment.png" alt="Comment Control" width="700px"><p>
         This field is not used as a selection criteria (there is currently no mechanism for searching
         based on the contents of a comment).  However, any query that results in a <i>single
-        entry</i> will display that entry's comment in this field (if there is one).
+        entry</i> will display that entry's comment in this field (if there is one). Note that comments
+        are limited to 100 characters.
       </div>
       <div id="querybutton"><h3><li>Query and Next Buttons</h3>
         Pressing the "Query" button (or hitting enter when the button is blue) executes a query based
@@ -395,6 +427,10 @@
       as typically that is the case when adding new words manually, but you can change this value, add
       a comment, or select or designate a rating value (default preset is "OK" value), by setting them on the
       screen before pressing the "Add" button.
+      <p>
+      <div class="note">Note:<p>
+        Comments are limited to (and will be truncated to, if necessary) 100 characters long.
+      </div>
       <p>
       Note that, unlike in the Rating process, pressing a rating button will <i>not</i> immediately cause
       the word to be added.  The rating buttons are a convenience to set the Manual Slider based on
@@ -728,6 +764,7 @@
           The backup command takes a full backup of your database and stores it
           in the "backups" subdirectory with the name "bkup_yyyy-mm-dd hh:mm:ss.sss",
           where "yyyy-mm-dd hh:mm:ss.sss" is the timestamp when the backup was done.
+          <p>
           <div class="alert">It is HIGHLY recommended that you backup your database periodically,
             and especially before any major changes, such as <a href="#load">loading a
             word list</a>.
@@ -740,11 +777,7 @@
             "bkup_TEST_yyyy-mm-dd hh:mm:ss.sss".
             Any attempt to restore a TEST MODE backup file while not in TEST MODE will result in an
             error.  This is to prevent accidental cross-contamination.
-            <p>
-            If you truly want to restore a TEST MODE database into your production system, rename the
-            backup file to remove <thead> "_TEST" portion of the name.
-            </thead>
-          </div>
+          </div><p>
         </div>
         <div id="restore"><h3><li>Restore</h3>
           To restore a backup file, select "Restore" from the Database Menu, which will bring you
@@ -759,10 +792,23 @@
           <p>
           Note that for a pristine restore, you should Clear Tables first so you are starting from
           scratch.  The restore command does not delete any records.
+          </div>
+          <p>
+          <div class="note">Note:<p>Backups done while in TEST MODE will be named
+            "bkup_TEST_yyyy-mm-dd hh:mm:ss.sss".
+            Any attempt to restore a TEST MODE backup file while not in TEST MODE will result in an
+            error.  This is to prevent accidental cross-contamination.
+          </div><p>
+          <div class="tip">Tip:<p>
+            If you <i>truly</i> want to restore a TEST MODE database into your production system,
+            rename the backup file to remove the "_TEST" portion of the name.
+          </div>
+
         </div>
         <div id="clear"><h3><li>Clear Tables</h3>
           This command deletes ALL DATA from your tables.  This is useful if you have a backup file that
           you want to return to.
+          <p>
           <div class=alert>Important:<p>Clearing tables is a destructive action. Make sure you have your
             data backed up first or have nothing to lose (e.g., you're still playing in TEST MODE).
             <p>
@@ -774,7 +820,10 @@
       </ol>
     </div>
     <div id="databaseschema"><h2><li>Database Schema</h2>
-      <div id="wordstable"><h3><li>Words Table</h3>
+      Since the vast majority of entries likely will not have comments, it seemed a prudent design
+      decision to store comments in a separate table, linked by primary key (ENTRY). This will greatly
+      reduce the size of any database with sparse comments.
+      <div id="wordstable"><h3><li>WORDS Table</h3>
         <pre>
 +----------------+-------------+------+-----+-------------------+-----------------------------+
 | Field          | Type        | Null | Key | Default           | Extra                       |
@@ -789,7 +838,7 @@
 | LAST_MODIFIED  | timestamp   | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
 +----------------+-------------+------+-----+-------------------+-----------------------------+        </pre>
       </div>
-      <div id="commentstable"><h3><li>Comments Table</h3>
+      <div id="commentstable"><h3><li>COMMENTS Table</h3>
         <pre>
 +---------+--------------+------+-----+---------+-------+
 | Field   | Type         | Null | Key | Default | Extra |
@@ -800,8 +849,12 @@
       </pre>
       </div>
       <div id="createstatements"><h3><li>Create Statements</h3>
+        <div class="note">Note: <p>
+          Database tables will be created, if necessary, on startup. It is not necessary to
+          create the tables beforehand. The following are provided for technical detail only.
+        </div>
       <pre>
-CREATE TABLE `words` (
+CREATE TABLE `WORDS` (
   `ENTRY` varchar(25) NOT NULL,
   `LENGTH` tinyint(4) NOT NULL,
   `RATING` tinyint(4) NOT NULL,
@@ -811,21 +864,17 @@ CREATE TABLE `words` (
   `MANUALLY_RATED` tinyint(1) NOT NULL,
   `LAST_MODIFIED` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ENTRY`)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       </pre>
       <p>
       <pre>
-CREATE TABLE `comments` (
+CREATE TABLE `COMMENTS` (
   `ENTRY` varchar(25) NOT NULL,
   `COMMENT` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`ENTRY`)
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
       </pre>
       </div>
-      <p>
-        <div class="note">Note:
-          To support "Test Mode", create tables WORDS_TEST and COMMENTS_TEST, as above.
-        </div>
     </div>
   </ol>
 </body>

@@ -906,6 +906,41 @@ public class XDictDB_MySQL implements XDictDB_Interface {
         return size;
     }
 
+    @Override
+    public void createTablesIfNotExists(boolean isTemporary) throws XDictSQLException  // create tables, if necessary
+    {
+        String createWordsTable = "CREATE " + (isTemporary ? "TEMPORARY " : "") +
+                "TABLE IF NOT EXISTS WORDS"  + XDictConfig.DB_MODE_SUFFIX +
+                "  ( `ENTRY` varchar(25) NOT NULL," +
+                "  `LENGTH` tinyint(4) NOT NULL," +
+                "  `RATING` tinyint(4) NOT NULL," +
+                "  `USED_ANY` tinyint(1) NOT NULL," +
+                "  `USED_NYT` tinyint(1) NOT NULL," +
+                "  `NEEDS_RESEARCH` tinyint(1) NOT NULL," +
+                "  `MANUALLY_RATED` tinyint(1) NOT NULL," +
+                "  `LAST_MODIFIED` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
+                "  PRIMARY KEY (`ENTRY`)" +
+                "  ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+
+        String createCommentsTable = "CREATE " + (isTemporary ? "TEMPORARY " : "") +
+                "TABLE IF NOT EXISTS COMMENTS" + XDictConfig.DB_MODE_SUFFIX +
+                "  ( `ENTRY` varchar(25) NOT NULL," +
+                "  `COMMENT` varchar(100) DEFAULT NULL," +
+                "  PRIMARY KEY (`ENTRY`)" +
+                "  ) ENGINE=InnoDB DEFAULT CHARSET=utf8";
+
+        try {
+            stmt.executeUpdate(createWordsTable);
+            stmt.executeUpdate(createCommentsTable);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+            System.out.println("SQL: " + createWordsTable);
+            System.out.println("SQL: " + createCommentsTable);
+            throw new XDictSQLException(e.getMessage(), createWordsTable + "; " + createCommentsTable);
+        }
+
+    }
+
 	private Word getWordFromResultSet( ResultSet rs ) throws SQLException
 	{
 		String entry = rs.getString("ENTRY");
@@ -923,8 +958,6 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		
 		return w;
 	}
-	
-	
 
 	private void createConnection() throws InstantiationException, IllegalAccessException, ClassNotFoundException, SQLException
 	{

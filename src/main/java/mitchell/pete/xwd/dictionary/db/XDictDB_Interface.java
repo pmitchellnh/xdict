@@ -48,4 +48,5 @@ public interface XDictDB_Interface
     ArrayList<String> showAllTables() throws XDictSQLException;          // get names of all tables (test, etc.) in DB
     int getTableSize(String tableName) throws XDictSQLException;         // get size (number of entries) in table
 	void clear_YesIReallyMeanToDoThis() throws XDictSQLException;		// delete table and start fresh
+    void createTablesIfNotExists(boolean isTemporary) throws XDictSQLException;  // create tables, if necessary
 }

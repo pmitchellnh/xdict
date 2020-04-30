@@ -106,7 +106,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JRadioButton queryMethodAuto = new JRadioButton("Auto-loaded");
 
     private JTextField wordEntry            = new JTextField(30);
-    private JTextField wordComment          = new JTextField(99);
+    private JTextField wordComment          = new JTextField(100);
     private JLabel wordToRate           	= new JLabel();
     private JSlider wordLengthSlider        = new JSlider(3,25,LENGTH_DEFAULT);
     private JLabel wordLengthLabel          = new JLabel(String.valueOf(wordLengthSlider.getValue()));
@@ -2130,14 +2130,7 @@ public class XDictGui extends JFrame implements WindowListener
             ArrayList<String> tables = dict.showAllTables();
 
             if (XDictConfig.testMode) {
-                queryResultArea.append("Active Tables (TEST MODE)\n");
-                queryResultArea.append("------------------------- \n");
-                for (String t : tables) {
-                    if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                        int size = dict.getTableSize(t);
-                        queryResultArea.append(t + " : " + size + " entries\n");
-                    }
-                }
+                queryResultArea.append("Test Mode uses temporary tables only!\n");
                 queryResultArea.append("\nInactive Tables \n");
                 queryResultArea.append("--------------- \n");
                 for (String t : tables) {
@@ -2151,14 +2144,6 @@ public class XDictGui extends JFrame implements WindowListener
                 queryResultArea.append("------------- \n");
                 for (String t : tables) {
                     if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                        int size = dict.getTableSize(t);
-                        queryResultArea.append(t + " : " + size + " entries\n");
-                    }
-                }
-                queryResultArea.append("\nInactive Tables (TEST MODE)\n");
-                queryResultArea.append("--------------------------- \n");
-                for (String t : tables) {
-                    if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
                         int size = dict.getTableSize(t);
                         queryResultArea.append(t + " : " + size + " entries\n");
                     }
@@ -2421,9 +2406,20 @@ public class XDictGui extends JFrame implements WindowListener
             gui.setTitle("***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE ***** TEST MODE *****");
             gui.queryResultArea.setText("YOU ARE IN TEST MODE!" + "\n\n");
             gui.queryResultArea.append("All actions while in TEST MODE will apply to TEST tables." + "\n");
+            gui.queryResultArea.append("Test tables ONLY EXIST FOR THE DURATION OF YOUR SESSION!!." + "\n");
             gui.queryResultArea.append("This allows you to play with the functionality of the system without concern for the actual data." + "\n");
             gui.queryResultArea.append("To switch out of TEST MODE, comment out the TEST_MODE line in config.txt." + "\n");
+            try {
+                dict.createTablesIfNotExists(true);     // create TEMPORARY Tables
+            } catch (XDictSQLException e) {
+                return;
+            }
         } else {
+            try {
+                dict.createTablesIfNotExists(false);
+            } catch (XDictSQLException e) {
+                return;
+            }
             gui.setTitle("XDict - A Crossword Dictionary Maintenance Tool by Pete Mitchell");
         }
         gui.setVisible(true);

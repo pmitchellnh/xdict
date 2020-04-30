@@ -242,7 +242,7 @@ public class Word
                     clean.append(c.charAt(i));
             }
         }
-        return clean.toString();
+        return (clean.toString().length() > 100 ? clean.toString().substring(0, 100) : clean.toString());   // limit to 100 chars.
     }
 
 

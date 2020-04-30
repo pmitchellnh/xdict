@@ -18,6 +18,7 @@ public class XDictDB_MySQLTest extends TestCase {
 		dict = new XDictDB_MySQL( dbName );
 		dict.connect();
         try {
+            dict.createTablesIfNotExists(true); // create temp tables
             dict.clear_YesIReallyMeanToDoThis();
         } catch (XDictSQLException e) {
             fail(e.toString());
@@ -48,4 +49,7 @@ public class XDictDB_MySQLTest extends TestCase {
 	public void testGetLists() {
 		XDictDB_Tests.doTestGetLists(dict);
 	}
+
+    @Test
+    public void testCommentLengths() { XDictDB_Tests.doTestCommentLengths(dict);}
 }
