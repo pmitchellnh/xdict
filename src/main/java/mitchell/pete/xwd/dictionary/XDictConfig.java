@@ -331,6 +331,10 @@ public class XDictConfig {
         return val;
     }
 
+    public static void setDbModeSuffix(String suffix) {
+        DB_MODE_SUFFIX = suffix;
+    }
+
     public static String getRateButtonName(RATINGS r) {
         String name = "";
         switch (r) {

@@ -15,11 +15,11 @@ public interface XDictDB_Interface
 	enum WORD_STATUS { NEW, EXISTS, DUPLICATE, COMMENT, ERROR };	// used to distinguish adds from changes and no-ops
 
 
-	WORD_STATUS putWord( Word w );						// add or update word; return rating
-	WORD_STATUS putWord( String s );					// add word with default values, if not there; else no-op
-	Word getWord( String s );					// find word and return it
-	void deleteWord( String s);					// delete word
-	int size();									// return number of entries in DB
+	WORD_STATUS putWord( Word w ) throws XDictSQLException;				// add or update word; return rating
+	WORD_STATUS putWord( String s ) throws XDictSQLException;			// add word with default values, if not there; else no-op
+	Word getWord( String s ) throws XDictSQLException;					// find word and return it
+	void deleteWord( String s) throws XDictSQLException;				// delete word
+	int size()  throws XDictSQLException;								// return number of entries in DB
 	ArrayList<Word> getWords( LengthControl lenCtrl, int len, 
 							PatternControl patCtrl, String s, 
 							RatingControl ratCtrl, int rat,
@@ -28,24 +28,24 @@ public interface XDictDB_Interface
 							MethodControl methCtrl,
 							int start,
 							int limit,
-							boolean ratingQuery);	// generic query
+							boolean ratingQuery)  throws XDictSQLException;	// generic query
 	int getCount( LengthControl lenCtrl, int len, 
 			PatternControl patCtrl, String s, 
 			RatingControl ratCtrl, int rat,
 			UsedControl useCtrl,
 			ResearchControl resCtrl,
 			MethodControl methCtrl,
-			boolean ratingQuery);	// generic query
+			boolean ratingQuery) throws XDictSQLException;	// generic query
     int getCount( LengthControl lenCtrl, int len,
                   PatternControl patCtrl, String s,
                   int minRat, int maxRat,
                   UsedControl useCtrl,
                   ResearchControl resCtrl,
-                  MethodControl methCtrl);	// for rating breakdown report
-    ArrayList<Word> getAllWords();				// return all words
+                  MethodControl methCtrl) throws XDictSQLException;	// for rating breakdown report
+    ArrayList<Word> getAllWords() throws XDictSQLException;				// return all words
 	boolean connect();							// returns false if cannot connect
 	void disconnect();
-    ArrayList<String> showAllTables();          // get names of all tables (test, etc.) in DB
-    int getTableSize(String tableName);         // get size (number of entries) in table
-	void clear_YesIReallyMeanToDoThis();		// delete table and start fresh
+    ArrayList<String> showAllTables() throws XDictSQLException;          // get names of all tables (test, etc.) in DB
+    int getTableSize(String tableName) throws XDictSQLException;         // get size (number of entries) in table
+	void clear_YesIReallyMeanToDoThis() throws XDictSQLException;		// delete table and start fresh
 }

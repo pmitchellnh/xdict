@@ -37,7 +37,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	 * Insert a word with default values.  If already exists, then no-op.
 	 */
 	@Override
-	public WORD_STATUS putWord( String s ) 
+	public WORD_STATUS putWord( String s ) throws XDictSQLException
 	{
 		Word w = getWord(s);
 		
@@ -53,7 +53,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	 * Insert or replace a Word in the DB.  If replacing, use reconcile logic for values.
 	 */
 	@Override
-	public WORD_STATUS putWord( Word w ) 
+	public WORD_STATUS putWord( Word w ) throws XDictSQLException
 	{
 		String key = w.getEntry();
 		Word oldWord = getWord(key);
@@ -87,7 +87,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		return status;
 	}
 	
-	private int insertWord(Word w) {
+	private int insertWord(Word w) throws XDictSQLException
+    {
 		// Add word to DB
 		String query = "insert into " + TABLE_WORDS 
 			+ " (ENTRY, LENGTH, RATING, USED_ANY, USED_NYT, NEEDS_RESEARCH, MANUALLY_RATED, LAST_MODIFIED) values('"
@@ -105,12 +106,14 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 		return w.getRating();
 	}
 	
-	private int updateWord(Word w) {
+	private int updateWord(Word w) throws XDictSQLException
+    {
 		// Add word to DB
 		String query = "update " + TABLE_WORDS + " set "
 			+ "LENGTH=" + w.length() + ","
@@ -127,12 +130,14 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 		return w.getRating();
 	}
 	
-	private void insertComment(Word w) {
+	private void insertComment(Word w) throws XDictSQLException
+    {
         if (w.getComment().isEmpty())
             return;
 		String query = "insert into " + TABLE_COMMENTS 
@@ -145,10 +150,12 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 	}
 	
-	private void updateComment(Word w) {
+	private void updateComment(Word w) throws XDictSQLException
+    {
         if (w.getComment().isEmpty())
             return;
 		String query = "update " + TABLE_COMMENTS + " set "
@@ -160,21 +167,24 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			} catch (SQLException e) {
 				System.out.println(e.getMessage());
 				System.out.println("SQL: " + query);
+                throw new XDictSQLException(e.getMessage(), query);
 			}
 	}
 	
-	private void deleteComment(Word w) {
+	private void deleteComment(Word w) throws XDictSQLException
+    {
 		String query = "delete from " + TABLE_COMMENTS + " where ENTRY = '" + w.getEntry() + "'";
 		try {
 			stmt.executeUpdate(query);
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 	}
 
 	@Override
-	public Word getWord(String s) 
+	public Word getWord(String s) throws XDictSQLException
 	{
 		String key = Word.format(s, Word.NO_WILDS);
 		String query = "select * from " + TABLE_WORDS + 
@@ -196,13 +206,14 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 		return null;
 	}
 
 	@Override
-	public void deleteWord(String s) 
+	public void deleteWord(String s) throws XDictSQLException
 	{
 		String key = Word.format(s, Word.NO_WILDS);
 		
@@ -214,12 +225,13 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 	}
 
 	@Override
-	public int size() 
+	public int size() throws XDictSQLException
 	{
 		String query = "select count(*) from " + TABLE_WORDS;
 
@@ -234,13 +246,16 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 		return 0;
 	}
 
 	@Override
-	public ArrayList<Word> getWords(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, int start, int limit, boolean ratingQuery) 
+	public ArrayList<Word> getWords(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl,
+                                    int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, int start,
+                                    int limit, boolean ratingQuery) throws XDictSQLException
 	{
 		ArrayList<Word> list = new ArrayList<Word>();
 		boolean firstWhere = true;	// use to track when to put AND in query
@@ -426,13 +441,16 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 		return list;
 	}
 
 	@Override
-	public int getCount(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, boolean ratingQuery) 
+	public int getCount(LengthControl lenCtrl, int len, PatternControl patCtrl, String s, RatingControl ratCtrl, int rat,
+                        UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl, boolean ratingQuery)
+                        throws XDictSQLException
 	{
 		boolean firstWhere = true;	// use to track when to put AND in query
 		StringBuilder sb = new StringBuilder("");
@@ -598,12 +616,14 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 		return 0;
 	}
 
-    public int getCount( LengthControl lenCtrl, int len, PatternControl patCtrl, String s, int minRat, int maxRat, UsedControl useCtrl, ResearchControl resCtrl, MethodControl methCtrl)
+    public int getCount( LengthControl lenCtrl, int len, PatternControl patCtrl, String s, int minRat, int maxRat, UsedControl useCtrl,
+                         ResearchControl resCtrl, MethodControl methCtrl) throws XDictSQLException
     {
         boolean firstWhere = true;	// use to track when to put AND in query
         StringBuilder sb = new StringBuilder("");
@@ -760,13 +780,14 @@ public class XDictDB_MySQL implements XDictDB_Interface {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
         }
 
         return 0;
     }
 
 	@Override
-	public ArrayList<Word> getAllWords() 
+	public ArrayList<Word> getAllWords() throws XDictSQLException
 	{
 		ArrayList<Word> list = new ArrayList<Word>();
 		String query = "select * from " + TABLE_WORDS + " LEFT JOIN " + TABLE_COMMENTS + " ON " + TABLE_WORDS +
@@ -786,6 +807,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
 		}
 		
 		return list;
@@ -823,7 +845,8 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 	}
 
 	@Override
-	public void clear_YesIReallyMeanToDoThis() {
+	public void clear_YesIReallyMeanToDoThis() throws XDictSQLException
+    {
 		String query1 = "delete from WORDS" + XDictConfig.DB_MODE_SUFFIX;
         String query2 = "delete from COMMENTS" + XDictConfig.DB_MODE_SUFFIX;
 		try {
@@ -833,11 +856,12 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			System.out.println(e.getMessage());
 			System.out.println("SQL: " + query1);
             System.out.println("SQL: " + query2);
+            throw new XDictSQLException(e.getMessage(), query1 + "; " + query2);
 		}
 	}
 
     @Override
-    public ArrayList<String> showAllTables()
+    public ArrayList<String> showAllTables() throws XDictSQLException
     {
         ArrayList<String> list = new ArrayList<String>();
         String query = "SHOW TABLES";
@@ -854,13 +878,15 @@ public class XDictDB_MySQL implements XDictDB_Interface {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
         }
 
         return list;
     }
 
     @Override
-    public int getTableSize(String tableName) {
+    public int getTableSize(String tableName) throws XDictSQLException
+    {
         String query = "select count(*) from " + tableName;
         int size = 0;
 
@@ -874,6 +900,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
             System.out.println("SQL: " + query);
+            throw new XDictSQLException(e.getMessage(), query);
         }
 
         return size;

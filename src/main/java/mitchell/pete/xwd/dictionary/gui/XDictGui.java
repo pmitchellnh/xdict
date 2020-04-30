@@ -12,6 +12,7 @@ import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.ResearchControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.UsedControl;
 import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
 import mitchell.pete.xwd.dictionary.db.XDictDB_MySQL;
+import mitchell.pete.xwd.dictionary.db.XDictSQLException;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
@@ -1041,17 +1042,25 @@ public class XDictGui extends JFrame implements WindowListener
     DocumentListener wordEntryListener = new DocumentListener() {
         @Override
         public void insertUpdate(DocumentEvent e) {
-            // do nothing -- just set this so SOMETHING is always set. simplifies logic
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
         }
 
         @Override
         public void removeUpdate(DocumentEvent e) {
-            // do nothing -- just set this so SOMETHING is always set. simplifies logic
+            nextButton.setEnabled(false);
+            if (queryButton.isEnabled())
+                getRootPane().setDefaultButton(queryButton);
+            else if (rateQueryButton.isEnabled())
+                getRootPane().setDefaultButton(rateQueryButton);
         }
 
         @Override
         public void changedUpdate(DocumentEvent e) {
-            // do nothing -- just set this so SOMETHING is always set. simplifies logic
+            // do nothing
         }
     };
 
@@ -1068,6 +1077,7 @@ public class XDictGui extends JFrame implements WindowListener
 
         @Override
         public void changedUpdate(DocumentEvent e) {
+            // do nothing
         }
     };
 
@@ -1342,34 +1352,37 @@ public class XDictGui extends JFrame implements WindowListener
         // Set default values for parameters
         queryEntryEquals.setSelected(true);
         if (!wordEntry.getText().isEmpty()) {
-            Word w1 = dict.getWord(wordEntry.getText());
-            if (w1 != null) {
-                manualRatingSlider2.setValue(w1.getRating());
-                usedAny.setSelected(w1.isUsedAny());
-                usedNYT.setSelected(w1.isUsedNYT());
-                notUsed.setSelected(!(w1.isUsedAny() || w1.isUsedNYT()));
-                wordComment.setText(w1.getComment());
-                addButton.setText("Modify");
-                // These are disabled, so just set them to display current values
-                queryLengthEquals.setSelected(true);
-                wordLengthSlider.setValue(w1.length());
-                queryRatingEquals.setSelected(true);
-                wordRatingSlider.setValue(w1.getRating());
-                research.setSelected(w1.needsResearch());
-            }
-            else {
-                manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
-                usedAny.setSelected(false);
-                usedNYT.setSelected(false);
-                notUsed.setSelected(true);
-                wordComment.setText("");
-                addButton.setText("Add");
-                // These are disabled, so just set them to default vals
-                queryLengthAtLeast.setSelected(true);
-                wordLengthSlider.setValue(LENGTH_DEFAULT);
-                queryRatingAtLeast.setSelected(true);
-                wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
-                research.setSelected(false);
+            try {
+                Word w1 = dict.getWord(wordEntry.getText());
+                if (w1 != null) {
+                    manualRatingSlider2.setValue(w1.getRating());
+                    usedAny.setSelected(w1.isUsedAny());
+                    usedNYT.setSelected(w1.isUsedNYT());
+                    notUsed.setSelected(!(w1.isUsedAny() || w1.isUsedNYT()));
+                    wordComment.setText(w1.getComment());
+                    addButton.setText("Modify");
+                    // These are disabled, so just set them to display current values
+                    queryLengthEquals.setSelected(true);
+                    wordLengthSlider.setValue(w1.length());
+                    queryRatingEquals.setSelected(true);
+                    wordRatingSlider.setValue(w1.getRating());
+                    research.setSelected(w1.needsResearch());
+                } else {
+                    manualRatingSlider2.setValue(ADD_RATING_DEFAULT);
+                    usedAny.setSelected(false);
+                    usedNYT.setSelected(false);
+                    notUsed.setSelected(true);
+                    wordComment.setText("");
+                    addButton.setText("Add");
+                    // These are disabled, so just set them to default vals
+                    queryLengthAtLeast.setSelected(true);
+                    wordLengthSlider.setValue(LENGTH_DEFAULT);
+                    queryRatingAtLeast.setSelected(true);
+                    wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
+                    research.setSelected(false);
+                }
+            } catch (XDictSQLException e) {
+             // ignore error here?
             }
 
         } else {
@@ -1472,9 +1485,14 @@ public class XDictGui extends JFrame implements WindowListener
     		status = WORD_STATUS.ERROR;
     		addResultArea.setText("Error: " + w.getEntry() + " is more than 25 characters.");
     	} else {
-	    	status = dict.putWord(w);
-	    	Word w1 = dict.getWord(w.getEntry());
-			addResultArea.append(w1.getEntry() + " : " + w1.getRating() + "\n");
+            try {
+                status = dict.putWord(w);
+                Word w1 = dict.getWord(w.getEntry());
+                addResultArea.append(w1.getEntry() + " : " + w1.getRating() + "\n");
+            } catch (XDictSQLException e) {
+                addResultArea.append(e.toString());
+                status = WORD_STATUS.ERROR;
+            }
     	}
 		
 		return status;
@@ -1545,15 +1563,20 @@ public class XDictGui extends JFrame implements WindowListener
     	} else if (queryMethodAuto.isSelected()) {
     		methCtrl = MethodControl.AUTOMATIC;
     	}
-    	
-    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
-    	if (next) {
-    		queryStart += QUERY_LIMIT;
-    		queryStart = (queryStart > resultSetSize ? resultSetSize : queryStart);
-    	} else {
-    		queryStart = 0;
-    	}
-    	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, queryStart, QUERY_LIMIT, false);
+
+        try {
+            resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
+            if (next) {
+                queryStart += QUERY_LIMIT;
+                queryStart = (queryStart > resultSetSize ? resultSetSize : queryStart);
+            } else {
+                queryStart = 0;
+            }
+            list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, queryStart, QUERY_LIMIT, false);
+        } catch (XDictSQLException e) {
+            queryResultArea.setText(e.toString());
+            return e.getTitle();
+        }
 		
 		if ( list == null || list.isEmpty() )
 		{
@@ -1653,20 +1676,25 @@ public class XDictGui extends JFrame implements WindowListener
     	} else if (queryMethodAuto.isSelected()) {
     		methCtrl = MethodControl.AUTOMATIC;
     	}
-    	
-    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, true);
-    	if (next) {
-    		queryStart += RATING_QUERY_LIMIT;
-    		queryStart = (queryStart > resultSetSize ? resultSetSize : queryStart);
-    	} else {
-    		queryStart = 0;
-    	}
-    	
-    	if (listToRate != null) {
-    		listToRate.clear();		// clear the list
-    	}
-    	
-    	listToRate = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, queryStart, RATING_QUERY_LIMIT, true);
+
+        try {
+            resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, true);
+            if (next) {
+                queryStart += RATING_QUERY_LIMIT;
+                queryStart = (queryStart > resultSetSize ? resultSetSize : queryStart);
+            } else {
+                queryStart = 0;
+            }
+
+            if (listToRate != null) {
+                listToRate.clear();        // clear the list
+            }
+
+            listToRate = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, queryStart, RATING_QUERY_LIMIT, true);
+        } catch (XDictSQLException e) {
+            rateResultArea.setText(e.toString());
+            return e.getTitle();
+        }
 		
 		if ( listToRate == null || listToRate.isEmpty() )
 		{
@@ -1713,32 +1741,37 @@ public class XDictGui extends JFrame implements WindowListener
             w.setComment(wordComment.getText());
         }
 
-        if (r == XDictConfig.RATINGS.RESEARCH) {
-            status = w.getEntry() + ": Needs research";
-            w.setNeedsResearch(true);
-            dict.putWord(w);
-        } else if (r == XDictConfig.RATINGS.MANUAL) {
-            status = w.getEntry() + ": " + rat + " (Manual)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == XDictConfig.RATINGS.KILL) {
-            rat = XDictConfig.KILL;
-            status = w.getEntry() + ": " + rat + " (Killed)";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
-        } else if (r == XDictConfig.RATINGS.SKIP) {
-            status = w.getEntry() + ": Skipped";
-        } else {
-            rat = XDictConfig.getRating(r, w.length());
-            status = w.getEntry() + ": " + rat + " (" + r.toString() + ")";
-            w.setRating(rat);
-            w.setManuallyRated(true);
-            w.setNeedsResearch(false);    // rated manually; research complete
-            dict.putWord(w);
+        try {
+            if (r == XDictConfig.RATINGS.RESEARCH) {
+                status = w.getEntry() + ": Needs research";
+                w.setNeedsResearch(true);
+                dict.putWord(w);
+            } else if (r == XDictConfig.RATINGS.MANUAL) {
+                status = w.getEntry() + ": " + rat + " (Manual)";
+                w.setRating(rat);
+                w.setManuallyRated(true);
+                w.setNeedsResearch(false);    // rated manually; research complete
+                dict.putWord(w);
+            } else if (r == XDictConfig.RATINGS.KILL) {
+                rat = XDictConfig.KILL;
+                status = w.getEntry() + ": " + rat + " (Killed)";
+                w.setRating(rat);
+                w.setManuallyRated(true);
+                w.setNeedsResearch(false);    // rated manually; research complete
+                dict.putWord(w);
+            } else if (r == XDictConfig.RATINGS.SKIP) {
+                status = w.getEntry() + ": Skipped";
+            } else {
+                rat = XDictConfig.getRating(r, w.length());
+                status = w.getEntry() + ": " + rat + " (" + r.toString() + ")";
+                w.setRating(rat);
+                w.setManuallyRated(true);
+                w.setNeedsResearch(false);    // rated manually; research complete
+                dict.putWord(w);
+            }
+        } catch (XDictSQLException e) {
+            rateResultArea.setText(e.toString());
+            return e.getTitle();
         }
 
         listToRate.remove(0);	// Remove rated (or skipped) item from list
@@ -1788,6 +1821,7 @@ public class XDictGui extends JFrame implements WindowListener
     	int existCount = 0;
     	int dupCount = 0;
     	int skipCount = 0;
+        boolean isError = false;
     	
 		try {
 			br = new BufferedReader(new FileReader(filename));
@@ -1842,18 +1876,27 @@ public class XDictGui extends JFrame implements WindowListener
 		} catch (IOException e) {
 			loadResultArea.append("Error reading file.\n");
 			loadResultArea.append(e.toString());
-		}
+            getStatusLine().showInfo("Error.");
+            isError = true;
+		} catch (XDictSQLException e) {
+            loadResultArea.append(e.toString());
+            getStatusLine().showInfo(e.getTitle());
+            isError = true;
+        }
     	try {
 			br.close();
 		} catch (IOException e) {
 			loadResultArea.append("Error closing file.\n");
 			loadResultArea.append(e.toString());
 		}
-        loadResultArea.append("Loading complete.\n");
-        Date stopTime = new Date();
 
-        loadResultArea.append(count + " words processed. \nNew: " + newCount + "\nModified: " + existCount + "\nDuplicate: " + dupCount + "\nSkipped: " + skipCount + "\n");
-        getStatusLine().showInfo("Load complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
+        if (!isError) {
+            loadResultArea.append("Loading complete.\n");
+            Date stopTime = new Date();
+
+            loadResultArea.append(count + " words processed. \nNew: " + newCount + "\nModified: " + existCount + "\nDuplicate: " + dupCount + "\nSkipped: " + skipCount + "\n");
+            getStatusLine().showInfo("Load complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
+        }
         this.setEnabled(true);
 
     	return;
@@ -1861,6 +1904,8 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void doRestore()
     {
+        boolean isError = false;
+
         resultPaneTabs.setSelectedIndex(3);     // set to load result pane to display results
         if (!loadFile.getText().startsWith("backups/"))
             loadFile.setText("backups/");
@@ -1914,6 +1959,12 @@ public class XDictGui extends JFrame implements WindowListener
         } catch (IOException e) {
             loadResultArea.append("Error reading file.\n");
             loadResultArea.append(e.toString());
+            getStatusLine().showInfo("Error.");
+            isError = true;
+        } catch (XDictSQLException e) {
+            loadResultArea.append(e.toString());
+            getStatusLine().showInfo(e.getTitle());
+            isError = true;
         }
         try {
             br.close();
@@ -1921,10 +1972,13 @@ public class XDictGui extends JFrame implements WindowListener
             loadResultArea.append("Error closing file.\n");
             loadResultArea.append(e.toString());
         }
-        loadResultArea.append("Restore complete: "  + count + " words processed.\n");
 
-        Date stopTime = new Date();
-        getStatusLine().showInfo("Restore complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
+        if (!isError) {
+            loadResultArea.append("Restore complete: " + count + " words processed.\n");
+
+            Date stopTime = new Date();
+            getStatusLine().showInfo("Restore complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
+        }
         this.setEnabled(true);      // re-enable GUI
 
         return;
@@ -1932,12 +1986,14 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void doExport(boolean isBackup)
     {
+        boolean isError = false;
         resultPaneTabs.setSelectedIndex(4);     // set to query result pane to display results
 
     	String filename = exportFile.getText();
     	if (isBackup) {
     		Timestamp t = new Timestamp(new Date().getTime());
     		filename = "backups/bkup" + XDictConfig.DB_MODE_SUFFIX + "_" + t.toString();
+            exportFile.setText(filename);
     	}
     	exportResultArea.setText("");
     	FileWriter fw;
@@ -2014,17 +2070,28 @@ public class XDictGui extends JFrame implements WindowListener
 	    		methCtrl = MethodControl.AUTOMATIC;
 	    	}
     	}
-    	resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
 
+        try {
+            resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
+        }  catch (XDictSQLException e) {
+            exportResultArea.append(e.toString());
+            getStatusLine().showInfo(e.getTitle());
+            return;
+        }
         exportResultArea.append("PLEASE WAIT...\n");
         this.setEnabled(false);
         Date startTime = new Date();
 
-
         for (int start = 0; start < resultSetSize; start += QUERY_LIMIT) {
 			getStatusLine().showInfo("Processing " + (isBackup ? "backup..." : "export...") + start + " records processed.");
 
-        	list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, start, QUERY_LIMIT, false);
+            try {
+                list = dict.getWords(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, start, QUERY_LIMIT, false);
+            }  catch (XDictSQLException e) {
+                exportResultArea.append(e.toString());
+                getStatusLine().showInfo(e.getTitle());
+                return;
+            }
 			for ( Word w : list ) {
 //				exportResultArea.append(w.toString() + "\n");
 				try {
@@ -2059,44 +2126,48 @@ public class XDictGui extends JFrame implements WindowListener
         resultPaneTabs.setSelectedIndex(0);     // set to query result pane to display results
         queryResultArea.setText("Database Info:" + "\n\n");
 
-        ArrayList<String> tables = dict.showAllTables();
+        try {
+            ArrayList<String> tables = dict.showAllTables();
 
-        if (XDictConfig.testMode) {
-            queryResultArea.append("Active Tables (TEST MODE)\n");
-            queryResultArea.append("------------------------- \n");
-            for (String t : tables) {
-                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
+            if (XDictConfig.testMode) {
+                queryResultArea.append("Active Tables (TEST MODE)\n");
+                queryResultArea.append("------------------------- \n");
+                for (String t : tables) {
+                    if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                        int size = dict.getTableSize(t);
+                        queryResultArea.append(t + " : " + size + " entries\n");
+                    }
+                }
+                queryResultArea.append("\nInactive Tables \n");
+                queryResultArea.append("--------------- \n");
+                for (String t : tables) {
+                    if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                        int size = dict.getTableSize(t);
+                        queryResultArea.append(t + " : " + size + " entries\n");
+                    }
+                }
+            } else {
+                queryResultArea.append("Active Tables \n");
+                queryResultArea.append("------------- \n");
+                for (String t : tables) {
+                    if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                        int size = dict.getTableSize(t);
+                        queryResultArea.append(t + " : " + size + " entries\n");
+                    }
+                }
+                queryResultArea.append("\nInactive Tables (TEST MODE)\n");
+                queryResultArea.append("--------------------------- \n");
+                for (String t : tables) {
+                    if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
+                        int size = dict.getTableSize(t);
+                        queryResultArea.append(t + " : " + size + " entries\n");
+                    }
                 }
             }
-            queryResultArea.append("\nInactive Tables \n");
-            queryResultArea.append("--------------- \n");
-            for (String t : tables) {
-                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
-                }
-            }
-        } else {
-            queryResultArea.append("Active Tables \n");
-            queryResultArea.append("------------- \n");
-            for (String t : tables) {
-                if (!t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
-                }
-            }
-            queryResultArea.append("\nInactive Tables (TEST MODE)\n");
-            queryResultArea.append("--------------------------- \n");
-            for (String t : tables) {
-                if (t.contains(XDictConfig.TEST_MODE_SUFFIX)) {
-                    int size = dict.getTableSize(t);
-                    queryResultArea.append(t + " : " + size + " entries\n");
-                }
-            }
+        } catch (XDictSQLException e) {
+            queryResultArea.append(e.toString());
+            getStatusLine().showInfo(e.getTitle());
         }
-
         return;
     }
 
@@ -2111,7 +2182,14 @@ public class XDictGui extends JFrame implements WindowListener
             return "Are you sure?";
         }
 
-        dict.clear_YesIReallyMeanToDoThis();
+        try {
+            dict.clear_YesIReallyMeanToDoThis();
+        } catch (XDictSQLException e) {
+            queryResultArea.append(e.toString());
+            wordComment.setText("");
+            queryResultArea.setEnabled(false);   // re-disable text area
+            return e.getTitle();
+        }
 
         queryResultArea.setText("Tables cleared.");
         wordComment.setText("");        // clear the validation field
@@ -2142,22 +2220,29 @@ public class XDictGui extends JFrame implements WindowListener
 
         queryResultArea.setText("Rating Progress:" + "\n");
 
-        for ( int length = 3; length < 26; length++ ) {
+        try {
+            for (int length = 3; length < 26; length++) {
 
-            int ratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.MANUAL, false);
-            int unratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.AUTOMATIC, false);
+                int ratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.MANUAL, false);
+                int unratedCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, RatingControl.ALL, 0, UsedControl.ALL, ResearchControl.ALL, MethodControl.AUTOMATIC, false);
 
-            if (ratedCount + unratedCount == 0 )
-                continue;
+                if (ratedCount + unratedCount == 0)
+                    continue;
 
-            double percent = (double)ratedCount / ( (double)ratedCount + (double)unratedCount);
-            DecimalFormat df = new DecimalFormat("##.##%");
-            String formattedPercent = df.format(percent);
-            totalRated += ratedCount;
-            totalUnrated += unratedCount;
+                double percent = (double) ratedCount / ((double) ratedCount + (double) unratedCount);
+                DecimalFormat df = new DecimalFormat("##.##%");
+                String formattedPercent = df.format(percent);
+                totalRated += ratedCount;
+                totalUnrated += unratedCount;
 
-            queryResultArea.append("Length: " + length + "  Total: " + (ratedCount + unratedCount) + "  Rated: " + ratedCount + "  Unrated: " + unratedCount + "  Percent: " + formattedPercent + "\n");
+                queryResultArea.append("Length: " + length + "  Total: " + (ratedCount + unratedCount) + "  Rated: " + ratedCount + "  Unrated: " + unratedCount + "  Percent: " + formattedPercent + "\n");
 
+            }
+        } catch (XDictSQLException e) {
+            queryResultArea.append(e.toString());
+            getStatusLine().showInfo(e.getTitle());
+            this.setEnabled(true);
+            return;
         }
 
         double percent = (double)totalRated / ( (double)totalRated + (double)totalUnrated);
@@ -2196,41 +2281,48 @@ public class XDictGui extends JFrame implements WindowListener
 
         queryResultArea.setText("Rating Breakdown:" + "\n");
 
-        for ( int length = 3; length < 26; length++ ) {
+        try {
+            for (int length = 3; length < 26; length++) {
 
-            int horribleCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 0, 20, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int badCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 21, 40, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int mediumCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 41, 60, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int goodCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 61, 80, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
-            int greatCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 81, 100, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+                int horribleCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 0, 20, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+                int badCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 21, 40, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+                int mediumCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 41, 60, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+                int goodCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 61, 80, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
+                int greatCount = dict.getCount(LengthControl.EQUALS, length, patCtrl, key, 81, 100, UsedControl.ALL, ResearchControl.ALL, MethodControl.ALL);
 
-            int combinedCount = horribleCount + badCount + mediumCount + goodCount + greatCount;
-            if (combinedCount == 0 )
-                continue;
+                int combinedCount = horribleCount + badCount + mediumCount + goodCount + greatCount;
+                if (combinedCount == 0)
+                    continue;
 
-            double horriblePercent = (double)horribleCount / (double)combinedCount;
-            double badPercent = (double)badCount / (double)combinedCount;
-            double mediumPercent = (double)mediumCount / (double)combinedCount;
-            double goodPercent = (double)goodCount / (double)combinedCount;
-            double greatPercent = (double)greatCount / (double)combinedCount;
-            DecimalFormat df = new DecimalFormat("##.#%");
-            String formattedHorriblePercent = df.format(horriblePercent);
-            String formattedBadPercent = df.format(badPercent);
-            String formattedMediumPercent = df.format(mediumPercent);
-            String formattedGoodPercent = df.format(goodPercent);
-            String formattedGreatPercent = df.format(greatPercent);
-            totalHorrible += horribleCount;
-            totalBad += badCount;
-            totalMedium += mediumCount;
-            totalGood += goodCount;
-            totalGreat += greatCount;
+                double horriblePercent = (double) horribleCount / (double) combinedCount;
+                double badPercent = (double) badCount / (double) combinedCount;
+                double mediumPercent = (double) mediumCount / (double) combinedCount;
+                double goodPercent = (double) goodCount / (double) combinedCount;
+                double greatPercent = (double) greatCount / (double) combinedCount;
+                DecimalFormat df = new DecimalFormat("##.#%");
+                String formattedHorriblePercent = df.format(horriblePercent);
+                String formattedBadPercent = df.format(badPercent);
+                String formattedMediumPercent = df.format(mediumPercent);
+                String formattedGoodPercent = df.format(goodPercent);
+                String formattedGreatPercent = df.format(greatPercent);
+                totalHorrible += horribleCount;
+                totalBad += badCount;
+                totalMedium += mediumCount;
+                totalGood += goodCount;
+                totalGreat += greatCount;
 
-            queryResultArea.append("Length: " + length + "  Total: " + combinedCount + "   (0-20): " + horribleCount + " (" + formattedHorriblePercent + ") " +
-                    "  (21-40): " + badCount + " (" + formattedBadPercent + ") " +
-                    "  (41-60): " + mediumCount + " (" + formattedMediumPercent + ") " +
-                    "  (61-80): " + goodCount + " (" + formattedGoodPercent + ") " +
-                    "  (81-100): " + greatCount + " {" + formattedGreatPercent + ")\n");
+                queryResultArea.append("Length: " + length + "  Total: " + combinedCount + "   (0-20): " + horribleCount + " (" + formattedHorriblePercent + ") " +
+                        "  (21-40): " + badCount + " (" + formattedBadPercent + ") " +
+                        "  (41-60): " + mediumCount + " (" + formattedMediumPercent + ") " +
+                        "  (61-80): " + goodCount + " (" + formattedGoodPercent + ") " +
+                        "  (81-100): " + greatCount + " {" + formattedGreatPercent + ")\n");
 
+            }
+        } catch (XDictSQLException e) {
+            queryResultArea.append(e.toString());
+            getStatusLine().showInfo(e.getTitle());
+            this.setEnabled(true);
+            return;
         }
 
         int totalCount = totalHorrible + totalBad + totalMedium + totalGood + totalGreat;
@@ -2321,7 +2413,8 @@ public class XDictGui extends JFrame implements WindowListener
         if ( !XDictConfig.processConfigFile())
             return;
 
-		dict.connect();
+		if ( !dict.connect() )
+            return;
         
         XDictGui gui = new XDictGui();
         if (XDictConfig.testMode) {

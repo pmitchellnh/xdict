@@ -193,7 +193,7 @@
         </div>
       </div>
       <div id="runit"><h3><li>Running the Program</h3>
-        <div class="todo">TODO:<p>Need detailed instructions here.
+        <div class="todo">TODO:<p>Need detailed instructions here, based on how we deploy...
         </div>
       </div>
       </ol>
@@ -220,6 +220,9 @@
       <img src="./images/Actions.png" alt="Action Buttons" width="700px"><p>
         Each action mode has different action buttons associated with it.  The default action (which
         occurs if you just hit the Enter key) at any given time is the button that is colored blue.
+      <div class="note">Note:<p>
+        The default action may change as appropriate, as described in the sections below.
+      </div><p>
       </div>
       <div id="modes"><h3><li>Action Mode Tabs</h3>
       <img src="./images/ModeTabs.png" alt="Action Tabs" width="700px"><p>
@@ -337,12 +340,14 @@
         list of entries that need to be researched, use the "Reset Query" action in the "View" menu
         before querying with this field.
         <p>
-        See <a href="#ratingprocess">The Rating Process</a> for more on using the "Research" field.
+        See the <a href="#research">Research and Skip</a> section of The Rating Process for more on
+        using the "Research" field.
       </div>
       <div id="querycomment"><h3><li>Comment Control</h3>
         <img src="./images/Comment.png" alt="Comment Control" width="700px"><p>
-        This field is not used as a selection criteria.  However, any query that results in a single
-        entry will display that entry's comment in this field (if there is one).
+        This field is not used as a selection criteria (there is currently no mechanism for searching
+        based on the contents of a comment).  However, any query that results in a <i>single
+        entry</i> will display that entry's comment in this field (if there is one).
       </div>
       <div id="querybutton"><h3><li>Query and Next Buttons</h3>
         Pressing the "Query" button (or hitting enter when the button is blue) executes a query based
@@ -353,11 +358,12 @@
         become enabled and also become the default action) will fetch the next 1000, and so on until there
         are no more entries that satisfy the criteria.<p>
         <img src="./images/Query2.png" alt="Query and Next Buttons" width="200px"><p>
+        <div class="note">Note:<p>
         Note that any time the "Query" button is used, the
         query will start again from scratch.  Also, changing <i>any</i> of the metadata criteria will
         disable the "Next" button and only allow a fresh query using the new parameters.
+        </div>
         <p>
-        See <a href="#ratingprocess">The Rating Process</a> for more on using the "Research" field.
       </div>
       <div id="queryoutput"><h3><li>Query Output Display</h3>
         The query output displays the results of the query (up to 1000 entries at a time, scrollable).
@@ -769,11 +775,57 @@
     </div>
     <div id="databaseschema"><h2><li>Database Schema</h2>
       <div id="wordstable"><h3><li>Words Table</h3>
+        <pre>
++----------------+-------------+------+-----+-------------------+-----------------------------+
+| Field          | Type        | Null | Key | Default           | Extra                       |
++----------------+-------------+------+-----+-------------------+-----------------------------+
+| ENTRY          | varchar(25) | NO   | PRI | NULL              |                             |
+| LENGTH         | tinyint(4)  | NO   |     | NULL              |                             |
+| RATING         | tinyint(4)  | NO   |     | NULL              |                             |
+| USED_ANY       | tinyint(1)  | NO   |     | NULL              |                             |
+| USED_NYT       | tinyint(1)  | NO   |     | NULL              |                             |
+| NEEDS_RESEARCH | tinyint(1)  | NO   |     | NULL              |                             |
+| MANUALLY_RATED | tinyint(1)  | NO   |     | NULL              |                             |
+| LAST_MODIFIED  | timestamp   | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
++----------------+-------------+------+-----+-------------------+-----------------------------+        </pre>
       </div>
       <div id="commentstable"><h3><li>Comments Table</h3>
+        <pre>
++---------+--------------+------+-----+---------+-------+
+| Field   | Type         | Null | Key | Default | Extra |
++---------+--------------+------+-----+---------+-------+
+| ENTRY   | varchar(25)  | NO   | PRI | NULL    |       |
+| COMMENT | varchar(100) | YES  |     | NULL    |       |
++---------+--------------+------+-----+---------+-------+
+      </pre>
       </div>
       <div id="createstatements"><h3><li>Create Statements</h3>
+      <pre>
+CREATE TABLE `words` (
+  `ENTRY` varchar(25) NOT NULL,
+  `LENGTH` tinyint(4) NOT NULL,
+  `RATING` tinyint(4) NOT NULL,
+  `USED_ANY` tinyint(1) NOT NULL,
+  `USED_NYT` tinyint(1) NOT NULL,
+  `NEEDS_RESEARCH` tinyint(1) NOT NULL,
+  `MANUALLY_RATED` tinyint(1) NOT NULL,
+  `LAST_MODIFIED` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`ENTRY`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+      </pre>
+      <p>
+      <pre>
+CREATE TABLE `comments` (
+  `ENTRY` varchar(25) NOT NULL,
+  `COMMENT` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`ENTRY`)
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8
+      </pre>
       </div>
+      <p>
+        <div class="note">Note:
+          To support "Test Mode", create tables WORDS_TEST and COMMENTS_TEST, as above.
+        </div>
     </div>
   </ol>
 </body>
