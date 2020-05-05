@@ -1,6 +1,7 @@
 package mitchell.pete.xwd.dictionary;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.util.StringTokenizer;
 public class XDictConfig {
 
     // The following parameters can be overridden by the config.txt file.
+    public static final String FILESEP = System.getProperty("file.separator");
     public static boolean testMode = false;
     public static String DB_MODE_SUFFIX = "";
     public static final String TEST_MODE_SUFFIX = "_TEST";
@@ -16,6 +18,9 @@ public class XDictConfig {
     public static String EXPORT_FILE_DELIMITER = ";";
     public static String LOAD_FILE_DEFAULT_DIR = "";
     public static String EXPORT_FILE_DEFAULT_DIR = "";
+    public static final String BACKUP_FILE_DIR = "backups";     // don't allow this to change for now
+    public static final String BACKUP_FILE_NAMECHECK = BACKUP_FILE_DIR + FILESEP + "bkup";     // don't allow this to change for now
+    public static final String HELP_FILE = "help" + XDictConfig.FILESEP + "XDictHelp.html";
     public static int EXPORT_DEFAULT_MINIMUM_RATING = 0;
     public static int APP_WIDTH = 1300;     // value in pixels
     public static int APP_HEIGHT = 850;     // value in pixels
@@ -77,7 +82,7 @@ public class XDictConfig {
 
         try {
             br = new BufferedReader(new FileReader(configFileName));
-            System.out.println("Loading from file: " + configFileName);
+            System.out.println("\n\nLoading from file: " + configFileName);
             System.out.println("----------------------------");
         } catch (FileNotFoundException e) {
             System.out.println("File not found: " + configFileName);
@@ -162,7 +167,7 @@ public class XDictConfig {
             }
         } else if (key.equals("LOAD_FILE_DEFAULT_DIR")) {
             if (!value.isEmpty()) {
-                LOAD_FILE_DEFAULT_DIR = value;
+                LOAD_FILE_DEFAULT_DIR = getPath(value);
                 System.out.println("LOAD_FILE_DEFAULT_DIR: " + LOAD_FILE_DEFAULT_DIR);
             }
         } else if (key.equals("EXPORT_FILE_DEFAULT_DIR")) {
@@ -320,7 +325,7 @@ public class XDictConfig {
         return rat;
     }
 
-    // Make sure pixel values are at least 100, so the app is visibile
+    // Make sure pixel values are at least 100, so the app is visible
     private static int parsePixels(String s) throws NumberFormatException
     {
         int val = 100;
@@ -329,6 +334,16 @@ public class XDictConfig {
             if (val < 100) val = 100;
         }
         return val;
+    }
+
+    private static String getPath(String path)
+    {
+        File f = new File(path);
+        if (f.exists()) {
+            return f.getAbsolutePath();
+        } else {
+            return path;
+        }
     }
 
     public static void setDbModeSuffix(String suffix) {

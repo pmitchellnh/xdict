@@ -609,11 +609,19 @@
         a puzzle, doesn't mean it isn't desirable.  Part of making good crosswords is finding
         those quality words and phrases that <i>haven't</i> been used yet.
       </div><p>
-      To load a word list, specify the path and file name of the word list (relative to where the XDict
-      program is running), make sure the parameters are set the way you want them (including the default
-      rating value) and press the "Load" action button.
+      Before loading a word list, make sure the parameters are set the way you want them (including the
+      default rating value). To load a word list, you can either specify the path and file name of the
+      word list in the "File to Load" field" and press the "Load" action button, or select "Browse" and
+      choose the word list from a file select dialog.  Note that the default path displayed can be
+      set or changed the in the config.txt file with the LOAD_FILE_DEFAULT_DIR parameter. See
+      <a href="#config">Configuration</a> (or the comments in the config.txt file itself) for details.
       <p>
       <img src="./images/LoadScreen1.png" alt="Load Screen" width="700px"><p>
+      <div class="note">Note:<p>
+        The default button action in the Load screen is "Browse" <i>unless</i> the path in the
+        "File to Load" field points to an existing file, in which case the default button action will
+        become "Load".
+      </div>
       <ol type='A'>
         <div id="unrankedwordlists"><h3><li>Unranked Word Lists</h3>
           Unranked word lists are simply lists of words and phrases, one entry per line. It
@@ -762,8 +770,8 @@
         </div>
         <div id="backup"><h3><li>Backup</h3>
           The backup command takes a full backup of your database and stores it
-          in the "backups" subdirectory with the name "bkup_yyyy-mm-dd hh:mm:ss.sss",
-          where "yyyy-mm-dd hh:mm:ss.sss" is the timestamp when the backup was done.
+          in the "backups" subdirectory with the name "bkup_YYYY-MM-DD-HH-MM-SS.SSS",
+          where "YYYY-MM-DD-HH-MM-SS.SSS" is the timestamp when the backup was done.
           <p>
           <div class="alert">It is HIGHLY recommended that you backup your database periodically,
             and especially before any major changes, such as <a href="#load">loading a
@@ -774,7 +782,7 @@
           </div>
           <p>
           <div class="note">Note:<p>Backups done while in TEST MODE will be named
-            "bkup_TEST_yyyy-mm-dd hh:mm:ss.sss".
+            "bkup_TEST_yyyy-mm-dd-hh-mm-ss.sss".
             Any attempt to restore a TEST MODE backup file while not in TEST MODE will result in an
             error.  This is to prevent accidental cross-contamination.
           </div><p>
@@ -795,7 +803,8 @@
           </div>
           <p>
           <div class="note">Note:<p>Backups done while in TEST MODE will be named
-            "bkup_TEST_yyyy-mm-dd hh:mm:ss.sss".
+            "bkup_TEST_YYYY-MM-DD-HH-MM-SS.SSS", where "YYYY-MM-DD-HH-MM-SS.SSS" is the timestamp of
+            the backup.
             Any attempt to restore a TEST MODE backup file while not in TEST MODE will result in an
             error.  This is to prevent accidental cross-contamination.
           </div><p>

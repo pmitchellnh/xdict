@@ -33,10 +33,11 @@ import java.sql.Timestamp;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Properties;
 
 public class XDictGui extends JFrame implements WindowListener 
 {
-
+    private static final String VERSION = "2.1";
 	private static final long serialVersionUID = 2093964455516510191L;
 
 	// This is the DB...
@@ -144,8 +145,14 @@ public class XDictGui extends JFrame implements WindowListener
     private JButton manualButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.MANUAL));
     private JTabbedPane resultPaneTabs 		= new JTabbedPane();
     
-    private JTextField loadFile            = new JTextField(50);
-    private JTextField exportFile            = new JTextField(50);
+    private JTextField loadFile             = new JTextField(50);
+    private JButton browseLoadButton        = new JButton(new BrowseAction(this, false));
+    private JButton browseRestoreButton     = new JButton(new BrowseAction(this, true));
+    private JTextField exportFile           = new JTextField(50);
+
+//    private JFileChooser fileChooser1       = new JFileChooser();
+//    private JFileChooser fileChooser2       = new JFileChooser();
+//    private FileNameExtensionFilter filter  = new FileNameExtensionFilter("Text files", "txt", "dict");
 
     private DocumentListener currentWordEntryListener;
 
@@ -461,7 +468,24 @@ public class XDictGui extends JFrame implements WindowListener
         gbl.setConstraints(loadButton, c);
         loadButton.setEnabled(false);	// init to disabled
         loadButton.setVisible(false);
-        
+
+        // Browse Button
+        c.anchor = GridBagConstraints.WEST;
+        c.fill = GridBagConstraints.HORIZONTAL;
+        c.gridx = 1;
+        c.gridy = 5;
+        c.weightx = 0;
+        c.weighty = 0;
+        c.gridwidth = 1;
+        controlPanel.add(browseLoadButton);
+        controlPanel.add(browseRestoreButton);
+        gbl.setConstraints(browseLoadButton, c);
+        gbl.setConstraints(browseRestoreButton, c);
+        browseLoadButton.setEnabled(false);	// init to disabled
+        browseLoadButton.setVisible(false);
+        browseRestoreButton.setEnabled(false);
+        browseRestoreButton.setVisible(false);
+
         // Export Button
         c.anchor = GridBagConstraints.WEST;
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -687,7 +711,7 @@ public class XDictGui extends JFrame implements WindowListener
         result.setBorder(BorderFactory.createTitledBorder(""));
         result.add(new JLabel("File to Export:"), BorderLayout.WEST);
         result.add(exportFile, BorderLayout.CENTER);
-        exportFile.setText("export/");
+        exportFile.setText(XDictConfig.EXPORT_FILE_DEFAULT_DIR);
         
         return result;
     }
@@ -854,11 +878,11 @@ public class XDictGui extends JFrame implements WindowListener
         return result;
     }
 
-    public boolean isQueryEnabled() { return queryButton.isEnabled(); }
-    public boolean isRatingEnabled() { return rateQueryButton.isEnabled(); }
-    public boolean isAddEnabled() { return addButton.isEnabled(); }
-    public boolean isExportEnabled() { return exportButton.isEnabled(); }
-    public boolean isLoadEnabled() { return loadButton.isEnabled(); }
+    public boolean isQueryEnabled() { return resultPaneTabs.getSelectedIndex() == 0; }
+    public boolean isAddEnabled() { return resultPaneTabs.getSelectedIndex() == 1; }
+    public boolean isRatingEnabled() { return resultPaneTabs.getSelectedIndex() == 2; }
+    public boolean isLoadEnabled() { return resultPaneTabs.getSelectedIndex() == 3; }
+    public boolean isExportEnabled() { return resultPaneTabs.getSelectedIndex() == 4; }
 
     public void setupSliders()
     {
@@ -911,6 +935,7 @@ public class XDictGui extends JFrame implements WindowListener
         manualRatingSlider2.addChangeListener(manualRatingListener2);
         wordEntry.getDocument().addDocumentListener(wordEntryListener);
         currentWordEntryListener = wordEntryListener;
+        loadFile.getDocument().addDocumentListener(loadFileListener);
     }
 
     ChangeListener lengthListener = new ChangeListener()
@@ -1064,6 +1089,7 @@ public class XDictGui extends JFrame implements WindowListener
         }
     };
 
+
     DocumentListener wordEntryListenerAdd = new DocumentListener() {
         @Override
         public void insertUpdate(DocumentEvent e) {
@@ -1073,6 +1099,63 @@ public class XDictGui extends JFrame implements WindowListener
         @Override
         public void removeUpdate(DocumentEvent e) {
             resetAdd();
+        }
+
+        @Override
+        public void changedUpdate(DocumentEvent e) {
+            // do nothing
+        }
+    };
+
+    DocumentListener loadFileListener = new DocumentListener() {
+        @Override
+        public void insertUpdate(DocumentEvent e) {
+            File f = new File(loadFile.getText());
+            if (f.exists() && f.isFile() && !f.getAbsolutePath().contains(XDictConfig.BACKUP_FILE_NAMECHECK)) {
+                loadButton.setEnabled(true);
+                getRootPane().setDefaultButton(loadButton);
+            } else {
+                loadButton.setEnabled(false);
+                if (f.getAbsolutePath().contains(XDictConfig.BACKUP_FILE_DIR)) {
+                    browseLoadButton.setEnabled(false);
+                    browseLoadButton.setVisible(false);
+                    browseRestoreButton.setEnabled(true);
+                    browseRestoreButton.setVisible(true);
+                    getRootPane().setDefaultButton(browseRestoreButton);
+                }
+                else {
+                    browseRestoreButton.setEnabled(false);
+                    browseRestoreButton.setVisible(false);
+                    browseLoadButton.setEnabled(true);
+                    browseLoadButton.setVisible(true);
+                    getRootPane().setDefaultButton(browseLoadButton);
+                }
+            }
+        }
+
+        @Override
+        public void removeUpdate(DocumentEvent e) {
+            File f = new File(loadFile.getText());
+            if (f.exists() && f.isFile() && !f.getAbsolutePath().contains(XDictConfig.BACKUP_FILE_NAMECHECK)) {
+                loadButton.setEnabled(true);
+                getRootPane().setDefaultButton(loadButton);
+            } else {
+                loadButton.setEnabled(false);
+                if (f.getAbsolutePath().contains(XDictConfig.BACKUP_FILE_DIR)) {
+                    browseLoadButton.setEnabled(false);
+                    browseLoadButton.setVisible(false);
+                    browseRestoreButton.setEnabled(true);
+                    browseRestoreButton.setVisible(true);
+                    getRootPane().setDefaultButton(browseRestoreButton);
+                }
+                else {
+                    browseRestoreButton.setEnabled(false);
+                    browseRestoreButton.setVisible(false);
+                    browseLoadButton.setEnabled(true);
+                    browseLoadButton.setVisible(true);
+                    getRootPane().setDefaultButton(browseLoadButton);
+                }
+            }
         }
 
         @Override
@@ -1148,6 +1231,10 @@ public class XDictGui extends JFrame implements WindowListener
         addButton.setVisible(false);
         loadButton.setEnabled(false);
         loadButton.setVisible(false);
+        browseLoadButton.setEnabled(false);
+        browseLoadButton.setVisible(false);
+        browseRestoreButton.setEnabled(false);
+        browseRestoreButton.setVisible(false);
         exportButton.setEnabled(false);
         exportButton.setVisible(false);
 
@@ -1191,7 +1278,7 @@ public class XDictGui extends JFrame implements WindowListener
         }
 
         // Initialize result area and status line
-        queryResultArea.setText("");
+//        queryResultArea.setText("");
         queryResultArea.setEnabled(false);
         queryResultArea.setDisabledTextColor(Color.BLACK);
         statusLine.setText("Ready.");
@@ -1209,6 +1296,10 @@ public class XDictGui extends JFrame implements WindowListener
         addButton.setVisible(false);
         loadButton.setEnabled(false);
         loadButton.setVisible(false);
+        browseLoadButton.setEnabled(false);
+        browseLoadButton.setVisible(false);
+        browseRestoreButton.setEnabled(false);
+        browseRestoreButton.setVisible(false);
         exportButton.setEnabled(true);
         exportButton.setVisible(true);
         rateQueryButton.setEnabled(false);
@@ -1250,7 +1341,7 @@ public class XDictGui extends JFrame implements WindowListener
         exportFile.setText(XDictConfig.EXPORT_FILE_DEFAULT_DIR);
 
         // Initialize result area and status line
-        exportResultArea.setText("");
+//        exportResultArea.setText("");
         exportResultArea.setEnabled(false);
         exportResultArea.setDisabledTextColor(Color.BLACK);
         statusLine.setText("Ready.");
@@ -1267,6 +1358,10 @@ public class XDictGui extends JFrame implements WindowListener
         addButton.setVisible(false);
         loadButton.setEnabled(true);
         loadButton.setVisible(true);
+        browseLoadButton.setEnabled(true);
+        browseLoadButton.setVisible(true);
+        browseRestoreButton.setEnabled(false);
+        browseRestoreButton.setVisible(false);
         exportButton.setEnabled(false);
         exportButton.setVisible(false);
         rateQueryButton.setEnabled(false);
@@ -1325,6 +1420,10 @@ public class XDictGui extends JFrame implements WindowListener
         addButton.setVisible(true);
         loadButton.setEnabled(false);
         loadButton.setVisible(false);
+        browseLoadButton.setEnabled(false);
+        browseLoadButton.setVisible(false);
+        browseRestoreButton.setEnabled(false);
+        browseRestoreButton.setVisible(false);
         exportButton.setEnabled(false);
         exportButton.setVisible(false);
         rateQueryButton.setEnabled(false);
@@ -1402,7 +1501,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryMethodManual.setSelected(true);
 
         // Initialize result area and status line
-        addResultArea.setText("");
+//        addResultArea.setText("");
         statusLine.setText("Ready.");
     }
 
@@ -1907,19 +2006,37 @@ public class XDictGui extends JFrame implements WindowListener
         boolean isError = false;
 
         resultPaneTabs.setSelectedIndex(3);     // set to load result pane to display results
-        if (!loadFile.getText().startsWith("backups/"))
-            loadFile.setText("backups/");
+        File f = new File(loadFile.getText());
+        if (f.exists() && f.getAbsolutePath().contains(XDictConfig.BACKUP_FILE_NAMECHECK)) {
+            loadFile.setText(f.getAbsolutePath());
+        } else {
+            File f1 = new File(XDictConfig.BACKUP_FILE_DIR);
+            loadFile.setText(f1.getAbsolutePath());
+            loadResultArea.setText("Backup files are restored from the \"" + XDictConfig.BACKUP_FILE_DIR + "\" directory and " +
+                    "are in the form \"bkup_TIMESTAMP\", where TIMESTAMP is the time the backup file was created.\n");
+            loadResultArea.append("Enter the backup file name in the File to Load field and then retry the Restore action (or Browse and select).\n");
+            loadResultArea.append("\nTO ENSURE A CLEAN RESTORE, IT IS HIGHLY RECOMMENDED THAT YOU FIRST DO A DATABASE CLEAR TABLES!\n\n");
+            fileSelectDialog(true);
+            return;
+        }
+
+        browseLoadButton.setEnabled(false);
+        browseLoadButton.setVisible(false);
+        browseRestoreButton.setEnabled(true);
+        browseRestoreButton.setVisible(true);
+        loadButton.setEnabled(false);
 
         String filename = loadFile.getText();
-        if ( !filename.startsWith("backups/bkup") ) {
-            loadResultArea.setText("Can only restore files starting with \"backups/bkup\"; Filename: [" + filename + "]\n");
-            loadResultArea.append("Enter the backup file name in the File to Load field and then retry the Restore action.\n");
-            loadResultArea.append("WARNING: Do NOT restore with the LOAD button, as any non-rating data will not be restored!\n");
+        if ( !filename.contains(XDictConfig.BACKUP_FILE_NAMECHECK)) {
+            loadResultArea.setText("Backup files are restored from the \"" + XDictConfig.BACKUP_FILE_DIR + "\" directory and " +
+                    "are in the form \"bkup_TIMESTAMP\", where TIMESTAMP is the time the backup file was created.\n");
+            loadResultArea.append("Enter the backup file name in the File to Load field and then retry the Restore action (or Browse and select).\n");
+            loadResultArea.append("TO ENSURE A CLEAN RESTORE, IT IS HIGHLY RECOMMENDED THAT YOU FIRST DO A DATABASE CLEAR TABLES!\n");
             return;
         }
         if (filename.contains(XDictConfig.TEST_MODE_SUFFIX) && !XDictConfig.testMode) {
             loadResultArea.setText("WARNING: You are trying to restore a TEST MODE database but are NOT in TEST MODE!!!\n");
-            loadResultArea.append("If you really mean to do this, you must rename the backup file to remove the " + XDictConfig.TEST_MODE_SUFFIX + "from the name.\n");
+            loadResultArea.append("If you really mean to do this, you must rename the backup file to remove the " + XDictConfig.TEST_MODE_SUFFIX + " from the name.\n");
             loadResultArea.append("This is for your own safety.\n");
             return;
         }
@@ -1980,7 +2097,6 @@ public class XDictGui extends JFrame implements WindowListener
             getStatusLine().showInfo("Restore complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
         }
         this.setEnabled(true);      // re-enable GUI
-
         return;
     }
 
@@ -1992,7 +2108,8 @@ public class XDictGui extends JFrame implements WindowListener
     	String filename = exportFile.getText();
     	if (isBackup) {
     		Timestamp t = new Timestamp(new Date().getTime());
-    		filename = "backups/bkup" + XDictConfig.DB_MODE_SUFFIX + "_" + t.toString();
+            String s = t.toString().replaceAll(":", "-").replaceAll(" ", "-");
+    		filename = XDictConfig.BACKUP_FILE_NAMECHECK + XDictConfig.DB_MODE_SUFFIX + "_" + s + ".txt";
             exportFile.setText(filename);
     	}
     	exportResultArea.setText("");
@@ -2117,7 +2234,10 @@ public class XDictGui extends JFrame implements WindowListener
         exportResultArea.append((isBackup ? "Backed up " : "Exported ") + resultSetSize + (resultSetSize == 1 ? " entry" : " entries.\n"));
         Date stopTime = new Date();
         getStatusLine().showInfo((isBackup ? "Backup " : "Export ") + " complete (" + ((stopTime.getTime() - startTime.getTime()) / (double) 1000) + " secs).");
+
         this.setEnabled(true);
+
+        exportFile.setText(XDictConfig.EXPORT_FILE_DEFAULT_DIR);
 
         return;
     }
@@ -2336,7 +2456,7 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void doHelp() {
         try {
-            File file = new java.io.File("help/XDictHelp.html").getAbsoluteFile();
+            File file = new java.io.File(XDictConfig.HELP_FILE).getAbsoluteFile();
             Desktop.getDesktop().open(file);
         } catch (Exception e) {
             e.printStackTrace();
@@ -2346,11 +2466,67 @@ public class XDictGui extends JFrame implements WindowListener
     public void doAbout() {
         Label copyrightL = new Label("\u00a9");
         String aboutMessage = "This is XDict, a Crossword Dictionary Maintenance Program by Pete Mitchell\n\n" +
-                copyrightL.getText() + " 2020";
+                "Version: " + VERSION + "  " + copyrightL.getText() + "2020";
         JOptionPane.showMessageDialog(this, aboutMessage,
                 "About XDict",
                 JOptionPane.PLAIN_MESSAGE);
     }
+
+    public void fileSelectDialog(boolean isRestore) {
+
+        // If there's text in the File to Load field, use that, otherwise use the default.
+        File dir = new File(loadFile.getText());
+        if (!dir.exists()) {
+            loadResultArea.append(dir.getAbsolutePath() + " not found. \n");
+            dir = (isRestore ? new File(XDictConfig.BACKUP_FILE_DIR) : new File(XDictConfig.LOAD_FILE_DEFAULT_DIR));
+            loadResultArea.append("Trying default directory (" + dir.getAbsolutePath() + ")\n");
+        }
+        if (!dir.exists()) {
+            loadResultArea.append(dir.getAbsolutePath() + " not found. \n");
+            if (isRestore)
+                loadResultArea.append("\nIF YOU HAVE NEVER CREATED A BACKUP, THERE MAY NOT BE A \"" + XDictConfig.BACKUP_FILE_DIR + "\" DIRECTORY!\n\n");
+            else
+                loadResultArea.append("Make sure LOAD_FILE_DEFAULT_DIR is set appropriately in your config.txt file.\n");
+            dir = new File(System.getProperty("user.dir"));
+            loadResultArea.append("Trying base directory (" + dir.getAbsolutePath() + ")\n");
+        }
+
+        System.setProperty("apple.awt.fileDialogForDirectories", "false");
+        FileDialog fd = new FileDialog(this, "Choose a " + (isRestore ? "backup file to restore" : "word list to load"), FileDialog.LOAD);
+        fd.setDirectory(dir.getAbsolutePath());
+        fd.setVisible(true);
+        String filename = (fd.getFile() == null ? null : fd.getDirectory() + fd.getFile());
+        if (filename != null) {         // if null, then cancelled dialog
+            loadFile.setText(filename);
+            if (isRestore) {
+                doRestore();
+            } else {
+                doLoad();
+            }
+        }
+
+//        int result = 0;
+//
+//        if (isRestore) {
+//            fileChooser1.setFileFilter(filter);
+//            fileChooser1.setCurrentDirectory(dir);
+//            System.out.println("fileChooser1 dir: " + fileChooser1.getCurrentDirectory());
+//            loadScrollPane.grabFocus();
+//            result = fileChooser1.showOpenDialog(loadScrollPane);
+//            if (result == JFileChooser.APPROVE_OPTION)
+//                loadFile.setText(fileChooser1.getSelectedFile().getAbsolutePath());
+//        } else {
+//            fileChooser2.setFileFilter(filter);
+//            fileChooser2.setCurrentDirectory(dir);
+//            System.out.println("fileChooser2 dir: " + fileChooser2.getCurrentDirectory());
+//            loadScrollPane.grabFocus();
+//            result = fileChooser2.showOpenDialog(loadScrollPane);
+//            if (result == JFileChooser.APPROVE_OPTION)
+//                loadFile.setText(fileChooser2.getSelectedFile().getAbsolutePath());
+//        }
+
+    }
+
     /*
      ************  WINDOW CONTROL ************
      */
@@ -2390,6 +2566,15 @@ public class XDictGui extends JFrame implements WindowListener
     public static void main(String[] args) 
     {
         try {
+            System.setProperty( "line.separator", "\n" );
+            Properties p = new Properties(System.getProperties());
+            System.setProperties(p);
+            System.getProperties().list(System.out);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception ex) {
             // Ignore
@@ -2423,6 +2608,6 @@ public class XDictGui extends JFrame implements WindowListener
             gui.setTitle("XDict - A Crossword Dictionary Maintenance Tool by Pete Mitchell");
         }
         gui.setVisible(true);
-        
+
     }
 }

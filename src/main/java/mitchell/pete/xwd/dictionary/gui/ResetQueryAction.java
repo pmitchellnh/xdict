@@ -25,16 +25,26 @@ public class ResetQueryAction extends AbstractAction
     {
 		if ( gui != null )
 		{
-            if (gui.isQueryEnabled())
+            if (gui.isQueryEnabled()) {
+//                System.out.println("Performing resetQuery(false)");
                 gui.resetQuery(false);
-            else if (gui.isRatingEnabled())
+            }
+            else if (gui.isRatingEnabled()) {
+//                System.out.println("Performing resetQuery(true)");
                 gui.resetQuery(true);
-            else if (gui.isAddEnabled())
+            }
+            else if (gui.isAddEnabled()) {
+//                System.out.println("Performing resetAdd()");
                 gui.resetAdd();
-            else if (gui.isExportEnabled())
+            }
+            else if (gui.isExportEnabled()) {
+//                System.out.println("Performing resetExport()");
                 gui.resetExport();
-            else if (gui.isLoadEnabled())
+            }
+            else if (gui.isLoadEnabled()) {
+//                System.out.println("Performing resetLoad()");
                 gui.resetLoad();
+            }
 		}
     }
 }
