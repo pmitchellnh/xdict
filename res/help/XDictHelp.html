@@ -725,6 +725,9 @@
       using the "browse" feature in CrossFire to load them directly in.  This way I can easily make
       rating changes and reload a new dictionary with relative ease. If I'm doing multiple iterations,
       I'll add an 'a', 'b', 'c', etc. to the file name to keep them unique (e.g., dict20200101a.dict).
+      <p>
+      In Crossword Compiler you can import your exported word list from the Convert menu in the Word List 
+      Manager.
       </div><p>
       Exported files contain one entry per line, in the format: WORD;RATING (see note,
       below), for example:
@@ -789,10 +792,10 @@
         </div>
         <div id="restore"><h3><li>Restore</h3>
           To restore a backup file, select "Restore" from the Database Menu, which will bring you
-          to the "Load" tab and preset the "backup/" portion of the filename. This is because the
+          to the "Load" tab and launch a file select dialog preset to the "backups" directory, if
+          it exists.  If the "backups" directory does not exist, it is probably because you have
+          never created a backup and, therefore, have nothing to restore to. A restore
           file MUST come from the "backup" directory (to prevent "restoring" of non-backup files).
-          Type (or cut and paste) into "File to Load" the filename of the backup file
-          you want to restore, and then (again) select "Restore" from the Database menu.
           <p>
           <div class="alert">Important:<p>Do NOT click the "Load" button to do a restore.  "Load"
           will only load (and merge) word and ratings. "Restore" recreates the entire database as

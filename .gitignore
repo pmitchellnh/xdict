@@ -8,6 +8,7 @@ config.txt
 # Code compiled by Maven
 *target*
 /bin
+/out
 
 # Eclipse project files
 *.classpath*

@@ -14,6 +14,7 @@ import mitchell.pete.xwd.dictionary.db.XDictDB_Interface.WORD_STATUS;
 import mitchell.pete.xwd.dictionary.db.XDictDB_MySQL;
 import mitchell.pete.xwd.dictionary.db.XDictSQLException;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
 import javax.swing.event.ChangeEvent;
@@ -25,6 +26,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -2456,8 +2458,7 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void doHelp() {
         try {
-            File file = new java.io.File(XDictConfig.HELP_FILE).getAbsoluteFile();
-            Desktop.getDesktop().open(file);
+            Desktop.getDesktop().open(new File(XDictConfig.HELP_FILE));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2607,6 +2608,32 @@ public class XDictGui extends JFrame implements WindowListener
             }
             gui.setTitle("XDict - A Crossword Dictionary Maintenance Tool by Pete Mitchell");
         }
+
+        XDictConfig.setHelpFile(gui);
+        XDictConfig.setIconFile(gui);
+
+        // Load icon
+        try {
+            File f = new File(XDictConfig.ICON_FILE);
+            System.out.println("Trying to load icon file: " + f.getAbsolutePath());
+            if (f.isFile()) {
+                System.out.println("(file exists)");
+            } else {
+                System.out.println("(file does not exist)");
+            }
+            FileInputStream fis = new FileInputStream(f);
+            Image i = ImageIO.read(fis);
+            if (i == null) {
+                System.out.println("Cannot load icon file.");
+            } else {
+                System.out.println("icon: " + i.toString());
+                gui.setIconImage(i);
+            }
+        } catch (IOException e) {
+            System.out.println("Cannot load icon file.");
+            System.out.println(e.toString());
+        }
+
         gui.setVisible(true);
 
     }
