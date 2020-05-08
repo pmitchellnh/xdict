@@ -6,6 +6,11 @@ config.pwm
 config.txt
 build.xml.fx
 /com
+/META-INF
+/deploy
+/help
+/release
+/resources
 
 # Code compiled by Maven
 *target*
