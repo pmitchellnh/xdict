@@ -4,6 +4,8 @@
 /wordlists
 config.pwm
 config.txt
+build.xml.fx
+/com
 
 # Code compiled by Maven
 *target*

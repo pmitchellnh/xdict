@@ -2,11 +2,11 @@ package mitchell.pete.xdict.gui;
 
 import mitchell.pete.xdict.LoadAndExportUtilities;
 import mitchell.pete.xdict.Word;
+import mitchell.pete.xdict.XDictConfig;
+import mitchell.pete.xdict.XDictConfig.RATINGS;
 import mitchell.pete.xdict.db.XDictDB_Interface;
 import mitchell.pete.xdict.db.XDictDB_MySQL;
 import mitchell.pete.xdict.db.XDictSQLException;
-import mitchell.pete.xdict.XDictConfig;
-import mitchell.pete.xdict.XDictConfig.RATINGS;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -2452,7 +2452,7 @@ public class XDictGui extends JFrame implements WindowListener
 
     public void doHelp() {
         try {
-            Desktop.getDesktop().open(new File(XDictConfig.HELP_FILE));
+            Desktop.getDesktop().open(XDictConfig.HELP_FILE);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -2603,12 +2603,9 @@ public class XDictGui extends JFrame implements WindowListener
             gui.setTitle("XDict - A Crossword Dictionary Maintenance Tool by Pete Mitchell");
         }
 
-        XDictConfig.setHelpFile(gui);
-        XDictConfig.setIconFile(gui);
-
         // Load icon
         try {
-            File f = new File(XDictConfig.ICON_FILE);
+            File f = new File(XDictConfig.ICON_FILE.toString());
             System.out.println("Trying to load icon file: " + f.getAbsolutePath());
             if (f.isFile()) {
                 System.out.println("(file exists)");

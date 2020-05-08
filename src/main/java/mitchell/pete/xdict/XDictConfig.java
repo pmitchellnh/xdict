@@ -1,12 +1,10 @@
 package mitchell.pete.xdict;
 
-import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
 import java.util.StringTokenizer;
 
 public class XDictConfig {
@@ -22,8 +20,8 @@ public class XDictConfig {
     public static String EXPORT_FILE_DEFAULT_DIR = "";
     public static final String BACKUP_FILE_DIR = "backups";     // don't allow this to change for now
     public static final String BACKUP_FILE_NAMECHECK = BACKUP_FILE_DIR + FILESEP + "bkup";     // don't allow this to change for now
-    public static String HELP_FILE = "res" + XDictConfig.FILESEP + "help" + XDictConfig.FILESEP + "XDictHelp.html";
-    public static String ICON_FILE = "res" + XDictConfig.FILESEP + "xdict.png";
+    public static final File HELP_FILE = new File("help" + XDictConfig.FILESEP + "XDictHelp.html");
+    public static final File ICON_FILE = new File("xdict.png");
     public static int EXPORT_DEFAULT_MINIMUM_RATING = 0;
     public static int APP_WIDTH = 1300;     // value in pixels
     public static int APP_HEIGHT = 850;     // value in pixels
@@ -351,28 +349,6 @@ public class XDictConfig {
 
     public static void setDbModeSuffix(String suffix) {
         DB_MODE_SUFFIX = suffix;
-    }
-
-    public static void setHelpFile(JFrame gui) {
-        Class c = gui.getClass();
-        System.out.println("Class: " + c.toString());
-        ClassLoader cl = c.getClassLoader();
-        System.out.println("Class Loader: " + cl.toString());
-        URL res = cl.getResource("help" + XDictConfig.FILESEP + "XDictHelp.html");
-        System.out.println("Help Resource: " + res.toString());
-
-        HELP_FILE = res.getFile();
-    }
-
-    public static void setIconFile(JFrame gui) {
-        Class c = gui.getClass();
-        System.out.println("Class: " + c.toString());
-        ClassLoader cl = c.getClassLoader();
-        System.out.println("Class Loader: " + cl.toString());
-        URL res = cl.getResource("xdict.png");
-        System.out.println("Icon Resource: " + res.toString());
-
-        ICON_FILE = res.getFile();
     }
 
     public static String getRateButtonName(RATINGS r) {

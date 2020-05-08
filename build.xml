@@ -1,0 +1,49 @@
+<project name="XDict" default="deploy" basedir="." >
+
+  <!-- ******************************** -->
+  <!-- CHANGE THESE VARIABLES AS NEEDED -->
+  <!-- ******************************** -->
+
+  <property name="jar_filename"      value="XDict.jar" />
+  <property name="jar_path"          value="out/artifacts/XDict_jar" />
+
+  <!-- no spaces in `app_name` -->
+  <property name="app_name"          value="XDict" />
+  <property name="app_display_name"  value="XDict" />
+  <property name="short_version"     value="2.1" />
+  <property name="icon_filename"     value="xdict.png" />
+  <property name="copyright_holder"  value="Pete Mitchell" />
+  <property name="app_identifier"    value="mitchell.pete.xdict" />
+  <property name="main_class_name"   value="mitchell.pete.xdict.gui.XDictGui" />
+  <property name="app_category"      value="public.app-category.utilities" />
+  <property name="release_dir"       value="release" />
+
+
+
+  <!-- **************************************** -->
+  <!-- CHANGE STUFF BELOW HERE AT YOUR OWN RISK -->
+  <!-- **************************************** -->
+
+  <property environment="env" />
+
+  <target name="clean">
+      <echo message="Clean ..." />
+      <!-- delete old dirs -->
+      <delete dir="${release_dir}" quiet="true" />
+      <!-- create new, clean dirs -->
+      <mkdir dir="${release_dir}" />
+  </target>
+
+  <target name="deploy" depends="clean">
+    <echo message="Deploy ..." />
+    <copy file="${jar_path}/${jar_filename}" todir="${release_dir}" />
+    <copy file="config.orig" todir="${release_dir}" />
+    <unzip src="${jar_path}/${jar_filename}" dest="${release_dir}">
+      <patternset>
+        <include name="help/"/>
+        <include name="xdict.png"/>
+      </patternset>
+    </unzip>
+  </target>
+
+</project>
