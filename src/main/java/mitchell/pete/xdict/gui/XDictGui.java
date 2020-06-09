@@ -100,6 +100,7 @@ public class XDictGui extends JFrame implements WindowListener
     private JRadioButton queryRatingEquals = new JRadioButton("Equals");
     private JRadioButton queryMethodAll = new JRadioButton("All");
     private JRadioButton queryMethodManual = new JRadioButton("Hand-rated");
+    private JRadioButton queryMethodRanked = new JRadioButton("Rank-loaded");
     private JRadioButton queryMethodAuto = new JRadioButton("Auto-loaded");
 
     private JTextField wordEntry            = new JTextField(30);
@@ -319,7 +320,7 @@ public class XDictGui extends JFrame implements WindowListener
         c.weightx = 0;
         c.weighty = 0;
         c.gridwidth = 3;
-        JComponent b3 = buildRadioButton3(queryMethodAll, queryMethodManual, queryMethodAuto, 1 );
+        JComponent b3 = buildRadioButton4(queryMethodAll, queryMethodManual, queryMethodRanked, queryMethodAuto, 1);
         controlPanel.add(b3);
         gbl.setConstraints(b3, c);
         c.gridwidth = 1;
@@ -808,7 +809,49 @@ public class XDictGui extends JFrame implements WindowListener
 
         return result;
     }
-    
+
+    // Radio button with 4 options
+    private JComponent buildRadioButton4(JRadioButton b1, JRadioButton b2, JRadioButton b3, JRadioButton b4, int defaultButton)
+    {
+        JPanel result = new JPanel();
+        result.setLayout(new GridLayout(1, 4));
+
+        ButtonGroup group = new ButtonGroup();
+
+        switch (defaultButton)
+        {
+            case 1:
+                b1.setSelected(true);
+                break;
+            case 2:
+                b2.setSelected(true);
+                break;
+            case 3:
+                b3.setSelected(true);
+                break;
+            case 4:
+                b4.setSelected(true);
+            default:
+                break;
+        }
+        group.add(b1);
+        group.add(b2);
+        group.add(b3);
+        group.add(b4);
+
+        b1.setVerticalAlignment(SwingConstants.TOP);
+        b2.setVerticalAlignment(SwingConstants.TOP);
+        b3.setVerticalAlignment(SwingConstants.TOP);
+        b4.setVerticalAlignment(SwingConstants.TOP);
+
+        result.add(b1);
+        result.add(b2);
+        result.add(b3);
+        result.add(b4);
+
+        return result;
+    }
+
     private JComponent buildGenericCombo2(String title, JComponent j1, JComponent j2 )
     {
     	JPanel result = new JPanel();
@@ -925,6 +968,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryRatingAtLeast.addChangeListener(queryChangedListener);
         queryMethodAll.addChangeListener(queryChangedListener);
         queryMethodManual.addChangeListener(queryChangedListener);
+        queryMethodRanked.addChangeListener(queryChangedListener);
         queryMethodAuto.addChangeListener(queryChangedListener);
         resultPaneTabs.addChangeListener(tabListener);
         manualRatingSlider.addChangeListener(manualRatingListener);
@@ -1241,6 +1285,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryEntryStarts.setEnabled(true);
         queryMethodAuto.setEnabled(true);
         queryMethodAll.setEnabled(true);
+        queryMethodRanked.setEnabled(true);
         queryMethodManual.setEnabled(true);
         queryLengthEquals.setEnabled(true);
         queryLengthAtLeast.setEnabled(true);
@@ -1312,6 +1357,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryMethodAuto.setEnabled(true);
         queryMethodAll.setEnabled(true);
         queryMethodManual.setEnabled(true);
+        queryMethodRanked.setEnabled(true);
         queryLengthEquals.setEnabled(true);
         queryLengthAtLeast.setEnabled(true);
         queryLengthAtMost.setEnabled(true);
@@ -1373,6 +1419,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryMethodAuto.setEnabled(true);
         queryMethodAll.setEnabled(false);
         queryMethodManual.setEnabled(true);
+        queryMethodRanked.setEnabled(false);
         queryLengthEquals.setEnabled(false);
         queryLengthAtLeast.setEnabled(false);
         queryLengthAtMost.setEnabled(false);
@@ -1435,6 +1482,7 @@ public class XDictGui extends JFrame implements WindowListener
         queryMethodManual.setEnabled(true);
         queryMethodAuto.setEnabled(false);
         queryMethodAll.setEnabled(false);
+        queryMethodRanked.setEnabled(false);
         queryLengthEquals.setEnabled(false);
         queryLengthAtLeast.setEnabled(false);
         queryLengthAtMost.setEnabled(false);
@@ -1657,7 +1705,9 @@ public class XDictGui extends JFrame implements WindowListener
     		methCtrl = XDictDB_Interface.MethodControl.MANUAL;
     	} else if (queryMethodAuto.isSelected()) {
     		methCtrl = XDictDB_Interface.MethodControl.AUTOMATIC;
-    	}
+    	} else if (queryMethodRanked.isSelected()) {
+            methCtrl = XDictDB_Interface.MethodControl.RANKED;
+        }
 
         try {
             resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
@@ -1770,7 +1820,10 @@ public class XDictGui extends JFrame implements WindowListener
     		methCtrl = XDictDB_Interface.MethodControl.MANUAL;
     	} else if (queryMethodAuto.isSelected()) {
     		methCtrl = XDictDB_Interface.MethodControl.AUTOMATIC;
-    	}
+    	} else if (queryMethodRanked.isSelected()) {
+            methCtrl = XDictDB_Interface.MethodControl.RANKED;
+        }
+
 
         try {
             resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, true);
@@ -1941,7 +1994,7 @@ public class XDictGui extends JFrame implements WindowListener
 				}
 				Word wTmp = LoadAndExportUtilities.parseWordAndRating(line, XDictConfig.LOAD_FILE_DELIMITERS, (byte) wordRatingSlider.getValue());
 
-				Word w = new Word.Builder(wTmp.getEntry()).rating(wTmp.getRating()).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).manuallyRated(queryMethodManual.isSelected()).build();
+				Word w = new Word.Builder(wTmp.getEntry()).rating(wTmp.getRating()).rankedList(wTmp.isRankedList()).usedAny(usedAny.isSelected()).usedNYT(usedNYT.isSelected()).manuallyRated(queryMethodManual.isSelected()).build();
 
 		    	if (w.length() < 3) {
 		    		status = XDictDB_Interface.WORD_STATUS.ERROR;
@@ -2181,8 +2234,11 @@ public class XDictGui extends JFrame implements WindowListener
 	    		methCtrl = XDictDB_Interface.MethodControl.MANUAL;
 	    	} else if (queryMethodAuto.isSelected()) {
 	    		methCtrl = XDictDB_Interface.MethodControl.AUTOMATIC;
-	    	}
-    	}
+	    	} else if (queryMethodRanked.isSelected()) {
+                methCtrl = XDictDB_Interface.MethodControl.RANKED;
+            }
+
+        }
 
         try {
             resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, false);
@@ -2305,6 +2361,7 @@ public class XDictGui extends JFrame implements WindowListener
         this.setEnabled(false);     // disable UI during processing
 
         int totalRated = 0;
+        int totalRanked = 0;
         int totalUnrated = 0;
 
         String key = "";
@@ -2325,18 +2382,24 @@ public class XDictGui extends JFrame implements WindowListener
             for (int length = 3; length < 26; length++) {
 
                 int ratedCount = dict.getCount(XDictDB_Interface.LengthControl.EQUALS, length, patCtrl, key, XDictDB_Interface.RatingControl.ALL, 0, XDictDB_Interface.UsedControl.ALL, XDictDB_Interface.ResearchControl.ALL, XDictDB_Interface.MethodControl.MANUAL, false);
+                int rankedCount = dict.getCount(XDictDB_Interface.LengthControl.EQUALS, length, patCtrl, key, XDictDB_Interface.RatingControl.ALL, 0, XDictDB_Interface.UsedControl.ALL, XDictDB_Interface.ResearchControl.ALL, XDictDB_Interface.MethodControl.RANKED, false);
                 int unratedCount = dict.getCount(XDictDB_Interface.LengthControl.EQUALS, length, patCtrl, key, XDictDB_Interface.RatingControl.ALL, 0, XDictDB_Interface.UsedControl.ALL, XDictDB_Interface.ResearchControl.ALL, XDictDB_Interface.MethodControl.AUTOMATIC, false);
 
-                if (ratedCount + unratedCount == 0)
+                if (ratedCount + rankedCount + unratedCount == 0)
                     continue;
 
-                double percent = (double) ratedCount / ((double) ratedCount + (double) unratedCount);
-                DecimalFormat df = new DecimalFormat("##.##%");
-                String formattedPercent = df.format(percent);
+                double ratedPercent = (double) ratedCount / ((double) ratedCount + (double)rankedCount + (double) unratedCount);
+                double rankedPercent = (double) rankedCount / ((double) ratedCount + (double)rankedCount + (double) unratedCount);
+                double unratedPercent = (double) unratedCount / ((double) ratedCount + (double)rankedCount + (double) unratedCount);
+                DecimalFormat df = new DecimalFormat("##.#%");
+                String formattedRatedPercent = df.format(ratedPercent);
+                String formattedRankedPercent = df.format(rankedPercent);
+                String formattedUnratedPercent = df.format(unratedPercent);
                 totalRated += ratedCount;
                 totalUnrated += unratedCount;
+                totalRanked += rankedCount;
 
-                queryResultArea.append("Length: " + length + "  Total: " + (ratedCount + unratedCount) + "  Rated: " + ratedCount + "  Unrated: " + unratedCount + "  Percent: " + formattedPercent + "\n");
+                queryResultArea.append("Length: " + length + "  Total: " + (ratedCount + rankedCount + unratedCount) + "  Rated: " + ratedCount + "  Ranked: " + rankedCount + "  Unrated: " + unratedCount + "  Percents: " + formattedRatedPercent + "|" + formattedRankedPercent + "|" + formattedUnratedPercent +  "\n");
 
             }
         } catch (XDictSQLException e) {
@@ -2346,10 +2409,14 @@ public class XDictGui extends JFrame implements WindowListener
             return;
         }
 
-        double percent = (double)totalRated / ( (double)totalRated + (double)totalUnrated);
-        DecimalFormat df = new DecimalFormat("##.##%");
-        String formattedPercent = df.format(percent);
-        queryResultArea.append("TOTAL:   Total: " + (totalRated + totalUnrated) + "  Rated: " + totalRated + "  Unrated: " + totalUnrated + "  Percent: " + formattedPercent + "\n");
+        double ratedPercent = (double)totalRated / ( (double)totalRated + (double)totalRanked + (double)totalUnrated);
+        double rankedPercent = (double)totalRanked / ( (double)totalRated + (double)totalRanked + (double)totalUnrated);
+        double unratedPercent = (double)totalUnrated / ( (double)totalRated + (double)totalRanked + (double)totalUnrated);
+        DecimalFormat df = new DecimalFormat("##.#%");
+        String formattedRatedPercent = df.format(ratedPercent);
+        String formattedRankedPercent = df.format(rankedPercent);
+        String formattedUnratedPercent = df.format(unratedPercent);
+        queryResultArea.append("TOTAL:   Total: " + (totalRated + totalRanked + totalUnrated) + "  Rated: " + totalRated + "  Ranked: " + totalRanked + "  Unrated: " + totalUnrated + "  Percents: " + formattedRatedPercent + "|" + formattedRankedPercent + "|" + formattedUnratedPercent + "\n");
 
         this.setEnabled(true);      // re-enable UI
 
@@ -2499,26 +2566,6 @@ public class XDictGui extends JFrame implements WindowListener
                 doLoad();
             }
         }
-
-//        int result = 0;
-//
-//        if (isRestore) {
-//            fileChooser1.setFileFilter(filter);
-//            fileChooser1.setCurrentDirectory(dir);
-//            System.out.println("fileChooser1 dir: " + fileChooser1.getCurrentDirectory());
-//            loadScrollPane.grabFocus();
-//            result = fileChooser1.showOpenDialog(loadScrollPane);
-//            if (result == JFileChooser.APPROVE_OPTION)
-//                loadFile.setText(fileChooser1.getSelectedFile().getAbsolutePath());
-//        } else {
-//            fileChooser2.setFileFilter(filter);
-//            fileChooser2.setCurrentDirectory(dir);
-//            System.out.println("fileChooser2 dir: " + fileChooser2.getCurrentDirectory());
-//            loadScrollPane.grabFocus();
-//            result = fileChooser2.showOpenDialog(loadScrollPane);
-//            if (result == JFileChooser.APPROVE_OPTION)
-//                loadFile.setText(fileChooser2.getSelectedFile().getAbsolutePath());
-//        }
 
     }
 

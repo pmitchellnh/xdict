@@ -24,6 +24,7 @@ public class Reconciler implements ReconcilerInterface
 		wasChangedDuringReconcile |= w1.setUsedNYT(ReconcileUsedNYT(w1, w2));
 		wasChangedDuringReconcile |= w1.setNeedsResearch(ReconcileNeedsResearch(w1, w2));
 		wasChangedDuringReconcile |= w1.setManuallyRated(ReconcileManuallyRated(w1, w2));
+        wasChangedDuringReconcile |= w1.setRankedList(ReconcileRankedList(w1, w2));
 		
 		// If anything was changed, update the timestamp and return true
 		if (wasChangedDuringReconcile) {
@@ -37,6 +38,9 @@ public class Reconciler implements ReconcilerInterface
 	/*
 	 * If applying word is manual, favor it (whether existing is manual or not)
 	 * Else if existing is manual, favor it (don't override a manual with an auto)
+	 * Else if both from ranked list, favor the lower value
+	 * Else if applying word is from ranked list, favor it
+	 * Else if existing word is from ranked list, favor it
 	 * Else favor the higher value (both auto)
 	 */
 	private byte ReconcileRating(Word w1, Word w2) 
@@ -48,6 +52,12 @@ public class Reconciler implements ReconcilerInterface
 			return val2;
 		else if (w1.isManuallyRated())
 			return val1;
+        else if (w1.isRankedList() && w2.isRankedList())
+            return ( val2 < val1 ? val2 : val1);
+        else if (w2.isRankedList())
+            return val2;
+        else if (w1.isRankedList())
+            return val1;
 		else	// Else take higher value
 			return ( val2 > val1 ? val2 : val1 );
 	}
@@ -99,6 +109,14 @@ public class Reconciler implements ReconcilerInterface
 		else
 			return false;
 	}
+
+    private boolean ReconcileRankedList(Word w1, Word w2) {
+        // If either is set, persist it.
+        if ( w1.isRankedList() || w2.isRankedList() )
+            return true;
+        else
+            return false;
+    }
 
 	public boolean ReconcileComment(Word w1, Word w2) 
 	{

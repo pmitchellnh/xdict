@@ -91,13 +91,14 @@ public class XDictDB_MySQL implements XDictDB_Interface {
     {
 		// Add word to DB
 		String query = "insert into " + TABLE_WORDS 
-			+ " (ENTRY, LENGTH, RATING, USED_ANY, USED_NYT, NEEDS_RESEARCH, MANUALLY_RATED, LAST_MODIFIED) values('"
+			+ " (ENTRY, LENGTH, RATING, USED_ANY, USED_NYT, NEEDS_RESEARCH, RANKED_LIST, MANUALLY_RATED, LAST_MODIFIED) values('"
 			+ w.getEntry() + "',"
 			+ w.length() + ","
 			+ w.getRating() + ","
 			+ w.isUsedAny() + ","
 			+ w.isUsedNYT() + ","
 			+ w.needsResearch() + ","
+            + w.isRankedList() + ","
 			+ w.isManuallyRated() + ",'"
 			+ w.getLastModified().toString() + "')";
 		
@@ -121,6 +122,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 			+ "USED_ANY=" + w.isUsedAny() + ","
 			+ "USED_NYT=" + w.isUsedNYT() + ","
 			+ "NEEDS_RESEARCH=" + w.needsResearch() + ","
+            + "RANKED_LIST=" + w.isRankedList() + ","
 			+ "MANUALLY_RATED=" + w.isManuallyRated() + ","
 			+ "LAST_MODIFIED='" + w.getLastModified().toString() + "' "
 			+ "where ENTRY='" + w.getEntry() + "'";
@@ -408,15 +410,20 @@ public class XDictDB_MySQL implements XDictDB_Interface {
                 firstWhere = false;
             }
 
-            if (methCtrl == MethodControl.AUTOMATIC) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("MANUALLY_RATED = 0");
-                firstWhere = false;
-            } else if (methCtrl == MethodControl.MANUAL) {
+            if (methCtrl == MethodControl.MANUAL) {
                 if (firstWhere == false)
                     sb.append(" AND ");
                 sb.append("MANUALLY_RATED > 0");
+                firstWhere = false;
+            } else if (methCtrl == MethodControl.RANKED) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("RANKED_LIST > 0 AND MANUALLY_RATED = 0");
+                firstWhere = false;
+            }  else if (methCtrl == MethodControl.AUTOMATIC) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("MANUALLY_RATED = 0 AND RANKED_LIST = 0");
                 firstWhere = false;
             }
         }
@@ -590,14 +597,21 @@ public class XDictDB_MySQL implements XDictDB_Interface {
                 firstWhere = false;
             }
 
-            if (methCtrl == MethodControl.AUTOMATIC) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("MANUALLY_RATED = 0");
-            } else if (methCtrl == MethodControl.MANUAL) {
+            if (methCtrl == MethodControl.MANUAL) {
                 if (firstWhere == false)
                     sb.append(" AND ");
                 sb.append("MANUALLY_RATED > 0");
+                firstWhere = false;
+            } else if (methCtrl == MethodControl.RANKED) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("RANKED_LIST > 0 AND MANUALLY_RATED = 0");
+                firstWhere = false;
+            }  else if (methCtrl == MethodControl.AUTOMATIC) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("MANUALLY_RATED = 0 AND RANKED_LIST = 0");
+                firstWhere = false;
             }
         }
 		
@@ -754,14 +768,21 @@ public class XDictDB_MySQL implements XDictDB_Interface {
                 firstWhere = false;
             }
 
-            if (methCtrl == MethodControl.AUTOMATIC) {
-                if (firstWhere == false)
-                    sb.append(" AND ");
-                sb.append("MANUALLY_RATED = 0");
-            } else if (methCtrl == MethodControl.MANUAL) {
+            if (methCtrl == MethodControl.MANUAL) {
                 if (firstWhere == false)
                     sb.append(" AND ");
                 sb.append("MANUALLY_RATED > 0");
+                firstWhere = false;
+            } else if (methCtrl == MethodControl.RANKED) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("RANKED_LIST > 0 AND MANUALLY_RATED = 0");
+                firstWhere = false;
+            }  else if (methCtrl == MethodControl.AUTOMATIC) {
+                if (firstWhere == false)
+                    sb.append(" AND ");
+                sb.append("MANUALLY_RATED = 0 AND RANKED_LIST = 0");
+                firstWhere = false;
             }
         }
 
@@ -917,6 +938,7 @@ public class XDictDB_MySQL implements XDictDB_Interface {
                 "  `USED_ANY` tinyint(1) NOT NULL," +
                 "  `USED_NYT` tinyint(1) NOT NULL," +
                 "  `NEEDS_RESEARCH` tinyint(1) NOT NULL," +
+                "  `RANKED_LIST` tinyint(1) NOT NULL," +
                 "  `MANUALLY_RATED` tinyint(1) NOT NULL," +
                 "  `LAST_MODIFIED` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
                 "  PRIMARY KEY (`ENTRY`)" +
@@ -948,12 +970,13 @@ public class XDictDB_MySQL implements XDictDB_Interface {
 		boolean used_any = rs.getBoolean("USED_ANY");
 		boolean used_nyt = rs.getBoolean("USED_NYT");
 		boolean needs_research = rs.getBoolean("NEEDS_RESEARCH");
+        boolean from_ranked_list = rs.getBoolean("RANKED_LIST");
 		boolean manually_rated = rs.getBoolean("MANUALLY_RATED");
 		Timestamp last_modified = rs.getTimestamp("LAST_MODIFIED");
 		String comment = rs.getString("COMMENT");
 
 		Word w = new Word.Builder(entry).rating(rating).
-				usedNYT(used_nyt).usedAny(used_any).needsResearch(needs_research).
+				usedNYT(used_nyt).usedAny(used_any).needsResearch(needs_research).rankedList(from_ranked_list).
 				manuallyRated(manually_rated).lastModified(last_modified).comment(comment).build();
 		
 		return w;

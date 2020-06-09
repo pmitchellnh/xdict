@@ -16,12 +16,14 @@ public class LoadAndExportUtilities {
 		StringTokenizer st = new StringTokenizer(line, delims, false);
 		String entry = "";
 		byte rating = -1;
+        boolean isRanked = false;
 		if (st.hasMoreTokens()) {
 			entry = st.nextToken();
 		}
 		if (st.hasMoreTokens()) {
             try {
                 rating = Byte.valueOf(st.nextToken());
+                isRanked = true;    // found a valid ranking
             } catch (NumberFormatException e) {
                 if (e.getMessage().contains("Value out of range")) {
                     rating = 100;   // value too large -- assume 100 (max)
@@ -39,7 +41,7 @@ public class LoadAndExportUtilities {
             rating = defaultRating;        // if not set, set to default
         }
 //        System.out.println(entry.toString() + ": " + rating);
-		Word w = new Word.Builder(entry).rating(rating).build();
+		Word w = new Word.Builder(entry).rating(rating).rankedList(isRanked).build();
 	
 		return w;
 	}

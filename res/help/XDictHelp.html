@@ -85,7 +85,7 @@
     <div id="overview"><h2><li>Overview</h2>
         XDict is a database tool designed to facilitate the creation and maintenance of
         a crossword puzzle dictionary.  It was designed and continues to be maintained
-        by a crossword puzzle constructor for his personal use, and its features are
+        by a crossword puzzle constructor for personal use, and its features are
         born from the actual needs and pains of trying to maintain word lists through
         existing crossword construction tools (Crossword Compiler, Crossfire) or other
         non-crossword-specific applications (Word, Excel, text files).
@@ -96,13 +96,13 @@
       <ul>
         <li>Supports entries between 3 and 25 letters long
         <li>Full-featured query, including "wildcard" letters
-        <li>Quick-and-easy method of manually rating
-        <li>Adjusted rating algorithm based on word length<sup>1</sup>
         <li>Load rated or unrated word lists
-        <li>Reconcile logic handles "smart" merging of new lists into existing database
-        <li>Track which words have been manually rated
-        <li>Track words that have been used in NY Times (and other publications)<sup>2</sup>
+        <li>Quick-and-easy method of hand-rating words
+        <li>Track which words have been hand-rated
+        <li>Track words that have been used in NY Times (and other publications)<sup>1</sup>
+        <li>Reconcile logic handles "smart" merging of new lists into existing database without affecting words that have already been hand-rated
         <li>Add comments of up to 100 characters, for clarifications, notes, or clue suggestions
+        <li>Optional adjusted rating algorithm based on word length<sup>2</sup>
         <li>Export word lists appropriate for Crossword Compiler or Crossfire
         <li>Backup/restore the database to/from file
         <li>View rating statistics, broken down by word length
@@ -110,8 +110,8 @@
         <li>Configuration file allows you to customize certain key behaviors
       </ul>
       <p>
-      <sup>1</sup>Based on my own personal rating theory. See <a href="#rate">Rating Words</a> for more details.<br>
-      <sup>2</sup>Requires manual entry or proper setup when loading certain word lists.<br>
+      <sup>1</sup>Requires manual entry or proper setup when loading certain word lists.<br>
+      <sup>2</sup>Based on my own personal rating theory. See <a href="#rate">Rating Words</a> for more details.<br>
     </div>
     <div id="prerequisites"><h2><li>Prerequisites</h2>
       <ol type='A'>
@@ -197,7 +197,7 @@
         <p>
         See comments in config.txt for more details on certain config parameters.
         <p>
-        <div class="alert">Important:<p>
+        <div class="alert">IMPORTANT:<p>
           The config.txt file is read only once, when the program starts. Changes to the config.txt file
           will not take effect unless the program is restarted.
         </div>
@@ -321,13 +321,28 @@
       </div>
       <div id="querymethod"><h3><li>Rating Method Control</h3>
         <img src="./images/RatingMethod.png" alt="Rating Method Control" width="300px"><p>
-        The Rating Method control allows you to select just manually-rated words, just
-        auto-loaded words, or both.  Auto-loaded words are words that were loaded from a
-        rated or unrated word list, while manually-rated words are words that were added
-        or rated via the XDict program. The default query setting is "All".<p>
-        <div class="tip">Tip: You <i>can</i> designate a loading word list as
-          "manually-rated", for cases where you are loading an already manicured list.
-          See <a href="#load">Loading Word Lists</a> for details.
+        The Rating Method control allows you to select based on how words have been rated. The
+        software supports three tiers of rating:
+        <dl>
+          <dt>Auto-loaded
+            <dd>Words loaded with a default value from unrated word lists (or with an invalid or unparseable
+              value from an otherwise rated word list). These words have the lowest
+              rating confidence, as they have not been individually rated.
+          <dt>Rank-loaded
+            <dd>Words loaded with values from rated word lists. These entries are considered
+              to have higher confidence than auto-loaded words, as someone has at least attempted
+              to assign them values individually.
+          <dt>Hand-rated
+            <dd>Words that you have manually rated by hand. These entries have the highest rating
+              confidence, as you have curated them personally.
+        </dl>
+        <p>
+        The default query setting is "All".<p>
+        <div class="tip">Tip: <p>
+          You <i>can</i> designate a loading word list as
+          "hand-rated", for cases where you are loading an already manicured list for which you
+          already have highest confidence.
+          See <a href="#load">Loading Word Lists</a> for details and warning.
         </div>
       </div>
       <div id="queryrating"><h3><li>Rating Control</h3>
@@ -358,7 +373,8 @@
           <li><img src="./images/None.png" alt="none" width="200px">No entries.
         </ul>
         <p>
-        <div class="tip">Tip: These fields are set when you add (manually) or load word lists, so
+        <div class="tip">Tip: <p>
+          These fields are set when you add (manually) or load word lists, so
           in order to use them effectively, you must make sure to set the "Used_NYT" field when importing
           NY Times word lists and the "Used_Any" field when importing other crossword puzzle lists.
           See <a href="#load">Loading Word Lists</a> for details.
@@ -401,7 +417,7 @@
         The query output displays the results of the query (up to 1000 entries at a time, scrollable).
         The format for each entry is as follows:
         <p>
-        WORD(LENGTH), RATING [, any] [, nyt] [, research] [,manual] [(COMMENT)]
+        WORD(LENGTH), RATING [, any] [, nyt] [, research] [,ranked | manual] [(COMMENT)]
         <p>
           where the fields in [] only appear if set.  For example, a "bare minimum" auto-loaded entry would
           display as follows (just WORD(LENGTH), RATING):
@@ -411,10 +427,16 @@
           <p>
             <img src="./images/QueryResult1.png" alt="Sample Query Result" width="400px"><p>
           indicating that the entry is flagged as having been used in puzzles, including the NY Times,
-          that it is flagged as needing research, that it has been manually rated, and that it has a
+          that it is flagged as needing research, that it has been hand-rated, and that it has a
           comment, which is displayed in parentheses.  Note that this example is for clarity only -- it
           would be unusual for both "research" and "manual" to be set on the same word, though it could
           happen if you chose to revisit a previously rated entry.
+          <p>
+          <div class="note">Note: <p>
+            Rating method is either auto-loaded (absence of other indicator), rank-loaded ("ranked"), or
+            hand-rated ("manual"). A rank-loaded word becomes "manual" once it has been hand-rated; the fact
+            that it originally loaded from a ranked list is no longer relevant.
+          </div><p>
       </div>
       </ol>
     </div>
@@ -429,7 +451,7 @@
       screen before pressing the "Add" button.
       <p>
       <div class="note">Note:<p>
-        Comments are limited to (and will be truncated to, if necessary) 100 characters long.
+        Comment lengths are limited to (and will be truncated to, if necessary) 100 characters.
       </div>
       <p>
       Note that, unlike in the Rating process, pressing a rating button will <i>not</i> immediately cause
@@ -496,13 +518,15 @@
           or at all, but you should think about what you want these values to be <i>before</i> you
           start any serious manual rating.  Note that any config value that is left commented out
           will default to the non-length-specific value.
+          <p>
+          See <a href="#config">Configuration</a> for details on setting rating values.
       </div>
       <div id="ratingprocess"><h3><li>The Rating Process</h3>
         <img src="./images/RateScreen1.png" alt="Rating Screen" width="700px"><p>
         The query parameters for the Rate action work <i>exactly</i> the same as with the
         Query action, with the exception that the default value for the Rating Method is
         "Auto-loaded".  This is because you are typically wanting to rate entries that have
-        not yet been manually rated.
+        not yet been hand-rated.
         <p>
         <img src="./images/RatingMethod1.png" alt="Rating Method Control" width="300px"><p>
         Also, whereas a regular query returns up to 1000 entries at a time, a rating query is
@@ -510,7 +534,7 @@
         bit overwhelming, so breaking it into 20-entry "chunks" is more conducive to rating several
         of those chunks in a single sitting.  Also, 20 entries are easily displayed without the need
         to scroll.
-        <div class="tip">Tip:<p>Manually rating all your words can seem
+        <div class="tip">Tip:<p>Hand-rating all your words can seem
           like an impossible task.  My advice, as a constructor, is to start
           small (literally).  3-letter words are the most common, so start there.
           Then do 4-letter words.  This can be a task that you can perform whenever
@@ -539,11 +563,13 @@
         providing, you can set any value (from 0 to 100) using the Manual Rating slider and
         assign it with the "Manual" button.
       </div>
-      <div class="tip">Tip:<p>Here's another tip. When you're filling a themed
+      <div class="tip">Tip:<p>When you're filling a themed
         puzzle, there will be many spots where the fill choice is constrained by the
         theme entries (typically, down entries crossing the long theme entries).
-        Use the pattern-matching feature to manually rate those
-        patterns before trying to fill the grid.  In this way, your rating activity
+        Use the pattern-matching feature to hand rate those
+        patterns before trying to fill the grid. For example, you might need the pattern "??N??C?"
+        or "?X???".
+        <p>In this way, your rating activity
         is specifically targeted to the puzzle(s) you are working on, so you get
         immediate benefit.<p>I typically do this multiple times throughout my
         fill process: rate words, export to file, import new dictionary, continue
@@ -558,27 +584,34 @@
         quick and easy ratings and want to come back to certain words when you have more time and
         opportunity to look them up.
         <p>
-        Words that are flagged for research will be cleared of that flag once they are manually
-        rated.
+        Words that are flagged for research will be automatically cleared of that flag once they are hand-rated.
       </div>
     </ol>
     </div>
     <div id="load"><h2><li>Loading Word Lists</h2>
-      One of the great features of this program is that is can load word lists into your dictionary
+      One of the great features of this software is that is can load word lists into your dictionary
       without overwriting words and data that you have already curated.  See <a href=#reconciler>
       Understand the Reconciler</a> for details about how this works.<p>
-      <div class="alert">IMPORTANT:<p>It is HIGHLY recommended that you backup your database before
+      <div class="alert">IMPORTANT:<p>
+        It is HIGHLY recommended that you backup your database before
         loading a word list.
         By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
         for example) you can <a href="#clear">clear the tables</a>, <a href="#restore">restore
         to your backup file</a>, and try again.
       </div>
       <p>
-      The default Rating Method value for the Load screen is "Auto-loaded", as you are loading a
-      file of (typically) uncurated words.  You <i>can</i> change this to "Hand-rated" if you are
+      The default Rating Method value for the Load screen is "Auto-loaded". This setting covers both
+      unrated <i>and</i> rated word lists,
+      as the software will automatically set "ranked" for any word that is loaded <i>with</i> a value
+      assigned in the word list. See LOAD_FILE_DELIMITERS in <a href="#config">Configuration</a> (or
+      comments in
+      the config.txt file itself) for more information about parsing ranked word lists.
+      <div class="tip">Tip: <p>
+      You <i>can</i> choose to load with the "Hand-rated" setting if you are
       loading an already manicured and rated list, but be certain that's what you want to do before
       proceeding as all the words in the list will be flagged as "Hand-rated" and treated as such
       during the merge (see <a href=#reconciler>Understand the Reconciler</a> for more about this).
+      </div>
       <p>
       The default value for Crossword Use is "Not Used".  If you are loading a NY Times puzzle word list,
       then select "Used NYT" so all incoming words will be flagged appropriately.  Similarly, if you are
@@ -605,7 +638,7 @@
       <div class="tip">Tip:<p>Just because a word has been used in the New York Times or other
         puzzle, does not necessarily make it a good word or desirable.  Many times a puzzle is
         accepted based on its overall quality that may have an entry or two that frankly isn't
-        that good but is let slide.<p>Similarly, just because a word or phrase has NOT appeared in
+        that good but is let slide.<p>Conversely, just because a word or phrase has NOT appeared in
         a puzzle, doesn't mean it isn't desirable.  Part of making good crosswords is finding
         those quality words and phrases that <i>haven't</i> been used yet.
       </div><p>
@@ -633,9 +666,10 @@
           value set in the Rating slider on the Load screen.  Duplicate entries will be merged based on
           the rules described in the <a href="#reconciler">Understanding the Reconciler</a> section.
           <p>
-          <div class="alert">Important Note:<p>
-            Alphanumeric characters include the letters A to Z and the numerals 0 to 9. Please note
-            that the load process will <b>not</b> attempt to convert accented or otherwise diacritically
+          <div class="alert">IMPORTANT:<p>
+            Alphanumeric characters include the letters A to Z and the numerals 0 to 9.
+            <p>Please note
+            that the load process will <i>not</i> attempt to convert accented or otherwise diacritically
             marked letters to their stripped form. These characters, and any other Unicode or non-ASCII
             alphanumerics, will be considered punctuation and stripped out. If you intend to load a word list
             that has these characters, you will need to make any letter conversions manually before you load
@@ -653,51 +687,65 @@
           in <a href="#unrankedwordlists">Unranked Word Lists</a>, above.
           <p> New entries (those that do
           not already exist in your database at the time of loading the word list) will be assigned the
-          value set in the word list (if it exists) else it will default to the value of the Rating slider on the
-          Load screen.  Duplicate entries will be merged based on
+          value set in the word list (if it exists) and marked as "ranked", else it will default to
+          the value of the Rating slider on the Load screen (and <i>not</i> be marked
+          as "ranked").  Duplicate entries will be merged based on
           the rules described in the <a href="#reconciler">Understanding the Reconciler</a> section.
           <p>
-          <div class="alert">Important note:<p>
-            Importing a ranked word list assumes values in the range of 0 to 100.  Any value over
-            100 will be changed to 100.  Also, any value of 0 <i>will be preserved</i>, so that if
+          <div class="alert">IMPORTANT:<p>
+            Importing a ranked word list assumes values in the range of 0 to 100.
+            <p>
+            Any value over
+            100 will be changed to 100.
+            <p>Also, any value of 0 <i>will be preserved</i>, so that if
             you are importing a hand-curated list, entries that you have "killed" (assigned 0 to) will
-            remain so.  This is very different than an entry in the list having <i>no value</i> (or no
+            remain so.  This is <i>very different</i> than an entry in the list having no value (or no
             valid non-negative numeric value), in which case the entry will receive the default value for the load.<p>
           </div>
         </div>
         <div id="reconciler"><h3><li>Understanding the Reconciler</h3>
           The reconciler is the heart of what allows you to import new lists without adversely affecting
           your existing dictionary.  It kicks in whenever a word loading from an "Auto-loaded" word list
-          already exists in your database.
+          already exists in your database.  There are essentially three "tiers" of priority: hand-rated,
+          rank-loaded, and auto-loaded.  See <a href="#querymethod">Rating Method Control</a> for more
+          details.
           <p>
           Database fields reconcile as follows:<p>
           <dl>
             <dt><b>Rating:</b>
-              <dd>A hand-rated word's rating overrides an existing word's rating.
-              <dd>An auto-loaded word's rating will <i>never</i> override a manually-rated rating.
-              <dd>If neither the incoming nor the existing word have been hand-rated, the higher rating will prevail.
+              <dd>A new hand-rated word's rating overrides any existing rating.
+              <dd>An auto-loaded or rank-loaded word's rating will <i>not</i> override a hand-rated rating.
+              <dd>A rank-loaded word (from a ranked word list) will override an existing auto-loaded rating.
+              <dd>An auto-loaded word (from an unranked word list) will <i>not</i> override a rank-loaded rating.
+              <dd>If both incoming and existing words are rank-loaded, the <i>lower</i> rating will prevail. This is
+                done to preserve the most critical rating, which reduces "problem" words.
+              <dd>If both incoming and existing words are auto-loaded, the <i>higher</i> rating will prevail. This
+                is done to favor words from more "quality" sources.
             <dt><b>Rating Method:</b>
-              <dd>Once a word is manually-rated, it will remain that way. The only way to clear a
-                manually-rated flag is to purge the database and reload data from scratch. (Why would you
-                want to do that? Trust me, you wouldn't.)
+              <dd>Once a word is hand-rated, it will remain that way. The only way to clear a
+                hand-rated flag is to purge the database and reload data from scratch.
+              <dd>The rank-loaded flag will override the auto-loaded flag. Once a word is rank-loaded it will
+                remain that way until being hand-rated.
             <dt><b>Crossword Use (NYT or Any)</b>
               <dd>A hand-rated word's setting overrides an existing word's setting.
               <dd>Otherwise, if <i>either</i> the existing <i>or</i> incoming word has either flag set, it will be
-                (or remain) set.
+                (or remain) set. In other words, a word loading from a non-puzzle word list does not remove the
+                fact that it previously came in from a puzzle word list.
             <dt><b>Needs Research:</b>
               <dd>A hand-rated word's setting overrides an existing word's setting.
               <dd>Otherwise, if <i>either</i> the existing <i>or</i> incoming word has the research flag set, it will be
                 (or remain) set.
             <dt><b>Comments:</b>
-              <dd>Comments are never auto-loaded. Hand-rated comments override (or erase, if deleted) existing comments.
+              <dd>Comments are never auto-loaded. Hand-rated comments override (or remove, if deleted) existing comments.
           </dl>
           <p>
-          <div class="alert">Important Note:<p>
+          <div class="alert">IMPORTANT:<p>
             When manually adding words, from the Add screen, or loading with the "Hand-rated" flag set,
             the metadata settings that you select <i>will override any existing metadata</i>. This
             is because "Hand-rated" is essentially a manual override and enforcing any other logic would
             make it so you could never add or clear certain flags.  Manual changes will <i>always</i> take
-            precedence over any data currently in the database.  This is also why loading word lists with
+            precedence over any data currently in the database.
+            <p>  This is also why loading word lists with
             the "Hand-rated" flag can be so dangerous, as it essentially bypasses <i>all</i> reconciling
             and treats each entry as a manual add.
         </div>
@@ -716,7 +764,7 @@
       Enter the name of the file you want to create in the "File to Export" field. By default, this
       file will be created in the "export" directory, but this path can be manually edited (and the
       default path can be overridden in the config.txt file using the EXPORT_FILE_DEFAULT_DIR parameter).
-      See <a href="#config">Configuration</a> or the comments in the config.txt file itself for more
+      See <a href="#config">Configuration</a> (or the comments in the config.txt file itself) for more
       details.
       <p>
       <div class="tip">Tip:<p>
@@ -726,7 +774,7 @@
       rating changes and reload a new dictionary with relative ease. If I'm doing multiple iterations,
       I'll add an 'a', 'b', 'c', etc. to the file name to keep them unique (e.g., dict20200101a.dict).
       <p>
-      In Crossword Compiler you can import your exported word list from the Convert menu in the Word List 
+      In Crossword Compiler you can import your exported word list from the Convert menu in the Word List
       Manager.
       </div><p>
       Exported files contain one entry per line, in the format: WORD;RATING (see note,
@@ -738,8 +786,8 @@
       <p>
       <div class="note">Note:<p>
          If necessary, the delimiter between WORD and RATING can be changed by setting
-      EXPORT_FILE_DELIMITER in the config.txt file.  See <a href="#config">Configuration</a> or the
-      comments in the config.txt file for more details.
+      EXPORT_FILE_DELIMITER in the config.txt file.  See <a href="#config">Configuration</a> (or the
+      comments in the config.txt file) for more details.
       </div>
     </div>
     <div id="viewmenu"><h2><li>View Menu</h2>
@@ -755,7 +803,7 @@
       <ol type='A'>
         <div id="progressreport"><h3><li>Rating Progress Report</h3>
           The Rating Progress Report shows you how much of your database has
-          been manually rated, broken down by word length. This report
+          been hand-rated, rank-loaded, and auto-loaded, broken down by word length. This report
           gives you a nice view into what you've accomplished and still need to.
         </div>
         <div id="breakdownreport"><h3><li>Rating Breakdown Report</h3>
@@ -768,7 +816,7 @@
     <div id="databasemenu"><h2><li>Database Menu</h2>
       <ol type='A'>
         <div id="databaseinfo"><h3><li>Database Info</h3>
-          The Database Info command lists your active and inactive tables, and
+          The Database Info command shows your tables, and
           how many records are in each.
         </div>
         <div id="backup"><h3><li>Backup</h3>
@@ -776,7 +824,8 @@
           in the "backups" subdirectory with the name "bkup_YYYY-MM-DD-HH-MM-SS.SSS",
           where "YYYY-MM-DD-HH-MM-SS.SSS" is the timestamp when the backup was done.
           <p>
-          <div class="alert">It is HIGHLY recommended that you backup your database periodically,
+          <div class="alert">IMPORTANT:<p>
+            It is HIGHLY recommended that you backup your database periodically,
             and especially before any major changes, such as <a href="#load">loading a
             word list</a>.
             By backing up first, if the merge goes awry (perhaps you had the wrong parameters set,
@@ -795,9 +844,9 @@
           to the "Load" tab and launch a file select dialog preset to the "backups" directory, if
           it exists.  If the "backups" directory does not exist, it is probably because you have
           never created a backup and, therefore, have nothing to restore to. A restore
-          file MUST come from the "backup" directory (to prevent "restoring" of non-backup files).
+          file MUST come from the "backup" directory (to prevent accidental "restoring" of non-backup files).
           <p>
-          <div class="alert">Important:<p>Do NOT click the "Load" button to do a restore.  "Load"
+          <div class="alert">IMPORTANT:<p>Do NOT click the "Load" button to do a restore.  "Load"
           will only load (and merge) word and ratings. "Restore" recreates the entire database as
           it was when the backup file was created.
           <p>
@@ -832,9 +881,9 @@
       </ol>
     </div>
     <div id="databaseschema"><h2><li>Database Schema</h2>
-      Since the vast majority of entries likely will not have comments, it seemed a prudent design
-      decision to store comments in a separate table, linked by primary key (ENTRY). This will greatly
-      reduce the size of any database with sparse comments.
+      Since the vast majority of entries likely will not have comments, comments are stored
+      in a separate table, linked by primary key (ENTRY). This greatly
+      reduces the size of any database with sparse comments.
       <div id="wordstable"><h3><li>WORDS Table</h3>
         <pre>
 +----------------+-------------+------+-----+-------------------+-----------------------------+
@@ -843,12 +892,35 @@
 | ENTRY          | varchar(25) | NO   | PRI | NULL              |                             |
 | LENGTH         | tinyint(4)  | NO   |     | NULL              |                             |
 | RATING         | tinyint(4)  | NO   |     | NULL              |                             |
-| USED_ANY       | tinyint(1)  | NO   |     | NULL              |                             |
-| USED_NYT       | tinyint(1)  | NO   |     | NULL              |                             |
-| NEEDS_RESEARCH | tinyint(1)  | NO   |     | NULL              |                             |
-| MANUALLY_RATED | tinyint(1)  | NO   |     | NULL              |                             |
+| USED_ANY       | tinyint(1)  | NO   |     | FALSE             |                             |
+| USED_NYT       | tinyint(1)  | NO   |     | FALSE             |                             |
+| NEEDS_RESEARCH | tinyint(1)  | NO   |     | FALSE             |                             |
+| RANKED_LIST    | tinyint(1)  | NO   |     | FALSE             |
+| MANUALLY_RATED | tinyint(1)  | NO   |     | FALSE             |                             |
 | LAST_MODIFIED  | timestamp   | NO   |     | CURRENT_TIMESTAMP | on update CURRENT_TIMESTAMP |
-+----------------+-------------+------+-----+-------------------+-----------------------------+        </pre>
++----------------+-------------+------+-----+-------------------+-----------------------------+
+        </pre>
+        <dl>
+          <dt>ENTRY
+            <dd>The word or phrase. Primary Key. Limited to 25 characters.
+          <dt>LENGTH
+            <dd>The integer length of ENTRY. While this could be calculated on the fly, storing it is more efficient for queries.
+          <dt>RATING
+            <dd>The integer rating value, from 0 to 100.
+          <dt>USED_ANY
+            <dd>Boolean. Set to 1 if flagged as "Used Any" (used in some puzzle), else 0.
+          <dt>USED_NYT
+            <dd>Boolean. Set to 1 if flagged as "Used NYT" (used in NY Times puzzle), else 0.
+          <dt>NEEDS_RESEARCH
+            <dd>Boolean. Set to 1 if flagged as "Needs Research", else 0.
+          <dt>RANKED_LIST
+            <dd>Boolean. Set to 1 if word came in from a ranked word list, else 0.
+          <dt>MANUALLY_RATED
+            <dd>Boolean. Set to 1 if word has been hand-rated, else 0.
+          <dt>LAST_MODIFIED
+            <dd>Timestamp when record was last modified in any way. Note that this field is retained during a
+              Database Restore action (i.e., restore is <i>not</i> considered a modification).
+        </dl>
       </div>
       <div id="commentstable"><h3><li>COMMENTS Table</h3>
         <pre>
@@ -859,6 +931,12 @@
 | COMMENT | varchar(100) | YES  |     | NULL    |       |
 +---------+--------------+------+-----+---------+-------+
       </pre>
+      <dl>
+        <dt>ENTRY
+          <dd>The word or phrase. Primary Key. Limited to 25 characters.
+        <dt>COMMENT
+          <dd>A comment about the ENTRY. Limited to 100 characters.
+      </dl>
       </div>
       <div id="createstatements"><h3><li>Create Statements</h3>
         <div class="note">Note: <p>
@@ -873,6 +951,7 @@ CREATE TABLE `WORDS` (
   `USED_ANY` tinyint(1) NOT NULL,
   `USED_NYT` tinyint(1) NOT NULL,
   `NEEDS_RESEARCH` tinyint(1) NOT NULL,
+  `RANKED_LIST` tinyint(1) NOT NULL,
   `MANUALLY_RATED` tinyint(1) NOT NULL,
   `LAST_MODIFIED` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`ENTRY`)

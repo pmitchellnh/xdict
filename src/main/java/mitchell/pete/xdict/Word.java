@@ -11,6 +11,7 @@ public class Word
 	private boolean usedNYT;
 	private boolean needsResearch;
 	private boolean manuallyRated;
+    private boolean rankedList;     // this is a temp field used for reconciling when loading word lists
 	private Timestamp lastModified;
 	private String comment;
 
@@ -38,6 +39,7 @@ public class Word
 		private boolean usedNYT = false;
 		private boolean needsResearch = false;
 		private boolean manuallyRated = false;
+        private boolean rankedList = false;
 		private Timestamp lastModified = NO_DATE;
 		private String comment = "";
 
@@ -66,6 +68,7 @@ public class Word
 		public Builder usedNYT(boolean val)			{ usedNYT = val; return this; }
 		public Builder needsResearch(boolean val)	{ needsResearch = val; return this; }
 		public Builder manuallyRated(boolean val)	{ manuallyRated = val; return this; }
+        public Builder rankedList(boolean val)	    { rankedList = val; return this; }
 		public Builder lastModified(Timestamp val)	{ lastModified = val; return this; }
 		public Builder comment(String val)			{ comment = val; return this; }
 		
@@ -87,6 +90,7 @@ public class Word
 		usedNYT = builder.usedNYT;
 		needsResearch = builder.needsResearch;
 		manuallyRated = builder.manuallyRated;
+        rankedList = builder.rankedList;
 		lastModified = builder.lastModified;
 		comment = builder.comment;
 		
@@ -106,6 +110,7 @@ public class Word
 		usedNYT = w.usedNYT;
 		needsResearch = w.needsResearch;
 		manuallyRated = w.manuallyRated;
+        rankedList = w.rankedList;
 		lastModified = w.lastModified;
 		comment = w.comment;
 	}
@@ -193,6 +198,17 @@ public class Word
 		
 		return true;
 	}
+
+    public boolean isRankedList() { return rankedList; }
+
+    public boolean setRankedList(boolean val) {
+        if (rankedList == val)  // no change
+        return false;
+
+        rankedList = val;
+
+        return true;
+    }
 	
 	public Timestamp getLastModified() {
 		return lastModified;
@@ -277,6 +293,7 @@ public class Word
 				+ ( usedAny ? ", any " : "" )
 				+ ( usedNYT ? ", nyt " : "" )
 				+ ( needsResearch ? ", research " : "" )
+                + ( (rankedList && !manuallyRated) ? ", ranked " : "" )
 				+ ( manuallyRated ? ", manual " : "" )
 				+ ( (comment == null || comment.isEmpty()) ? "" : " (" + comment + ")") );
 		return s;
@@ -292,6 +309,7 @@ public class Word
 				+ ( usedAny ? "1;" : "0;" )
 				+ ( usedNYT ? "1;" : "0;" )
 				+ ( needsResearch ? "1;" : "0;" )
+                + ( rankedList ? "1;" : "0;" )
 				+ ( manuallyRated ? "1;" : "0;" )
 				+ lastModified.toString() + ";"
 				+ ( (comment == null || comment.isEmpty()) ? "" : "[" + comment + "]") );
@@ -355,6 +373,7 @@ public class Word
 				+ ((lastModified == null) ? 0 : lastModified.hashCode());
 		result = prime * result + (manuallyRated ? 1231 : 1237);
 		result = prime * result + (needsResearch ? 1231 : 1237);
+        result = prime * result + (rankedList ? 1231 : 1237);
 		result = prime * result + rating;
 		result = prime * result + (usedAny ? 1231 : 1237);
 		result = prime * result + (usedNYT ? 1231 : 1237);
@@ -380,6 +399,8 @@ public class Word
 				return false;
 		} else if (!lastModified.equals(other.lastModified))
 			return false;
+        if (rankedList != other.rankedList)
+            return false;
 		if (manuallyRated != other.manuallyRated)
 			return false;
 		if (needsResearch != other.needsResearch)
