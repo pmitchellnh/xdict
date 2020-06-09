@@ -12,7 +12,7 @@
       <h4><li><a href="#prerequisites">Prerequisites</a></h4>
         <div><ol type='A'>
           <li><a href="#mysqldb">Install MySQL Database</a>
-          <li><a href="#javaruntime">Install Java Runtime</a>
+          <li><a href="#javaruntime">Install Java Runtime Environment (JRE)</a>
         </ol></div>
       <h4><li><a href="#installation">Install and Run</a></h4>
         <div><ol type='A'>
@@ -116,16 +116,32 @@
     <div id="prerequisites"><h2><li>Prerequisites</h2>
       <ol type='A'>
       <div id="mysqldb"><h3><li>Install MySQL Database</h3>
-        <div class="note">Note:<p>This program uses the MySQL database.
+        This software was built and tested on a MacBook Pro running macOS Mojave, version 10.14.6,
+        using the following MySQL version:<p>
+          "Ver 14.14 Distrib 5.6.17, for osx10.7 (x86_64) using  EditLine wrapper"<p>
+        <div class="alert">IMPORTANT:<p>
           It is beyond the scope of this document to detail the download and installation of MySQL
           on a specific machine/OS combination.  Please refer to existing online resources to install
-          MySQL on your machine.
-        </div>
+          amd run MySQL on your machine.<p>
+          No guarantee is expressed or implied regarding what version of MySQL is required; the above
+          is provided for informative purposes only. Your mileage may vary.
+        </div><p>
+        See <a href="#dbsetup">Database Setup</a> below for database setup requirements.
       </div>
-      <div id="javaruntime"><h3><li>Install Java Runtime</h3>
-        <div class="todo">TODO:<p>Find out what is required and whether we need detailed
-          instructions here.  Is it different for Mac vs Windows, etc.?
-        </div>
+      <div id="javaruntime"><h3><li>Install Java Runtime Environment (JRE)</h3>
+        This software was built and tested on a MacBook Pro running macOS Mojave, version 10.14.6,
+        using the following JRE:<p>
+          Java version "1.8.0_25"<br>
+          Java(TM) SE Runtime Environment (build 1.8.0_25-b17)<br>
+          Java HotSpot(TM) 64-Bit Server VM (build 25.25-b02, mixed mode)<br>
+          <p>
+          <div class="alert">IMPORTANT:<p>
+            It is beyond the scope of this document to detail the download and installation of a Java
+            Runtime Environment on a specific machine/OS combination.  Please refer to existing online
+            resources to install a JRE on your machine and set your path information accordingly.<p>
+            No guarantee is expressed or implied regarding what version of JRE is required; the above
+            is provided for informative purposes only. Your mileage may vary.
+          </div>
       </div>
       </ol>
     </div>
@@ -139,11 +155,19 @@
         <div class="note">Note: <p>
           Database tables will be created, if necessary, on startup. It is not necessary to
           create the tables beforehand.
+        </div><p>
+        <div class="alert">IMPORTANT:<p>
+          The MySQL server must be started prior to running the XDict software.
         </div>
       </div>
       <div id="install"><h3><li>Installing the Software</h3>
-        <div class="todo">TODO:<p>How are we going to do this? WAR file?
-        </div>
+        <ul>
+          <li>Unzip the XDict.zip file into target location
+          <li>You should now see XDict.jar, config.orig, and the help subdirectory
+          <li>Open a terminal window and run: <pre>java -version</pre> to ensure the Java JRE is installed and is
+            accessible from this location. If not, revisit
+            <a href="#javaruntime">Install Java Runtime Environment (JRE)</a>, above.
+        </ul>
       </div>
       <div id="config"><h3><li>Configuration</h3>
         Before you start, copy (or rename, if you don't care to save the original) the "config.orig"
@@ -203,9 +227,9 @@
         </div>
       </div>
       <div id="runit"><h3><li>Running the Program</h3>
-        <div class="todo">TODO:<p>Need detailed instructions here, based on how we deploy...
-        </div>
-        <p>
+        Open a terminal window in the target directory where you unzipped the XDict.zip file, in
+        <a href="#install">Installing the Software</a>, above. Run the following command:<p>
+          <pre>java -jar XDict.jar</pre>
       <div id="testmode"><h3><li>Test Mode</h3>
         Test Mode provides all the functionality of "production" mode, but uses <i>temporary tables</i>,
         so <i>no data is preserved when you exit the program</i>. This allows you to fully experiment with
