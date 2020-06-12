@@ -1519,7 +1519,7 @@ public class XDictGui extends JFrame implements WindowListener
                     addButton.setText("Add");
                     // These are disabled, so just set them to default vals
                     queryLengthAtLeast.setSelected(true);
-                    wordLengthSlider.setValue(LENGTH_DEFAULT);
+                    wordLengthSlider.setValue(Word.format(wordEntry.getText(), false).length());
                     queryRatingAtLeast.setSelected(true);
                     wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
                     research.setSelected(false);
