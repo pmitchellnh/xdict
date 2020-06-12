@@ -1,11 +1,10 @@
 package mitchell.pete.xdict.db;
 
+import junit.framework.TestCase;
 import mitchell.pete.xdict.XDictConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
-import junit.framework.TestCase;
 
 public class XDictDB_MySQLTest extends TestCase {
 	private XDictDB_MySQL dict;

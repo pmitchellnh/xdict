@@ -2,6 +2,8 @@ package mitchell.pete.xdict.reconciler;
 
 import junit.framework.TestCase;
 import mitchell.pete.xdict.Word;
+import mitchell.pete.xdict.reconciler.Reconciler;
+import org.junit.Test;
 
 public class Reconciler1Test extends TestCase 
 {
@@ -33,13 +35,15 @@ public class Reconciler1Test extends TestCase
 									.usedNYT(false)
 									.needsResearch(false)
 									.build();
-	
+
+    @Test
 	public void testDifferentWords()
 	{
 		boolean w = r.Reconcile(w1, wDifferent);
 		assertFalse(w);
 	}
-	
+
+    @Test
 	public void testByValue()
 	{
 		boolean w = r.Reconcile(w1, w2);
@@ -50,6 +54,7 @@ public class Reconciler1Test extends TestCase
 		assertTrue(w1.needsResearch());
 	}
 
+    @Test
 	public void testWithManual()
 	{
 		boolean w = r.Reconcile(w1, wManual);

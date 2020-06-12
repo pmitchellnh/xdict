@@ -11,6 +11,9 @@ build.xml.fx
 /help
 /release
 /resources
+/JUNK
+/pete
+xdict.properties
 
 # Code compiled by Maven
 *target*

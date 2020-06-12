@@ -1,49 +1,270 @@
-<project name="XDict" default="deploy" basedir="." >
-
-  <!-- ******************************** -->
-  <!-- CHANGE THESE VARIABLES AS NEEDED -->
-  <!-- ******************************** -->
-
-  <property name="jar_filename"      value="XDict.jar" />
-  <property name="jar_path"          value="out/artifacts/XDict_jar" />
-
-  <!-- no spaces in `app_name` -->
-  <property name="app_name"          value="XDict" />
-  <property name="app_display_name"  value="XDict" />
-  <property name="short_version"     value="2.1" />
-  <property name="icon_filename"     value="xdict.png" />
-  <property name="copyright_holder"  value="Pete Mitchell" />
-  <property name="app_identifier"    value="mitchell.pete.xdict" />
-  <property name="main_class_name"   value="mitchell.pete.xdict.gui.XDictGui" />
-  <property name="app_category"      value="public.app-category.utilities" />
-  <property name="release_dir"       value="release" />
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="xdict" default="all">
 
 
+  <property file="xdict.properties"/>
+  <!-- Uncomment the following property if no tests compilation is needed -->
+  <property name="skip.tests" value="true"/>
 
-  <!-- **************************************** -->
-  <!-- CHANGE STUFF BELOW HERE AT YOUR OWN RISK -->
-  <!-- **************************************** -->
+  <!-- Compiler options -->
 
-  <property environment="env" />
+  <property name="compiler.debug" value="on"/>
+  <property name="compiler.generate.no.warnings" value="off"/>
+  <property name="compiler.args" value=""/>
+  <property name="compiler.max.memory" value="700m"/>
+  <patternset id="ignored.files">
+    <exclude name="**/CVS/**"/>
+    <exclude name="**/SCCS/**"/>
+    <exclude name="**/RCS/**"/>
+    <exclude name="**/rcs/**"/>
+    <exclude name="**/.DS_Store/**"/>
+    <exclude name="**/.svn/**"/>
+    <exclude name="**/.pyc/**"/>
+    <exclude name="**/.pyo/**"/>
+    <exclude name="**/*.pyc/**"/>
+    <exclude name="**/*.pyo/**"/>
+    <exclude name="**/.git/**"/>
+    <exclude name="**/*.hprof/**"/>
+    <exclude name="**/_svn/**"/>
+    <exclude name="**/.hg/**"/>
+    <exclude name="**/*.lib/**"/>
+    <exclude name="**/*~/**"/>
+    <exclude name="**/__pycache__/**"/>
+    <exclude name="**/.bundle/**"/>
+    <exclude name="**/*.rbc/**"/>
+  </patternset>
+  <patternset id="library.patterns">
+    <include name="*.war"/>
+    <include name="*.ear"/>
+    <include name="*.apk"/>
+    <include name="*.zip"/>
+    <include name="*.swc"/>
+    <include name="*.ane"/>
+    <include name="*.egg"/>
+    <include name="*.jar"/>
+  </patternset>
+  <patternset id="compiler.resources">
+    <exclude name="**/?*.java"/>
+    <exclude name="**/?*.form"/>
+    <exclude name="**/?*.class"/>
+    <exclude name="**/?*.groovy"/>
+    <exclude name="**/?*.scala"/>
+    <exclude name="**/?*.flex"/>
+    <exclude name="**/?*.kt"/>
+    <exclude name="**/?*.clj"/>
+  </patternset>
 
-  <target name="clean">
-      <echo message="Clean ..." />
-      <!-- delete old dirs -->
-      <delete dir="${release_dir}" quiet="true" />
-      <!-- create new, clean dirs -->
-      <mkdir dir="${release_dir}" />
+  <!-- JDK definitions -->
+
+  <property name="jdk.bin.1.8" value="${jdk.home.1.8}/bin"/>
+  <path id="jdk.classpath.1.8">
+    <fileset dir="${jdk.home.1.8}">
+      <include name="lib/ant-javafx.jar"/>
+      <include name="lib/dt.jar"/>
+      <include name="lib/javafx-mx.jar"/>
+      <include name="lib/jconsole.jar"/>
+      <include name="lib/sa-jdi.jar"/>
+      <include name="lib/tools.jar"/>
+      <include name="jre/lib/charsets.jar"/>
+      <include name="jre/lib/deploy.jar"/>
+      <include name="jre/lib/javaws.jar"/>
+      <include name="jre/lib/jce.jar"/>
+      <include name="jre/lib/jfr.jar"/>
+      <include name="jre/lib/jfxswt.jar"/>
+      <include name="jre/lib/jsse.jar"/>
+      <include name="jre/lib/management-agent.jar"/>
+      <include name="jre/lib/plugin.jar"/>
+      <include name="jre/lib/resources.jar"/>
+      <include name="jre/lib/rt.jar"/>
+      <include name="jre/lib/ext/cldrdata.jar"/>
+      <include name="jre/lib/ext/dnsns.jar"/>
+      <include name="jre/lib/ext/jfxrt.jar"/>
+      <include name="jre/lib/ext/localedata.jar"/>
+      <include name="jre/lib/ext/nashorn.jar"/>
+      <include name="jre/lib/ext/sunec.jar"/>
+      <include name="jre/lib/ext/sunjce_provider.jar"/>
+      <include name="jre/lib/ext/sunpkcs11.jar"/>
+      <include name="jre/lib/ext/zipfs.jar"/>
+    </fileset>
+  </path>
+
+  <property name="project.jdk.home" value="${jdk.home.1.8}"/>
+  <property name="project.jdk.bin" value="${jdk.bin.1.8}"/>
+  <property name="project.jdk.classpath" value="jdk.classpath.1.8"/>
+
+  <!-- Modules -->
+
+
+  <!-- Module XDict -->
+
+  <dirname property="module.xdict.basedir" file="${ant.file}"/>
+
+
+  <property name="module.jdk.home.xdict" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.xdict" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.xdict" value="${project.jdk.classpath}"/>
+
+  <property name="compiler.args.xdict" value="-encoding UTF-8 -source 8 ${compiler.args}"/>
+
+  <property name="xdict.output.dir" value="${module.xdict.basedir}/bin"/>
+  <property name="xdict.testoutput.dir" value="${module.xdict.basedir}/bin"/>
+
+  <property name="xdict.release.dir"       value="${module.xdict.basedir}/release" />
+  <property name="xdict.temp.dir"          value="${module.xdict.basedir}/temp" />
+  <property name="xdict.zip.file"          value="XDict.zip" />
+  <property name="xdict.manifest.file"  value="${module.xdict.basedir}/src/main/java/META-INF/MANIFEST.MF" />
+
+
+  <path id="xdict.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+
+  <path id="xdict.module.production.classpath">
+    <path refid="${module.jdk.classpath.xdict}"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${basedir}/../../../../Library/Java/Extensions"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/junit.jar"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/ant-junit.jar"/>
+  </path>
+
+  <path id="xdict.runtime.production.module.classpath">
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${xdict.output.dir}"/>
+    <pathelement location="${basedir}/../../../../Library/Java/Extensions"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/junit.jar"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/ant-junit.jar"/>
+  </path>
+
+  <path id="xdict.module.classpath">
+    <path refid="${module.jdk.classpath.xdict}"/>
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${xdict.output.dir}"/>
+    <pathelement location="${basedir}/../../../../Library/Java/Extensions"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/junit.jar"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/ant-junit.jar"/>
+  </path>
+
+  <path id="xdict.runtime.module.classpath">
+    <pathelement location="${idea.home}/lib/junit-4.11.jar"/>
+    <pathelement location="${xdict.output.dir}"/>
+    <pathelement location="${basedir}/../../../../Library/Java/Extensions"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/junit.jar"/>
+    <pathelement location="/usr/local/Cellar/ant/1.9.4/libexec/lib/ant-junit.jar"/>
+  </path>
+
+
+  <patternset id="excluded.from.module.xdict">
+    <patternset refid="ignored.files"/>
+  </patternset>
+
+  <patternset id="excluded.from.compilation.xdict">
+    <patternset refid="excluded.from.module.xdict"/>
+  </patternset>
+
+  <path id="xdict.module.sourcepath">
+    <dirset dir="${module.xdict.basedir}">
+      <include name="src/main/java"/>
+      <include name="src/test/java"/>
+      <include name="src"/>
+      <include name="res"/>
+    </dirset>
+  </path>
+
+
+  <target name="compile.module.xdict" depends="compile.module.xdict.production,compile.module.xdict.tests" description="Compile module XDict"/>
+
+  <target name="compile.module.xdict.production" description="Compile module XDict; production classes">
+    <mkdir dir="${xdict.output.dir}"/>
+    <javac includeantruntime="false" destdir="${xdict.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.xdict}/javac">
+      <compilerarg line="${compiler.args.xdict}"/>
+      <bootclasspath refid="xdict.module.bootclasspath"/>
+      <classpath refid="xdict.module.production.classpath"/>
+      <src refid="xdict.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.xdict"/>
+    </javac>
+
+    <copy todir="${xdict.output.dir}">
+      <fileset dir="${module.xdict.basedir}/src/main/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.xdict.basedir}/src/test/java">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.xdict.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+      <fileset dir="${module.xdict.basedir}/res">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
   </target>
 
-  <target name="deploy" depends="clean">
+  <target name="compile.module.xdict.tests" depends="compile.module.xdict.production" description="compile module XDict; test classes" unless="skip.tests"/>
+
+  <target name="clean.module.xdict" description="cleanup module">
+    <echo message="Clean ..." />
+    <delete dir="${xdict.output.dir}"/>
+    <delete dir="${xdict.testoutput.dir}"/>
+    <delete dir="${xdict.release.dir}"/>
+    <delete dir="${xdict.temp.dir}"/>
+  </target>
+
+  <target name="init" description="Build initialization">
+    <!-- Perform any build initialization in this target -->
+  </target>
+
+  <target name="clean" depends="clean.module.xdict" description="cleanup all"/>
+
+  <target name="build.modules" depends="init, clean, compile.module.xdict" description="build all modules"/>
+
+  <target name="init.artifacts">
+    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
+    <property name="artifact.output.xdict:jar" value="${basedir}/out/artifacts/XDict_jar"/>
+    <mkdir dir="${artifacts.temp.dir}"/>
+    <property name="temp.jar.path.XDict.jar" value="${artifacts.temp.dir}/XDict.jar"/>
+  </target>
+
+  <target name="artifact.xdict:jar" depends="init.artifacts, compile.module.xdict" description="Build &#39;XDict:jar&#39; artifact">
+    <property name="artifact.temp.output.xdict:jar" value="${artifacts.temp.dir}/XDict_jar"/>
+    <mkdir dir="${artifact.temp.output.xdict:jar}"/>
+    <jar destfile="${temp.jar.path.XDict.jar}" duplicate="preserve" manifest="${xdict.manifest.file}">
+      <zipfileset dir="${xdict.output.dir}"/>
+      <zipfileset dir="${basedir}/../../../../Library/Java/Extensions"/>
+      <!-- <zipfileset src="${idea.home}/lib/junit-4.11.jar"/> -->
+    </jar>
+    <copy file="${temp.jar.path.XDict.jar}" tofile="${artifact.temp.output.xdict:jar}/XDict.jar"/>
+  </target>
+
+  <target name="build.all.artifacts" depends="artifact.xdict:jar" description="Build all artifacts">
+    <mkdir dir="${artifact.output.xdict:jar}"/>
+    <copy todir="${artifact.output.xdict:jar}">
+      <fileset dir="${artifact.temp.output.xdict:jar}"/>
+    </copy>
+
+    <!-- Delete temporary files -->
+    <delete dir="${artifacts.temp.dir}"/>
+  </target>
+
+  <target name="deploy" depends="build.all.artifacts">
     <echo message="Deploy ..." />
-    <copy file="${jar_path}/${jar_filename}" todir="${release_dir}" />
-    <copy file="config.orig" todir="${release_dir}" />
-    <unzip src="${jar_path}/${jar_filename}" dest="${release_dir}">
+    <mkdir dir="${xdict.release.dir}" />
+    <mkdir dir="${xdict.temp.dir}" />
+    <copy file="${artifact.output.xdict:jar}/XDict.jar" todir="${xdict.temp.dir}" />
+    <copy file="config.orig" todir="${xdict.temp.dir}" />
+    <unzip src="${artifact.output.xdict:jar}/XDict.jar" dest="${xdict.temp.dir}">
       <patternset>
         <include name="help/"/>
         <include name="xdict.png"/>
       </patternset>
     </unzip>
+    <echo message="Zip ..." />
+    <zip basedir="${xdict.temp.dir}" destfile="${xdict.release.dir}/${xdict.zip.file}" />
+    <delete dir="${xdict.temp.dir}" quiet="true" />
   </target>
 
+  <target name="all" depends="build.modules, build.all.artifacts, deploy" description="build all"/>
 </project>

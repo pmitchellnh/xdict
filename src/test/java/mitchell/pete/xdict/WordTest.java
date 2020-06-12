@@ -1,6 +1,9 @@
 package mitchell.pete.xdict;
 
 import junit.framework.TestCase;
+import mitchell.pete.xdict.Word;
+import mitchell.pete.xdict.XDictConfig;
+import org.junit.Test;
 
 
 public class WordTest extends TestCase
@@ -14,7 +17,8 @@ public class WordTest extends TestCase
 	private final static int worstValue = 0;
 	private final static int invalidValue1 = -1;
 	private final static int invalidValue2 = 101;
-	
+
+    @Test
 	public void testCreate()
 	{
 		
@@ -26,7 +30,8 @@ public class WordTest extends TestCase
 		// Make sure w1 didn't change
 		assertEquals( text1.toUpperCase(), w1.getEntry());
 	}
-	
+
+    @Test
 	public void testRatings()
 	{
 		// Test Value sets/gets
@@ -51,16 +56,18 @@ public class WordTest extends TestCase
 		w1.setRating( worstValue );
 		assertEquals( worstValue, w1.getRating() );	
 	}
-	
+
+    @Test
 	public void testToString()
 	{
 		Word w1 = new Word.Builder(text1).build();
-		assertEquals( "DOGFISH:50", w1.toString() );
-		w1.setRating(badValue);
-		assertEquals( "DOGFISH:25", w1.toString() );
+		TestCase.assertEquals("DOGFISH" + XDictConfig.EXPORT_FILE_DELIMITER + "50", w1.toString());
+                w1.setRating(badValue);
+		assertEquals( "DOGFISH" + XDictConfig.EXPORT_FILE_DELIMITER + "25", w1.toString() );
 
 	}
-	
+
+    @Test
 	public void testEquals()
 	{
 		Word w1 = new Word.Builder(text1).rating((byte)80).usedAny(true).usedNYT(false).build();
