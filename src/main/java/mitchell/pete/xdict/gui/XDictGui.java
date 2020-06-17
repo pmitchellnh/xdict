@@ -1944,6 +1944,8 @@ public class XDictGui extends JFrame implements WindowListener
             setRatingButtons(true);
         }
 
+        this.getComponent(0).requestFocus();    // request focus back to control panel
+
         return status;
     }
 

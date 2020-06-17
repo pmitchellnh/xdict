@@ -266,5 +266,9 @@
     <delete dir="${xdict.temp.dir}" quiet="true" />
   </target>
 
-  <target name="all" depends="build.modules, build.all.artifacts, deploy" description="build all"/>
+  <target name="unzip" depends="deploy">
+    <unzip src="${xdict.release.dir}/${xdict.zip.file}" dest="${xdict.release.dir}" />
+  </target>
+
+  <target name="all" depends="build.modules, build.all.artifacts, deploy, unzip" description="build all"/>
 </project>
