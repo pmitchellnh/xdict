@@ -1828,7 +1828,7 @@ public class XDictGui extends JFrame implements WindowListener
         try {
             resultSetSize = dict.getCount(lenCtrl, length, patCtrl, key, ratCtrl, rat, useCtrl, resCtrl, methCtrl, true);
             if (next) {
-                queryStart += RATING_QUERY_LIMIT;
+                queryStart += listToRate.size();    // skip over any that are left in the list on a "next" action
                 queryStart = (queryStart > resultSetSize ? resultSetSize : queryStart);
             } else {
                 queryStart = 0;
