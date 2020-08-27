@@ -388,30 +388,159 @@ public class XDictConfig {
         return name;
     }
 
-    public static String getRateButtonDesc(RATINGS r)
+    public static String getRateButtonDesc(RATINGS r, int wordLength)
     {
         String desc = "";
+        int value = 0;
+
         switch (r) {
             case KILL:
                 desc = "Not a word. Kill it. (0)";
                 break;
             case TERRIBLE:
-                desc = "You're joking, right? (" + TERRIBLE_MIN + (TERRIBLE_MIN != TERRIBLE_MAX ? "-" + TERRIBLE_MAX : "") + ")";
+                if (wordLength == -1) {
+                    desc = "You're joking, right? (" + TERRIBLE_MIN + (TERRIBLE_MIN != TERRIBLE_MAX ? "-" + TERRIBLE_MAX : "") + ")";
+                }
+                else {
+                    switch (wordLength) {
+                        case 3:
+                            value = TERRIBLE_3;
+                            break;
+                        case 4:
+                            value = TERRIBLE_4;
+                            break;
+                        case 5:
+                            value = TERRIBLE_5;
+                            break;
+                        case 6:
+                            value = TERRIBLE_6;
+                            break;
+                        default:
+                            value = TERRIBLE;
+                            break;
+                    }
+                    desc = "You're joking, right? (" + value + ")";
+                }
                 break;
             case POOR:
-                desc = "I suppose. In a pinch. (" + POOR_MIN + (POOR_MIN != POOR_MAX ? "-" + POOR_MAX : "") + ")";
+                if (wordLength == -1) {
+                    desc = "I suppose. In a pinch. (" + POOR_MIN + (POOR_MIN != POOR_MAX ? "-" + POOR_MAX : "") + ")";
+                } else {
+                    switch (wordLength) {
+                        case 3:
+                            value = POOR_3;
+                            break;
+                        case 4:
+                            value = POOR_4;
+                            break;
+                        case 5:
+                            value = POOR_5;
+                            break;
+                        case 6:
+                            value = POOR_6;
+                            break;
+                        default:
+                            value = POOR;
+                            break;
+                    }
+                    desc = "I suppose. In a pinch. (" + value + ")";
+                }
                 break;
             case LAME:
-                desc =  "Not crazy about it. (" + LAME_MIN + (LAME_MIN != LAME_MAX ? "-" + LAME_MAX : "") + ")";
+                if (wordLength == -1) {
+                    desc = "Not crazy about it. (" + LAME_MIN + (LAME_MIN != LAME_MAX ? "-" + LAME_MAX : "") + ")";
+                } else {
+                    switch (wordLength) {
+                        case 3:
+                            value = LAME_3;
+                            break;
+                        case 4:
+                            value = LAME_4;
+                            break;
+                        case 5:
+                            value = LAME_5;
+                            break;
+                        case 6:
+                            value = LAME_6;
+                            break;
+                        default:
+                            value = LAME;
+                            break;
+                    }
+                    desc = "Not crazy about it. (" + value + ")";
+                }
                 break;
             case OK:
-                desc =  "Nothing wrong with it. (" + OK_MIN + (OK_MIN != OK_MAX ? "-" + OK_MAX : "") + ")";
+                if (wordLength == -1) {
+                    desc = "Nothing wrong with it. (" + OK_MIN + (OK_MIN != OK_MAX ? "-" + OK_MAX : "") + ")";
+                } else {
+                    switch (wordLength) {
+                        case 3:
+                            value = OK_3;
+                            break;
+                        case 4:
+                            value = OK_4;
+                            break;
+                        case 5:
+                            value = OK_5;
+                            break;
+                        case 6:
+                            value = OK_6;
+                            break;
+                        default:
+                            value = OK;
+                            break;
+                    }
+                    desc = "Nothing wrong with it. (" + value + ")";
+                }
                 break;
             case GOOD:
-                desc = "Yeah, that's pretty good. (" + GOOD_MIN + (GOOD_MIN != GOOD_MAX ? "-" + GOOD_MAX : "") + ")";
+                if (wordLength == -1) {
+                    desc = "Yeah, that's pretty good. (" + GOOD_MIN + (GOOD_MIN != GOOD_MAX ? "-" + GOOD_MAX : "") + ")";
+                } else {
+                    switch (wordLength) {
+                        case 3:
+                            value = GOOD_3;
+                            break;
+                        case 4:
+                            value = GOOD_4;
+                            break;
+                        case 5:
+                            value = GOOD_5;
+                            break;
+                        case 6:
+                            value = GOOD_6;
+                            break;
+                        default:
+                            value = GOOD;
+                            break;
+                    }
+                    desc = "Yeah, that's pretty good. (" + value + ")";
+                }
                 break;
             case EXCELLENT:
-                desc = "Now that's what I'm talking about. (" + EXCELLENT_MIN + (EXCELLENT_MIN != EXCELLENT_MAX ? "-" + EXCELLENT_MAX : "") + ")";
+                if (wordLength == -1) {
+                    desc = "Now that's what I'm talking about. (" + EXCELLENT_MIN + (EXCELLENT_MIN != EXCELLENT_MAX ? "-" + EXCELLENT_MAX : "") + ")";
+                } else {
+                    switch (wordLength) {
+                        case 3:
+                            value = EXCELLENT_3;
+                            break;
+                        case 4:
+                            value = EXCELLENT_4;
+                            break;
+                        case 5:
+                            value = EXCELLENT_5;
+                            break;
+                        case 6:
+                            value = EXCELLENT_6;
+                            break;
+                        default:
+                            value = EXCELLENT;
+                            break;
+                    }
+                    desc = "Now that's what I'm talking about. (" + value + ")";
+                }
                 break;
             case MANUAL:
                 desc = "Assign the rating value from the manual slider.";

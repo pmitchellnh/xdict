@@ -18,9 +18,13 @@ public class RateAction extends AbstractAction implements Runnable
         this.gui = g;
         rating = r;
 
-        putValue(Action.SHORT_DESCRIPTION, XDictConfig.getRateButtonDesc(rating));
+        putValue(Action.SHORT_DESCRIPTION, XDictConfig.getRateButtonDesc(rating, -1));
         putValue(Action.NAME, XDictConfig.getRateButtonName(rating));
 
+    }
+
+    public void resetRatingDesc(int wordLength) {
+        putValue(Action.SHORT_DESCRIPTION, XDictConfig.getRateButtonDesc(rating, wordLength));
     }
 
     public void actionPerformed(ActionEvent e)
