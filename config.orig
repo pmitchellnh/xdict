@@ -53,6 +53,7 @@ LOAD_FILE_DEFAULT_DIR=wordlists
 # EXPORT_FILE_DEFAULT_DIR is the default location to export dictionary files. It
 # is not necessary to enter this, but doing so will preload the directory name in the
 # Export screen.  Even if set, this can be overwritten manually.  It is merely a convenience.
+# Note: YYYY (or YY) MM and DD will convert to current yeqr, month, day (current = dqy config file loaded).
 EXPORT_FILE_DEFAULT_DIR=export
 
 

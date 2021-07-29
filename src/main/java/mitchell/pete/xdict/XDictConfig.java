@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.StringTokenizer;
 
 public class XDictConfig {
@@ -173,6 +176,24 @@ public class XDictConfig {
             }
         } else if (key.equals("EXPORT_FILE_DEFAULT_DIR")) {
             if (!value.isEmpty()) {
+                Date date = new Date();
+                LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int month = localDate.getMonthValue();
+                int day = localDate.getDayOfMonth();
+                int year = localDate.getYear();
+
+                if (value.contains("YYYY")) {
+                    value = value.replace( "YYYY", String.format("%04d", year));
+                } else if (value.contains("YY")) {
+                    value = value.replace( "YY", String.format("%02d", year % 2000));
+                }
+                if (value.contains("MM")) {
+                    value = value.replace( "MM", String.format("%02d", month));
+                }
+                if (value.contains("DD")) {
+                    value = value.replace( "DD", String.format("%02d", day));
+                }
+
                 EXPORT_FILE_DEFAULT_DIR = value;
                 System.out.println("EXPORT_FILE_DEFAULT_DIR: " + EXPORT_FILE_DEFAULT_DIR);
             }
