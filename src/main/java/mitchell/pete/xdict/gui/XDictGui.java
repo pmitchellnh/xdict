@@ -124,16 +124,16 @@ public class XDictGui extends JFrame implements WindowListener
     private JButton addButton				= new JButton(new AddAction(this));
     private JButton loadButton				= new JButton(new LoadAction(this));
     private JButton exportButton		    = new JButton(new ExportAction(this));
-    private JButton killButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.KILL));
-    private JButton terribleButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.TERRIBLE));
+    private JButton killButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.NOPE));
     private JButton poorButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.POOR));
     private JButton lameButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.LAME));
+    private JButton mehButton               = new JButton(new RateAction(this, XDictConfig.RATINGS.MEH));
     private JButton okButton   		        = new JButton(new RateAction(this, XDictConfig.RATINGS.OK));
     private JButton goodButton		        = new JButton(new RateAction(this, XDictConfig.RATINGS.GOOD));
     private JButton excellentButton		    = new JButton(new RateAction(this, XDictConfig.RATINGS.EXCELLENT));
-    private JButton terribleButton2		    = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.TERRIBLE));
     private JButton poorButton2		        = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.POOR));
     private JButton lameButton2		        = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.LAME));
+    private JButton mehButton2 =            new JButton(new SetRatingAction(this, XDictConfig.RATINGS.MEH));
     private JButton okButton2   		    = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.OK));
     private JButton goodButton2		        = new JButton(new SetRatingAction(this, XDictConfig.RATINGS.GOOD));
     private JButton excellentButton2		= new JButton(new SetRatingAction(this, XDictConfig.RATINGS.EXCELLENT));
@@ -590,9 +590,9 @@ public class XDictGui extends JFrame implements WindowListener
     {
     	JPanel result = new JPanel();
         result.add(killButton);
-        result.add(terribleButton);
         result.add(poorButton);
         result.add(lameButton);
+        result.add(mehButton);
         result.add(okButton);
         result.add(goodButton);
         result.add(excellentButton);
@@ -608,9 +608,9 @@ public class XDictGui extends JFrame implements WindowListener
     private JComponent buildAddControlButtons()
     {
         JPanel result = new JPanel();
-        result.add(terribleButton2);
         result.add(poorButton2);
         result.add(lameButton2);
+        result.add(mehButton2);
         result.add(okButton2);
         result.add(goodButton2);
         result.add(excellentButton2);
@@ -624,26 +624,26 @@ public class XDictGui extends JFrame implements WindowListener
 
     private void setRatingButtons(boolean state) {
         if (listToRate == null || listToRate.isEmpty()) {
-            ((RateAction)terribleButton.getAction()).resetRatingDesc(-1);
             ((RateAction)poorButton.getAction()).resetRatingDesc(-1);
             ((RateAction)lameButton.getAction()).resetRatingDesc(-1);
+            ((RateAction)mehButton.getAction()).resetRatingDesc(-1);
             ((RateAction)okButton.getAction()).resetRatingDesc(-1);
             ((RateAction)goodButton.getAction()).resetRatingDesc(-1);
             ((RateAction)excellentButton.getAction()).resetRatingDesc(-1);
         } else {
             ((RateAction)killButton.getAction()).resetRatingDesc(listToRate.get(0).length());
-            ((RateAction)terribleButton.getAction()).resetRatingDesc(listToRate.get(0).length());
             ((RateAction)poorButton.getAction()).resetRatingDesc(listToRate.get(0).length());
             ((RateAction)lameButton.getAction()).resetRatingDesc(listToRate.get(0).length());
+            ((RateAction)mehButton.getAction()).resetRatingDesc(listToRate.get(0).length());
             ((RateAction)okButton.getAction()).resetRatingDesc(listToRate.get(0).length());
             ((RateAction)goodButton.getAction()).resetRatingDesc(listToRate.get(0).length());
             ((RateAction)excellentButton.getAction()).resetRatingDesc(listToRate.get(0).length());
         }
 
         killButton.setEnabled(state);
-    	terribleButton.setEnabled(state);
     	poorButton.setEnabled(state);
     	lameButton.setEnabled(state);
+        mehButton.setEnabled(state);
     	okButton.setEnabled(state);
     	goodButton.setEnabled(state);
     	excellentButton.setEnabled(state);
@@ -653,9 +653,9 @@ public class XDictGui extends JFrame implements WindowListener
     }
 
     private void setAddRatingButtons(boolean state) {
-        terribleButton2.setEnabled(state);
         poorButton2.setEnabled(state);
         lameButton2.setEnabled(state);
+        mehButton2.setEnabled(state);
         okButton2.setEnabled(state);
         goodButton2.setEnabled(state);
         excellentButton2.setEnabled(state);
@@ -1513,9 +1513,9 @@ public class XDictGui extends JFrame implements WindowListener
         queryEntryEquals.setSelected(true);
         if (!wordEntry.getText().isEmpty()) {
 
-            ((SetRatingAction)terribleButton2.getAction()).resetRatingDesc(wordEntry.getText().length());
             ((SetRatingAction)poorButton2.getAction()).resetRatingDesc(wordEntry.getText().length());
             ((SetRatingAction)lameButton2.getAction()).resetRatingDesc(wordEntry.getText().length());
+            ((SetRatingAction)mehButton2.getAction()).resetRatingDesc(wordEntry.getText().length());
             ((SetRatingAction)okButton2.getAction()).resetRatingDesc(wordEntry.getText().length());
             ((SetRatingAction)goodButton2.getAction()).resetRatingDesc(wordEntry.getText().length());
             ((SetRatingAction)excellentButton2.getAction()).resetRatingDesc(wordEntry.getText().length());
@@ -1566,9 +1566,9 @@ public class XDictGui extends JFrame implements WindowListener
             queryRatingAtLeast.setSelected(true);
             wordRatingSlider.setValue(QUERY_RATING_DEFAULT);
             research.setSelected(false);
-            ((SetRatingAction)terribleButton2.getAction()).resetRatingDesc(-1);
             ((SetRatingAction)poorButton2.getAction()).resetRatingDesc(-1);
             ((SetRatingAction)lameButton2.getAction()).resetRatingDesc(-1);
+            ((SetRatingAction)mehButton2.getAction()).resetRatingDesc(-1);
             ((SetRatingAction)okButton2.getAction()).resetRatingDesc(-1);
             ((SetRatingAction)goodButton2.getAction()).resetRatingDesc(-1);
             ((SetRatingAction)excellentButton2.getAction()).resetRatingDesc(-1);
@@ -1931,8 +1931,8 @@ public class XDictGui extends JFrame implements WindowListener
                 w.setManuallyRated(true);
                 w.setNeedsResearch(false);    // rated manually; research complete
                 dict.putWord(w);
-            } else if (r == XDictConfig.RATINGS.KILL) {
-                rat = XDictConfig.KILL;
+            } else if (r == XDictConfig.RATINGS.NOPE) {
+                rat = XDictConfig.NOPE;
                 status = w.getEntry() + ": " + rat + " (Killed)";
                 w.setRating(rat);
                 w.setManuallyRated(true);

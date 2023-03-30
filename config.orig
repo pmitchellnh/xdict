@@ -65,11 +65,6 @@ EXPORT_FILE_DEFAULT_DIR=export
 # a puzzle fill.  For any length-specific values that you don't choose to differentiate,
 # either set it explicitly to the general value or comment it out (in which case the default
 # value will be used).
-TERRIBLE=5
-#TERRIBLE_6=5
-#TERRIBLE_5=5
-#TERRIBLE_4=5
-#TERRIBLE_3=5
 POOR=15
 #POOR_6=15
 #POOR_5=20
@@ -80,6 +75,11 @@ LAME=45
 #LAME_5=45
 #LAME_4=45
 #LAME_3=50
+MEH=50
+#MEH_6=50
+#MEH_5=50
+#MEH_4=50
+#MEH_3=50
 OK=60
 #OK_6=60
 #OK_5=60

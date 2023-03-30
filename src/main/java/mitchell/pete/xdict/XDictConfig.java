@@ -29,22 +29,22 @@ public class XDictConfig {
     public static int APP_WIDTH = 1300;     // value in pixels
     public static int APP_HEIGHT = 850;     // value in pixels
 
-    public static final int KILL = 0;       // kill means kill -- no reason to configure this
-    public static int TERRIBLE = 5;
-    public static int TERRIBLE_6 = -1;
-    public static int TERRIBLE_5 = -1;
-    public static int TERRIBLE_4 = -1;
-    public static int TERRIBLE_3 = -1;
+    public static final int NOPE = 0;       // don't want it on the list -- no reason to configure this
     public static int POOR = 30;
     public static int POOR_6 = -1;
     public static int POOR_5 = -1;
     public static int POOR_4 = -1;
     public static int POOR_3 = -1;
-    public static int LAME = 50;
+    public static int LAME = 40;
     public static int LAME_6 = -1;
     public static int LAME_5 = -1;
     public static int LAME_4 = -1;
     public static int LAME_3 = -1;
+    public static int MEH = 50;
+    public static int MEH_6 = -1;
+    public static int MEH_5 = -1;
+    public static int MEH_4 = -1;
+    public static int MEH_3 = -1;
     public static int OK = 60;
     public static int OK_3 = -1;
     public static int OK_4 = -1;
@@ -61,12 +61,12 @@ public class XDictConfig {
     public static int EXCELLENT_6 = -1;
     public static int EXCELLENT = 80;
 
-    public static int TERRIBLE_MIN = 0;
-    public static int TERRIBLE_MAX = 1000;
     public static int POOR_MIN = 0;
     public static int POOR_MAX = 100;
     public static int LAME_MIN = 0;
     public static int LAME_MAX = 100;
+    public static int MEH_MIN = 0;
+    public static int MEH_MAX = 100;
     public static int OK_MIN = 0;
     public static int OK_MAX = 100;
     public static int GOOD_MIN = 0;
@@ -75,7 +75,7 @@ public class XDictConfig {
     public static int EXCELLENT_MAX = 100;
 
 
-    public enum RATINGS { KILL, TERRIBLE, POOR, LAME, OK, GOOD, EXCELLENT, MANUAL, RESEARCH, SKIP }
+    public enum RATINGS {NOPE, POOR, LAME, MEH, OK, GOOD, EXCELLENT, MANUAL, RESEARCH, SKIP }
 
     static final String configFileName = "config.txt";
     static final String origConfigFileName = "config.orig";
@@ -209,26 +209,6 @@ public class XDictConfig {
             System.out.print("App Height: ");
             APP_HEIGHT = parsePixels(value);
             System.out.println(APP_HEIGHT);
-        } else if (key.equals("TERRIBLE")) {
-            System.out.print("TERRIBLE: ");
-            TERRIBLE = parseRating(value);
-            System.out.println(TERRIBLE);
-        } else if (key.equals("TERRIBLE_3")) {
-            System.out.print("TERRIBLE_3: ");
-            TERRIBLE_3 = parseRating(value);
-            System.out.println(TERRIBLE_3);
-        } else if (key.equals("TERRIBLE_4")) {
-            System.out.print("TERRIBLE_4: ");
-            TERRIBLE_4 = parseRating(value);
-            System.out.println(TERRIBLE_4);
-        } else if (key.equals("TERRIBLE_5")) {
-            System.out.print("TERRIBLE_5: ");
-            TERRIBLE_5 = parseRating(value);
-            System.out.println(TERRIBLE_5);
-        } else if (key.equals("TERRIBLE_6")) {
-            System.out.print("TERRIBLE_6: ");
-            TERRIBLE_6 = parseRating(value);
-            System.out.println(TERRIBLE_6);
         } else if (key.equals("POOR")) {
             System.out.print("POOR: ");
             POOR = parseRating(value);
@@ -269,6 +249,26 @@ public class XDictConfig {
             System.out.print("LAME_6: ");
             LAME_6 = parseRating(value);
             System.out.println(LAME_6);
+        } else if (key.equals("MEH")) {
+            System.out.print("MEH: ");
+            MEH = parseRating(value);
+            System.out.println(MEH);
+        } else if (key.equals("MEH_3")) {
+            System.out.print("MEH_3: ");
+            MEH_3 = parseRating(value);
+            System.out.println(MEH_3);
+        } else if (key.equals("MEH_4")) {
+            System.out.print("MEH_4: ");
+            MEH_4 = parseRating(value);
+            System.out.println(MEH_4);
+        } else if (key.equals("MEH_5")) {
+            System.out.print("MEH_5: ");
+            MEH_5 = parseRating(value);
+            System.out.println(MEH_5);
+        } else if (key.equals("MEH_6")) {
+            System.out.print("MEH_6: ");
+            MEH_6 = parseRating(value);
+            System.out.println(MEH_6);
         } else if (key.equals("OK")) {
             System.out.print("OK: ");
             OK = parseRating(value);
@@ -375,17 +375,17 @@ public class XDictConfig {
     public static String getRateButtonName(RATINGS r) {
         String name = "";
         switch (r) {
-            case KILL:
-                name = "Kill";
-                break;
-            case TERRIBLE:
-                name = "Terrible";
+            case NOPE:
+                name = "Nope";
                 break;
             case POOR:
                 name = "Poor";
                 break;
             case LAME:
                 name = "Lame";
+                break;
+            case MEH:
+                name = "Meh";
                 break;
             case OK:
                 name = "Ok";
@@ -415,33 +415,8 @@ public class XDictConfig {
         int value = 0;
 
         switch (r) {
-            case KILL:
-                desc = "Not a word. Kill it. (0)";
-                break;
-            case TERRIBLE:
-                if (wordLength == -1) {
-                    desc = "You're joking, right? (" + TERRIBLE_MIN + (TERRIBLE_MIN != TERRIBLE_MAX ? "-" + TERRIBLE_MAX : "") + ")";
-                }
-                else {
-                    switch (wordLength) {
-                        case 3:
-                            value = TERRIBLE_3;
-                            break;
-                        case 4:
-                            value = TERRIBLE_4;
-                            break;
-                        case 5:
-                            value = TERRIBLE_5;
-                            break;
-                        case 6:
-                            value = TERRIBLE_6;
-                            break;
-                        default:
-                            value = TERRIBLE;
-                            break;
-                    }
-                    desc = "You're joking, right? (" + value + ")";
-                }
+            case NOPE:
+                desc = "Not in MY list, thank you! (0)";
                 break;
             case POOR:
                 if (wordLength == -1) {
@@ -491,9 +466,34 @@ public class XDictConfig {
                     desc = "Not crazy about it. (" + value + ")";
                 }
                 break;
+            case MEH:
+                if (wordLength == -1) {
+                    desc = "Below average or slightly flawed (" + MEH_MIN + (MEH_MIN != MEH_MAX ? "-" + MEH_MAX : "") + ")";
+                }
+                else {
+                    switch (wordLength) {
+                        case 3:
+                            value = MEH_3;
+                            break;
+                        case 4:
+                            value = MEH_4;
+                            break;
+                        case 5:
+                            value = MEH_5;
+                            break;
+                        case 6:
+                            value = MEH_6;
+                            break;
+                        default:
+                            value = MEH;
+                            break;
+                    }
+                    desc = "Below average or slightly flawed (" + value + ")";
+                }
+                break;
             case OK:
                 if (wordLength == -1) {
-                    desc = "Nothing wrong with it. (" + OK_MIN + (OK_MIN != OK_MAX ? "-" + OK_MAX : "") + ")";
+                    desc = "It's a word. Nothing wrong with it. (" + OK_MIN + (OK_MIN != OK_MAX ? "-" + OK_MAX : "") + ")";
                 } else {
                     switch (wordLength) {
                         case 3:
@@ -512,7 +512,7 @@ public class XDictConfig {
                             value = OK;
                             break;
                     }
-                    desc = "Nothing wrong with it. (" + value + ")";
+                    desc = "It's a word. Nothing wrong with it. (" + value + ")";
                 }
                 break;
             case GOOD:
@@ -541,7 +541,7 @@ public class XDictConfig {
                 break;
             case EXCELLENT:
                 if (wordLength == -1) {
-                    desc = "Now that's what I'm talking about. (" + EXCELLENT_MIN + (EXCELLENT_MIN != EXCELLENT_MAX ? "-" + EXCELLENT_MAX : "") + ")";
+                    desc = "Now that's what I'm talking about! (" + EXCELLENT_MIN + (EXCELLENT_MIN != EXCELLENT_MAX ? "-" + EXCELLENT_MAX : "") + ")";
                 } else {
                     switch (wordLength) {
                         case 3:
@@ -560,7 +560,7 @@ public class XDictConfig {
                             value = EXCELLENT;
                             break;
                     }
-                    desc = "Now that's what I'm talking about. (" + value + ")";
+                    desc = "Now that's what I'm talking about! (" + value + ")";
                 }
                 break;
             case MANUAL:
@@ -633,6 +633,24 @@ public class XDictConfig {
                     rat = XDictConfig.OK;
                     break;
             }
+        } else if (r == XDictConfig.RATINGS.MEH) {
+            switch (wordLength) {
+                case 3:
+                    rat = XDictConfig.MEH_3;
+                    break;
+                case 4:
+                    rat = XDictConfig.MEH_4;
+                    break;
+                case 5:
+                    rat = XDictConfig.MEH_5;
+                    break;
+                case 6:
+                    rat = XDictConfig.MEH_6;
+                    break;
+                default:
+                    rat = XDictConfig.MEH;
+                    break;
+            }
         } else if (r == XDictConfig.RATINGS.LAME) {
             switch (wordLength) {
                 case 3:
@@ -669,36 +687,14 @@ public class XDictConfig {
                     rat = XDictConfig.POOR;
                     break;
             }
-        } else if (r == XDictConfig.RATINGS.TERRIBLE) {
-            switch (wordLength) {
-                case 3:
-                    rat = XDictConfig.TERRIBLE_3;
-                    break;
-                case 4:
-                    rat = XDictConfig.TERRIBLE_4;
-                    break;
-                case 5:
-                    rat = XDictConfig.TERRIBLE_5;
-                    break;
-                case 6:
-                    rat = XDictConfig.TERRIBLE_6;
-                    break;
-                default:
-                    rat = XDictConfig.TERRIBLE;
-                    break;
-            }
-        } else if (r == XDictConfig.RATINGS.KILL) {
-            rat = XDictConfig.KILL;
+        } else if (r == XDictConfig.RATINGS.NOPE) {
+            rat = XDictConfig.NOPE;
         }
 
         return rat;
     }
 
     public static void setNonconfiguredRatingValues() {
-        if (TERRIBLE_3 < 0) TERRIBLE_3 = TERRIBLE;
-        if (TERRIBLE_4 < 0) TERRIBLE_4 = TERRIBLE;
-        if (TERRIBLE_5 < 0) TERRIBLE_5 = TERRIBLE;
-        if (TERRIBLE_6 < 0) TERRIBLE_6 = TERRIBLE;
         if (POOR_3 < 0) POOR_3 = POOR;
         if (POOR_4 < 0) POOR_4 = POOR;
         if (POOR_5 < 0) POOR_5 = POOR;
@@ -707,6 +703,10 @@ public class XDictConfig {
         if (LAME_4 < 0) LAME_4 = LAME;
         if (LAME_5 < 0) LAME_5 = LAME;
         if (LAME_6 < 0) LAME_6 = LAME;
+        if (MEH_3 < 0) MEH_3 = MEH;
+        if (MEH_4 < 0) MEH_4 = MEH;
+        if (MEH_5 < 0) MEH_5 = MEH;
+        if (MEH_6 < 0) MEH_6 = MEH;
         if (OK_3 < 0) OK_3 = OK;
         if (OK_4 < 0) OK_4 = OK;
         if (OK_5 < 0) OK_5 = OK;
@@ -720,12 +720,12 @@ public class XDictConfig {
         if (EXCELLENT_5 < 0) EXCELLENT_5 = EXCELLENT;
         if (EXCELLENT_6 < 0) EXCELLENT_6 = EXCELLENT;
 
-        TERRIBLE_MIN = min5(TERRIBLE, TERRIBLE_3, TERRIBLE_4, TERRIBLE_5, TERRIBLE_6);
-        TERRIBLE_MAX = max5(TERRIBLE, TERRIBLE_3, TERRIBLE_4, TERRIBLE_5, TERRIBLE_6);
         POOR_MIN = min5(POOR, POOR_3, POOR_4, POOR_5, POOR_6);
         POOR_MAX = max5(POOR, POOR_3, POOR_4, POOR_5, POOR_6);
         LAME_MIN = min5(LAME, LAME_3, LAME_4, LAME_5, LAME_6);
         LAME_MAX = max5(LAME, LAME_3, LAME_4, LAME_5, LAME_6);
+        MEH_MIN = min5(MEH, MEH_3, MEH_4, MEH_5, MEH_6);
+        MEH_MAX = max5(MEH, MEH_3, MEH_4, MEH_5, MEH_6);
         OK_MIN = min5(OK, OK_3, OK_4, OK_5, OK_6);
         OK_MAX = max5(OK, OK_3, OK_4, OK_5, OK_6);
         GOOD_MIN = min5(GOOD, GOOD_3, GOOD_4, GOOD_5, GOOD_6);

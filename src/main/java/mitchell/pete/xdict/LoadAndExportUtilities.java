@@ -57,6 +57,7 @@ public class LoadAndExportUtilities {
         boolean usedAny = false;
         boolean usedNYT = false;
         boolean needsResearch = false;
+        boolean rankedList = false;
         boolean manuallyRated = false;
         Timestamp timestamp = null;
         String comment = "";
@@ -80,6 +81,10 @@ public class LoadAndExportUtilities {
         }
         if (st.hasMoreTokens()) {
             Byte b = Byte.valueOf(st.nextToken());
+            rankedList = (b == 1);
+        }
+        if (st.hasMoreTokens()) {
+            Byte b = Byte.valueOf(st.nextToken());
             manuallyRated = (b == 1);
         }
         if (st.hasMoreTokens()) {
@@ -92,7 +97,7 @@ public class LoadAndExportUtilities {
             else
                 comment = token.substring(1,token.length() - 1);
         }
-        Word w = new Word.Builder(entry).rating(rating).usedAny(usedAny).usedNYT(usedNYT).needsResearch(needsResearch).manuallyRated(manuallyRated).lastModified(timestamp).comment(comment).build();
+        Word w = new Word.Builder(entry).rating(rating).usedAny(usedAny).usedNYT(usedNYT).needsResearch(needsResearch).rankedList(rankedList).manuallyRated(manuallyRated).lastModified(timestamp).comment(comment).build();
 
         return w;
     }

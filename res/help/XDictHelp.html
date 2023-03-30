@@ -205,6 +205,10 @@
             <dd>rating value to assign a word that you consider "ok", unless overridden as below
           <dt>OK_3, OK_4, OK_5, OK_6:
             <dd>optional override values for "ok" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
+          <dt>MEH:
+            <dd>rating value to assign a word that you consider "meh", unless overridden as below
+          <dt>MEH_3, MEH_4, MEH_5, MEH_6:
+            <dd>optional override values for "meh" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
           <dt>LAME:
             <dd>rating value to assign a word that you consider "lame", unless overridden as below
           <dt>LAME_3, LAME_4, LAME_5, LAME_6:
@@ -213,10 +217,6 @@
             <dd>rating value to assign a word that you consider "poor", unless overridden as below
           <dt>POOR_3, POOR_4, POOR_5, POOR_6:
             <dd>optional override values for "poor" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
-          <dt>TERRIBLE:
-            <dd>rating value to assign a word that you consider "terrible", unless overridden as below
-          <dt>TERRIBLE_3, TERRIBLE_4, TERRIBLE_5, TERRIBLE_6:
-            <dd>optional override values for "terrible" 3-, 4-, 5-, and 6-letter words...(see <a href="#ratingoverview">Rating Overview and Theory</a>)
         </dl>
         <p>
         See comments in config.txt for more details on certain config parameters.
@@ -516,14 +516,18 @@
           <li><b>Excellent:</b> These are marquee entries that you would go out of your way to use.
           <li><b>Good:</b> These are solid words and phrases that you would be happy to use.
           <li><b>OK:</b> These are common words and phrases that may lack pizzazz, but there's nothing wrong with them.
+          <li><b>Meh:</b> These are below-average or slightly-flawed words or phrases that are okay,
+            but not preferred. This might include certain plurals or gerunds, common abbreviations,
+            common foreign words, common fill-the-blanks, or decent words that are severely limited in how they can be clued.
           <li><b>Lame:</b> These are words and phrases that you know you'll need, but want to minimize. I include
-            most abbreviations, foreign words, and fill-in-the-blank partials in this category.
-          <li><b>Poor:</b> These are obscure entries that you would normally avoid, but could resort to in a pinch.
-          <li><b>Terrible:</b> These are actual words or phrases that you would probably never want to use.
-            I include super-scientific terms, obscure variations, and profanity in this category.
-          <li><b>Kill:</b> This is used for non-words.  Sometimes a sequence of letters shows up in a
-            word list from a rebus, a backwards entry, or some other quirky puzzle that was not filtered out.
-            Killing it gives it a 0 value.
+            many abbreviations, foreign words, fill-in-the-blank partials, and proper names that
+            require specific/trivial knowledge, are of another generation, and/or would be difficult to
+            deduce without very clear crossings.
+          <li><b>Poor:</b> These are obscure entries that you would normally avoid, but might resort to in a pinch.
+          <li><b>Nope:</b> This is used for non-words or words you have no intention of ever using.
+            Sometimes a sequence of letters shows up in a word list from a rebus, a backwards entry, or
+            some other quirky puzzle that was not filtered out. This can also be used to remove profanity,
+            overly-scientific, obscure variations, etc.  This will assign the word a value of 0.
         </ul><p>
         <sup>*</sup>The rating values can vary by word length; see below. You can also rate a word manually,
         if you need more granularity for a given word.
